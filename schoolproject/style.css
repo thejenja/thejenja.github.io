@@ -1,0 +1,27 @@
+*{
+	font-family: sans-serif;
+}
+input[type=text] {
+	padding: 10px;
+	border-radius: 15px;
+}
+input[type=submit] {
+	appearance: none;
+	-webkit-appearance: none;
+	
+	padding: 10px;
+	border: none;
+	background-color: #000000;
+	color: #fff;
+	border-radius: 15px;
+}
+input[type=button] {
+	appearance: none;
+	-webkit-appearance: none;
+	
+	padding: 10px;
+	border: none;
+	background-color: #00CC33;
+	color: #fff;
+	border-radius: 15px;
+}
