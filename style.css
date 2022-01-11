@@ -4,8 +4,18 @@ html{ font-family: 'Inter', sans-serif; }
 body{
     margin: 0;
     background-color: #485461;
-    background-image: linear-gradient(315deg, #485461 0%, #28313b 74%);
     color: #ffffff;
+}
+.gradient {
+  background: linear-gradient(315deg, #485461 0%, #28313b 74%);
+  animation: gradient 15s infinite linear;
+  background-size: 150%;
+}
+
+@keyframes gradient {
+  0% {background-position: 80% 0%;}
+  50% {background-position: 20% 100%;}
+  100% {background-position: 80% 0%;}
 }
 .centered{
     display: flex;
@@ -15,17 +25,26 @@ body{
 }
 .content{
 	display: flex;
-    flex-flow: column;
-    justify-content: space-around;
-    max-width: 480px;
-    margin: auto;
-    text-align: center;
-    padding: 10px;
+  flex-flow: column;
+  justify-content: space-around;
+  max-width: 480px;
+  margin: auto;
+  text-align: center;
+  padding: 10px;
+  opacity:0;
+  transition: 1s; 
+  animation: show 1s 1; 
+  animation-fill-mode: forwards; 
+  animation-delay: .8s; 
 }
+@keyframes show{
+  0%{opacity:0;}
+  100% {opacity:1;}
+  }
 .social {
   text-decoration: none;
   display: inline-block;
-  width: 100px;
+  width: 95px;
   height: 35px;
   line-height: 35px;
   border-radius: 35px;
@@ -46,30 +65,28 @@ body{
 #vk:hover {
   background: #0077FF;
   box-shadow: 0 0px 20px rgba(0, 119, 255, .4);
-  color: #FFFFFF;
 }
 #yt:hover {
   background: #FF0000;
   box-shadow: 0 0px 20px rgba(255, 0, 0, .4);
-  color: #FFFFFF;
 }
 #tt:hover {
   background: #000000;
   box-shadow: 0 0px 20px rgba(0, 0, 0, .4);
-  color: #FFFFFF;
 }
 #ovk:hover {
   background: #3e4a57;
   box-shadow: 0 0px 20px rgba(62, 74, 87, .4);
-  color: #FFFFFF;
 }
 #gh:hover {
   background: #333;
   box-shadow: 0 0px 20px rgba(51, 51, 51, .4);
-  color: #FFFFFF;
+}
+#tg:hover {
+  background: #0088CC;
+  box-shadow: 0 0px 20px rgba(0, 136, 204, .4);
 }
 #fourpda:hover {
   background: #0072bc;
   box-shadow: 0 0px 20px rgba(0, 114, 188, .4);
-  color: #FFFFFF;
 }
