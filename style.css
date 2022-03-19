@@ -98,12 +98,12 @@ ul {
     transition: .5s;
 }
 .social:hover{
-    background: rgba(100, 100, 100, 0.5);
+    background: rgba(0, 0, 0, 0.5);
     color: #FFF;
 }
 .project{
   color: #FFF;
-  background-color: rgba(100, 100, 100, 0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   padding: 5px;
   border-radius: 25px;
 }
