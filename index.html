@@ -1,27 +1,41 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>thejenja_</title>
-	<link rel="stylesheet" type="text/css" media='screen' href="style.css">
-	<link rel="icon" href="icon.png">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>thejenja_</title>
+    <link rel="stylesheet" type="text/css" media='screen' href="style.css">
+    <link rel="icon" href="iconw.png">
 </head>
 <body class="gradient">
-	<div class="centered">
-		<div class="content">
-			<h1>Привет! 👋</h1>
-			<p>Меня зовут <b>thejenja</b> и я челик из Оренбургской области. Не знаю зачем я сделал этот сайт, но пусть будет. <br><br>Вот ссылки на мои профили:</p>
-			<div class="socialarea">
-				<a href="https://vk.com/thejenja" class="social" id="vk" target="_blank">VK</a>
-				<a href="https://www.youtube.com/channel/UCFWXqFyLd9AXDCVZ9rI4gVg" class="social" id="yt" target="_blank">YouTube</a>
-				<a href="https://www.tiktok.com/@thejenja_" class="social" id="tt" target="_blank">TikTok</a>
-				<a href="https://openvk.su/thejenja" class="social" id="ovk" target="_blank">OpenVK</a>
-				<a href="https://github.com/thejenja" class="social" id="gh" target="_blank">GitHub</a>
-				<a href="https://t.me/ladnoprohladna" class="social" id="tg" target="_blank">Telegram</a>
-				<a href="https://4pda.to/forum/index.php?showuser=8200414" class="social" id="fourpda" target="_blank">4PDA</a></div>
-			</div>
-		</div>
-	</div>
+    <header><div class="logo">thejenja_</div><ul>
+        <li><a href="">Главная</a></li>
+        <li><a href="#projects">Проекты</a></li>
+        <li><a href="#about">Обо мне</a></li>
+        <li><a href="#social">Ссылки</a></li>
+        </ul></header>
+        <center>    
+    <content>
+        <div id="projects">
+            <div class="project"><h2>VK Night Fix</h2><h5>тема для OpenVK, которая исправляющая баги интерфейса, с некоторыми нововедениями</h5><a href="https://github.com/thejenja/ovkdarkfix">GitHub</a><a href="https://codeberg.org/thejenja/ovkdarkfix">Codeberg</a></div><br>
+            <div class="project"><h2>OpenVK Mobile Dark</h2><h5>тема для OpenVK, которая окрашивает мобильную версию в тёмные цвета</h5><a href="https://github.com/thejenja/mobvkdark">GitHub</a><a href="https://codeberg.org/thejenja/mobvkdark">Codeberg</a></div></div>
+        <div id="about"><p>Меня зовут <b>thejenja_</b>, мне <span id="age"></span> лет. <br>Я начинающий прогер из Оренбургской области. <h4>👨🏻‍💻 Пишу сайты</h4><h4>🎦 Монтирую видео</h4><h5>🎶 ну и с музыкой что-то делаю...</h5></div>
+        <div id="social">
+            <a href="https://vk.com/thejenja" class="social" target="_blank">VK</a>
+            <a href="https://www.youtube.com/channel/UCFWXqFyLd9AXDCVZ9rI4gVg" class="social" target="_blank">YouTube</a>
+            <a href="https://www.tiktok.com/@thejenja_" class="social" target="_blank">TikTok</a>
+            <a href="https://openvk.su/thejenja" class="social" target="_blank">OpenVK</a>
+            <a href="https://github.com/thejenja" class="social" target="_blank">GitHub</a>
+            <a href="https://codeberg.org/thejenja" class="social" target="_blank">Codeberg</a>
+            <a href="https://t.me/ladnoprohladna" class="social" target="_blank">Telegram</a>
+            <a href="https://4pda.to/forum/index.php?showuser=8200414" class="social" target="_blank">4PDA</a></div>
+            <div id="main"><h1>Добро пожаловать!</h1>Да-да, это мой сайт. Потыкай по кнопкам сверху, вдруг что-то новое узнаешь)</div></content></center>
+            <script>
+                let today = new Date();
+                let bday = new Date('31 August 2006');
+                let years = today - bday;
+                document.getElementById("age").innerHTML = new Date(years).getFullYear() - 1970;
+            </script>
 </body>
 </html>
