@@ -62,7 +62,6 @@ ul {
   }
   a:hover {
     background: rgba(255, 255, 255, 20%);
-    font-weight: bolder;
     border-radius: 50px;
   }
   li {
