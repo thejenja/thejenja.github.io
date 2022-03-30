@@ -1,7 +1,7 @@
 @import url('https://rsms.me/inter/inter.css');
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
 
-html{ font-family: 'Inter', sans-serif; }
+html{ font-family: 'Inter', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;}
 .logo{
   font-family: 'Dela Gothic One', cursive;
   color: #fff;
@@ -87,7 +87,7 @@ ul {
     text-decoration: none;
     width: 105px;
     border-radius: 35px;
-    margin: 10px 10px;
+    margin: 10px;
     font-size: 16px;
     text-align: center;
     font-weight: 700;
@@ -103,28 +103,13 @@ ul {
 .project{
   color: #FFF;
   background-color: rgba(0, 0, 0, 0.5);
-  padding: 5px;
+  padding: 15px;
   border-radius: 25px;
 }
-#projects{
+#projects, #about, #social{
   display: none;
 }
-#projects:target{
-  display: block;
-}
-#about{
-  display: none;
-}
-#about:target{
-  display: block;
-}
-#main{
-  display: block;
-}
-#social{
-  display: none;
-}
-#social:target{
+#projects:target, #about:target, #social:target, #main{
   display: block;
 }
 #about:target ~ #main, #social:target ~ #main, #projects:target ~ #main{
@@ -135,13 +120,15 @@ ul {
     display: flex;
     align-items: normal;
   }
-    a{
-      margin: auto;
-      padding: auto; 
+    a{ 
       line-height: 35px;
-      display:block;
     }
     .logo{
       display: none;
+    }
+    a:hover {
+      background: none;
+      font-weight: none;
+      border-radius: none;
     }
 }
