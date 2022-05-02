@@ -2,11 +2,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
 
 html{ font-family: 'Inter', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;}
+.material-symbols-rounded{
+  margin: 6px 10px 6px 0px;
+    vertical-align: -6px;
+  }
 .logo{
-  font-family: 'Dela Gothic One', cursive;
-  color: #fff;
   margin: 5px;
-  padding: 5px 10px 5px 10px;
+  padding: 10px 10px 5px 10px;
   transition: .5s;
 }
 .logo:hover{
@@ -28,7 +30,8 @@ content, #about, #social, #projects{
   transition: 1s; 
   animation: show 1s 1; 
   animation-fill-mode: forwards; 
-  animation-delay: .8s; 
+  animation-timing-function: ease;
+  animation-delay: .3s; 
 }
 @keyframes show{
   0%{opacity:0;}
@@ -42,6 +45,7 @@ header{
     position: absolute;
     display: flex;
     align-items: center;
+    z-index: 1;
 }
 ul {
     list-style: none;
@@ -115,20 +119,37 @@ ul {
 #about:target ~ #main, #social:target ~ #main, #projects:target ~ #main{
   display: none;
 }
-@media (max-width: 500px) {
+.link{
+  display: inline-block;
+  width: 25%;
+}
+@media (max-width: 650px) {
+  ul{
+    width: 98%;
+  }
+  li{
+    width: 25%;
+  }
+  .material-symbols-rounded{
+
+    display: flex !important;
+    padding: 5px;
+    margin: 5px !important;
+    vertical-align: -6px;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    }
   header{
     display: flex;
-    align-items: normal;
+    align-items: center;
+    align-content: center;
+    justify-content: center;
+    flex-wrap: nowrap;
+    width: 100%;
   }
-    a{ 
-      line-height: 35px;
-    }
-    .logo{
+    .logo, .name-tabs{
       display: none;
-    }
-    a:hover {
-      background: none;
-      font-weight: none;
-      border-radius: none;
     }
 }
