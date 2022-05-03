@@ -1,5 +1,4 @@
 @import url('https://rsms.me/inter/inter.css');
-@import url('https://fonts.googleapis.com/css2?family=Dela+Gothic+One&display=swap');
 
 html{ font-family: 'Inter', sans-serif; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none;}
 .material-symbols-rounded{
@@ -10,6 +9,14 @@ html{ font-family: 'Inter', sans-serif; -webkit-user-select: none; -moz-user-sel
   margin: 5px;
   padding: 10px 10px 5px 10px;
   transition: .5s;
+}
+.mainLogo{
+  display: none;
+}
+.img-btn{
+  margin: 6px 10px 6px 0px;
+  vertical-align: -12px;
+  height: 25px;
 }
 .logo:hover{
     background: rgba(255, 255, 255, 20%);
@@ -33,6 +40,12 @@ content, #about, #social, #projects{
   animation-timing-function: ease;
   animation-delay: .3s; 
 }
+/*footer{
+  position: fixed;
+    bottom: 0;
+    width: 100%;
+    margin: 20px;
+}*/
 @keyframes show{
   0%{opacity:0;}
   100% {opacity:1;}
@@ -130,26 +143,35 @@ ul {
   li{
     width: 25%;
   }
-  .material-symbols-rounded{
-
+  .img-btn{
     display: flex !important;
     padding: 5px;
-    margin: 5px !important;
+    margin: auto !important;
     vertical-align: -6px;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-    flex-wrap: nowrap;
     }
   header{
+    opacity: .5;
+    border-radius: 50px;
+    background-color: rgba(0, 0, 0, 0.3);
+    float: none;
     display: flex;
-    align-items: center;
-    align-content: center;
-    justify-content: center;
-    flex-wrap: nowrap;
-    width: 100%;
+    width: calc(100% - 40px);
+    position: fixed;
+    bottom: 0;
+    padding: 10px;
+    transition: .5s;
   }
-    .logo, .name-tabs{
+  header:hover{
+    background-color: rgba(0, 0, 0, 0.4);
+    opacity: 1;
+  }
+    .name-tabs, footer{
       display: none;
     }
-}
+    .logo{
+      display: none;
+    }
+    .mainLogo{
+      display: inline-block;
+    }
+  }
