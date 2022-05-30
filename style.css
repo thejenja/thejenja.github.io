@@ -176,15 +176,16 @@ content {
 	transition: .3s;
 }
 .social:hover > .socialLogo {opacity: 1;}
-#vk:hover{background: #0077FF;}
-#youtube:hover{background: #FF0000;}
-#tiktok:hover{background: #000000;}
-#openvk:hover{background: #3e4a57;}
-#github:hover{background: #181717;}
-#codeberg:hover{background: #2185D0;}
-#telegram:hover{background: #26A5E4;}
-#genius:hover{background: #FFFF64;}
-#pda:hover{background: #0072bc;}
+#vk:hover{background: #0077FF; box-shadow: 0 0px 20px rgba(0, 119, 255, .4);}
+#youtube:hover{background: #FF0000; box-shadow: 0 0px 20px rgba(255, 0, 0, .4);}
+#tiktok:hover{background: #000000; box-shadow: 0 0px 20px rgba(0, 0, 0, .4);}
+#openvk:hover{background: #3e4a57; box-shadow: 0 0px 20px rgba(62, 74, 87, .4);}
+#github:hover{background: #181717; box-shadow: 0 0px 20px rgba(24, 23, 23, .4);}
+#codeberg:hover{background: #2185D0; box-shadow: 0 0px 20px rgba(33, 133, 208, .4);}
+#telegram:hover{background: #26A5E4; box-shadow: 0 0px 20px rgba(38, 165, 228, .4);}
+#genius:hover{background: #FFFF64; color: #000; box-shadow: 0 0px 20px rgba(255, 255, 100, .4);}
+#genius:hover > .socialLogo{filter: invert(0);}
+#pda:hover{background: #0072bc; box-shadow: 0 0px 20px rgba(0, 114, 188, .4);}
 @media (max-width: 650px) {
 	ul {width: 98%;}
 	li {width: 25%;}
