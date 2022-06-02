@@ -94,7 +94,7 @@ body {
 }
 header {
 	margin: 10px;
-	position: absolute;
+	position: absolute !important;
 	display: flex;
 	align-items: center;
 	z-index: 1;
@@ -203,7 +203,7 @@ content {
 		display: flex;
 		justify-content: space-around;
 		width: calc(100% - 40px);
-		position: fixed;
+		position: fixed !important;
 		bottom: 0;
 		padding: 10px;
 		transition: 0.5s;
