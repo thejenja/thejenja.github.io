@@ -32,7 +32,7 @@ content {
 	display: flex;
 	justify-content: space-around;
 	padding: 10px;}
-.social {
+.btn {
 	display: inline-block;
 	text-decoration: none;
 	border-radius: 15px;
@@ -40,15 +40,15 @@ content {
 	background: rgba(255, 255, 255, 25%);
 	box-shadow: 0 8px 15px rgba(255, 255, 255, 0.1);
 	transition: 0.5s;}
-.social:hover {background: rgba(0, 0, 0, 0.5);}
-.social>.socialLogo {
+.btn:hover {background: rgba(0, 0, 0, 0.5);}
+.btn>.btnLogo {
 	opacity: .5;
 	filter: invert();
 	vertical-align: -15px;
 	transition: .3s;
 	height: 25px !important;
 	padding: 15px;}
-.social:hover>.socialLogo {opacity: 1;}
+.btn:hover>.btnLogo {opacity: 1;}
 #vk:hover {background: #0077FF;}
 #youtube:hover {background: #FF0000;}
 #tiktok:hover {background: #000000;}
@@ -56,3 +56,4 @@ content {
 #github:hover {background: #181717;}
 #codeberg:hover {background: #2185D0;}
 #pda:hover {background: #0072bc;}
+#yoomoney:hover {background: #8b3ffd;}
