@@ -1,15 +1,26 @@
-@import url("https://rsms.me/inter/inter.css");
 body {
 	font-family: 'Inter';
 	user-select: none;
 	margin: 0px;}
+@font-face {
+	font-family: 'Inter';
+	font-style:  normal;
+	font-weight: 400;
+	font-display: swap;
+	src: url("fonts/Inter-Regular.woff2") format("woff2");}
+@font-face {
+	font-family: 'Inter';
+	font-style:  normal;
+	font-weight: 700;
+	font-display: swap;
+	src: url("fonts/Inter-Bold.woff2") format("woff2");}
 .logo {
 	margin: 5px;
 	padding: 10px 10px 5px 10px;
 	transition: 0.5s;
 	border-radius: 15px;}
-.logo:hover {background: rgba(255, 255, 255, 20%);}
-.gradient {background-image: linear-gradient(to right top,#7ed2ff,#99ceff,#b3c9ff,#cbc5fc,#dfc1f2,#e3b5e6,#e6aad7,#e99ec7,#e286b0,#db6e97,#d2547d,#c73961);}
+.logo:hover {background: rgba(255, 255, 255, 20%)}
+.gradient {background-image: linear-gradient(to right top,#7ed2ff,#99ceff,#b3c9ff,#cbc5fc,#dfc1f2,#e3b5e6,#e6aad7,#e99ec7,#e286b0,#db6e97,#d2547d,#c73961)}
 .gradient {
 	opacity: 0;
 	transition: 1s;
@@ -17,7 +28,7 @@ body {
 	animation-fill-mode: forwards;
 	animation-timing-function: ease;
 	animation-delay: 0.3s;}
-@keyframes show {0% {opacity: 0;}100% {opacity: 1;}}
+@keyframes show {0% {opacity: 0}100% {opacity: 1}}
 header {
 	margin: 10px;
 	position: absolute;
@@ -40,7 +51,7 @@ content {
 	background: rgba(255, 255, 255, 25%);
 	box-shadow: 0 8px 15px rgba(255, 255, 255, 0.1);
 	transition: 0.5s;}
-.btn:hover {background: rgba(0, 0, 0, 0.5);}
+.btn:hover {background: rgba(0, 0, 0, 0.5)}
 .btn>.btnLogo {
 	opacity: .5;
 	filter: invert();
@@ -48,12 +59,12 @@ content {
 	transition: .3s;
 	height: 25px !important;
 	padding: 15px;}
-.btn:hover>.btnLogo {opacity: 1;}
-#vk:hover {background: #0077FF;}
-#youtube:hover {background: #FF0000;}
-#tiktok:hover {background: #000000;}
-#openvk:hover {background: #3e4a57;}
-#github:hover {background: #181717;}
-#codeberg:hover {background: #2185D0;}
-#pda:hover {background: #0072bc;}
-#yoomoney:hover {background: #8b3ffd;}
+.btn:hover>.btnLogo {opacity: 1}
+#vk:hover {background: #0077FF}
+#youtube:hover {background: #FF0000}
+#tiktok:hover {background: #000000}
+#openvk:hover {background: #3e4a57}
+#github:hover {background: #181717}
+#codeberg:hover {background: #2185D0}
+#pda:hover {background: #0072bc}
+#yoomoney:hover {background: #8b3ffd}

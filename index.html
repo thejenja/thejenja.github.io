@@ -1,16 +1,18 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
+    <meta name="theme-color" content="#7ed2ff">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Сайт со всеми ссылками и маленькой информации о thejenja_">
     <title>thejenja_</title>
     <link rel="stylesheet" type="text/css" media='screen' href="style.css">
     <link rel="icon" href="icon.png">
 </head>
 <body class="gradient">
-    <header><div class="logo"><img height=18px src="logo.svg"></div></header>
-        <center><content><div><h1>Привет</h1><p>Меня зовут <b>Евгений</b> и мне <span id="age"></span> лет. <br>Сейчас живу в Оренбургской области.</p><h4>👨🏻‍💻 Пишу сайты</h4><h4>🎦 Монтирую видео</h4><h5>🎶 ну и с музыкой что-то делаю...</h5>
+    <header><div class="logo" onclick="alert('Здесь планировалась кнопка, но я что-то передумал...')"><img height=18px src="logo.svg" alt="thejenja_"></div></header>
+        <center><content><div><h1>Привет</h1><p>Меня зовут <b>Евгений</b>, мне <span id="age"></span> лет.</p><h4>👨🏻‍💻 Пишу сайты 🎦 Делаю видео</h4><h5>🎶 ну и музыкой занимаюсь...</h5>
                 <a href="https://vk.com/thejenja" class="btn" target="_blank" id="vk"><img src="svg/vk.svg" class="btnLogo" title="VK"></a>
                 <a href="https://www.youtube.com/channel/UCFWXqFyLd9AXDCVZ9rI4gVg" class="btn" target="_blank" id="youtube"><img src="svg/youtube.svg" class="btnLogo" title="YouTube"></a>
                 <a href="https://www.tiktok.com/@thejenja_" class="btn" target="_blank" id="tiktok"><img src="svg/tiktok.svg" class="btnLogo" title="TikTok"></a>
@@ -19,11 +21,6 @@
                 <a href="https://codeberg.org/thejenja" class="btn" target="_blank" id="codeberg"><img src="svg/codeberg.svg" class="btnLogo" title="Codeberg"></a>
                 <a href="https://4pda.to/forum/index.php?showuser=8200414" class="btn" target="_blank" id="pda"><img src="svg/4pda.svg" class="btnLogo" title="4PDA"></a>
                 <p>Также вы можете задонатить</p><a href="https://yoomoney.ru/to/410019209648036" class="btn" target="_blank" id="yoomoney"><img src="svg/yoomoney.svg" class="btnLogo" title="YooMoney"></a></content></center>
-            <script>
-                let today = new Date();
-                let bday = new Date('31 August 2006');
-                let years = today - bday;
-                document.getElementById("age").innerHTML = new Date(years).getFullYear() - 1970;
-            </script>
+            <script>let today=new Date,bday=new Date("31 August 2006"),years=today-bday;document.getElementById("age").innerHTML=new Date(years).getFullYear()-1970</script>
 </body>
 </html>
