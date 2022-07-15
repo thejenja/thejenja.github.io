@@ -14,13 +14,16 @@ body {
 	font-weight: 700;
 	font-display: swap;
 	src: url("fonts/Inter-Bold.woff2") format("woff2");}
+p, h1, h4, h5{
+	color: rgba(255, 255, 255, 0.8);
+}
 .logo {
 	margin: 5px;
 	padding: 10px 10px 5px 10px;
 	transition: 0.5s;
 	border-radius: 15px;}
-.logo:hover {background: rgba(255, 255, 255, 20%)}
-.gradient {background-image: linear-gradient(to right top,#7ed2ff,#99ceff,#b3c9ff,#cbc5fc,#dfc1f2,#e3b5e6,#e6aad7,#e99ec7,#e286b0,#db6e97,#d2547d,#c73961)}
+.logo:hover {background: rgba(155, 155, 155, 20%)}
+.gradient {background-image: linear-gradient(to right top, #333227, #343127, #342f27, #342e27, #342d28, #342d28, #332c29, #332c29, #332c29, #332c29, #332c29, #332c29);}
 .gradient {
 	opacity: 0;
 	transition: 1s;
@@ -42,16 +45,15 @@ center {
 content {
 	display: flex;
 	justify-content: space-around;
-	padding: 10px;}
+	padding: 35px;}
 .btn {
 	display: inline-block;
 	text-decoration: none;
 	border-radius: 15px;
 	margin: 5px;
-	background: rgba(255, 255, 255, 25%);
-	box-shadow: 0 8px 15px rgba(255, 255, 255, 0.1);
+	background: rgba(155, 155, 155, 25%);
+	box-shadow: 0 8px 15px rgba(155, 155, 155, 0.1);
 	transition: 0.5s;}
-.btn:hover {background: rgba(0, 0, 0, 0.5)}
 .btn>.btnLogo {
 	opacity: .5;
 	filter: invert();
