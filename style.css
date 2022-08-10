@@ -64,8 +64,10 @@ content {
 .btn:hover>.btnLogo {opacity: 1}
 #vk:hover {background: #0077FF}
 #youtube:hover {background: #FF0000}
+#metube:hover {background: #274fa3}
 #tiktok:hover {background: #000000}
 #openvk:hover {background: #3e4a57}
+#vepurovk:hover {background: #74be69}
 #github:hover {background: #181717}
 #codeberg:hover {background: #2185D0}
 #pda:hover {background: #0072bc}
