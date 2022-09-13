@@ -56,7 +56,6 @@ content {
 	transition: 0.5s;}
 .btn>.btnLogo {
 	opacity: .5;
-	filter: invert();
 	vertical-align: -15px;
 	transition: .3s;
 	height: 25px !important;
@@ -73,5 +72,21 @@ content {
 #pda:hover {background: #0072bc}
 #yoomoney > img{width: 25px}
 #yoomoney:hover {background: #8b3ffd}
+#qiwi:hover {background: #FF8C00}
 #da{width: 55px}
 #da:hover {background: #F57D07}
+.btn:hover{
+	animation-name: floating;
+	-webkit-animation-name: floating;
+	animation-duration: 1.5s;	
+	-webkit-animation-duration: 1.5s;
+	animation-iteration-count: infinite;
+	-webkit-animation-iteration-count: infinite;
+}
+@keyframes floating {0% {transform: translateY(0%);}
+	50% {transform: translateY(8%);}	
+	100% {transform: translateY(0%);}}
+@-webkit-keyframes floating {0% {webkit-transform: translateY(0%);}
+	50% {webkit-transform: translateY(8%);}	
+	100% {webkit-transform: translateY(0%);}}
+.lang{text-decoration: none; font-weight: bold; color: #eaeaea;}
