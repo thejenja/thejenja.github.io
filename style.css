@@ -23,8 +23,32 @@ p, h1, h4, h5{
 	transition: 0.5s;
 	border-radius: 15px;}
 .logo:hover {background: rgba(155, 155, 155, 20%)}
+ul {
+    list-style: none;
+    margin: 0; 
+    padding-left: 0; 
+    height: 35px;
+  }
+  .link {
+    text-decoration: none;  
+    color:#fff; 
+    padding:0px 10px; 
+    line-height: 35px;
+    display: block; 
+	border-radius: 15px;
+    -moz-transition: all 0.3s 0.01s ease; 
+    -o-transition: all 0.3s 0.01s ease;
+    -webkit-transition: all 0.3s 0.01s ease;
+    margin: 0px 3px 0px 3px;
+  }
+  .link:hover {
+    background: rgba(255, 255, 255, 20%);
+  }
+  li {
+    float:left; 
+  }
 .gradient {background-image: linear-gradient(to right top, #333227, #343127, #342f27, #342e27, #342d28, #342d28, #332c29, #332c29, #332c29, #332c29, #332c29, #332c29);}
-.gradient {
+.gradient, #main, #donate, #social, #projects {
 	opacity: 0;
 	transition: 1s;
 	animation: show 1s 1;
@@ -46,6 +70,15 @@ content {
 	display: flex;
 	justify-content: space-around;
 	padding: 35px;}
+	#donate, #about, #social, #projects{
+		display: none;
+	  }
+	  #donate:target, #about:target, #social:target, #projects:target, #main{
+		display: block;
+	  }
+	  #about:target ~ #main, #social:target ~ #main, #donate:target ~ #main, #projects:target ~ #main{
+		display: none;
+	  }
 .btn {
 	display: inline-block;
 	text-decoration: none;
@@ -54,6 +87,25 @@ content {
 	background: rgba(155, 155, 155, 25%);
 	box-shadow: 0 8px 15px rgba(155, 155, 155, 0.1);
 	transition: 0.5s;}
+.btnLong {
+	color: #fff;
+	text-decoration: none;
+	padding: 0 15px;
+	height: 50px;
+	line-height: 50px;
+	display: inline-block;
+	transition: 0.5s;
+	text-decoration: none;
+	border-radius: 15px;
+	margin: 5px;
+	background: rgba(155, 155, 155, 25%);
+	box-shadow: 0 8px 15px rgba(155, 155, 155, 0.1);}
+.btnLong > img{
+	vertical-align: middle;
+}
+.btnLong > span{
+	padding-left: 10px;
+}
 .btn>.btnLogo {
 	opacity: .5;
 	vertical-align: -15px;
@@ -75,7 +127,10 @@ content {
 #qiwi:hover {background: #FF8C00}
 #da{width: 55px}
 #da:hover {background: #F57D07}
-.btn:hover{
+#telegram:hover {background: #26A5E4}
+#inst:hover {background: radial-gradient(circle at 10% 150%, #fdf497 0%, #fdf497 5%, #fd5949 45%,#d6249f 60%,#285AEB 90%)}
+#museich:hover{background: linear-gradient(90deg, rgba(62,22,42,1) 0%, rgba(64,22,22,1) 100%);}
+.btn:hover, .btnLong:hover{
 	animation-name: floating;
 	-webkit-animation-name: floating;
 	animation-duration: 1.5s;	
@@ -89,4 +144,3 @@ content {
 @-webkit-keyframes floating {0% {webkit-transform: translateY(0%);}
 	50% {webkit-transform: translateY(8%);}	
 	100% {webkit-transform: translateY(0%);}}
-.lang{text-decoration: none; font-weight: bold; color: #eaeaea;}
