@@ -42,7 +42,7 @@ body {
     font-family:"Inter";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/Inter-Bold.woff2)format("woff2")
 }
 
-h1,h4,h5,p {
+h1,p,span {
     color: rgba(255,255,255,.8)
 }
 
@@ -67,7 +67,8 @@ ul {
     height: 35px
 }
 
-.link {
+.link, .switch-lang li {
+    border-radius: 15px;
     text-decoration: none;
     color: #fff;
     padding: 0 10px;
@@ -79,7 +80,7 @@ ul {
     margin: 0 3px
 }
 
-.link:hover {
+.link:hover, .switch-lang li:hover {
     background: rgba(255,255,255,20%)
 }
 
@@ -101,13 +102,11 @@ li {
 }
 
 header {
+    width: -webkit-fill-available;
     margin: 10px;
     position: absolute;
     display: flex;
     align-items: center
-}
-.img-btn {
-        display: none
 }
 
 center {
@@ -135,13 +134,18 @@ content {
     display: none
 }
 
+.img-btn {
+	margin: 6px 10px 6px 0px;
+	vertical-align: -12px;
+	height: 25px;
+}
+
 .btn,.btnLong {
     display: inline-block;
     text-decoration: none;
     border-radius: 15px;
     margin: 5px;
-    background: rgba(155,155,155,25%);
-    box-shadow: 0 8px 15px rgba(155,155,155,.1);
+    background: rgba(155,155,155,15%);
     transition: .5s
 }
 
@@ -161,7 +165,7 @@ content {
 }
 
 .btn>.btnLogo {
-    opacity: .5;
+    opacity: .3;
     vertical-align: -15px;
     transition: .3s;
     height: 25px!important;
@@ -178,10 +182,6 @@ content {
 
 #youtube:hover {
     background: red
-}
-
-#metube:hover {
-    background: #274fa3
 }
 
 #tiktok:hover {
@@ -202,10 +202,6 @@ content {
 
 #codeberg:hover {
     background: #2185d0
-}
-
-#pda:hover {
-    background: #0072bc
 }
 
 #yoomoney>img {
@@ -238,6 +234,17 @@ content {
 
 #museich:hover {
     background: linear-gradient(90deg,#3e162a 0,#401616 100%)
+}
+
+#liberapay:hover {
+    background: #F6C915
+}
+#liberapay>.btnLogo:hover{
+    filter: invert();
+}
+
+.switch-lang{margin-left: auto;}
+.ChangeLang{margin-left: auto;
 }
 
 .btn:hover,.btnLong:hover {
@@ -288,12 +295,7 @@ content {
         opacity: 1
     }
 
-    .name-tabs,.social,footer {
+    .name-tabs,.social {
         width: auto
-    }
-
-    .socialLogo {
-        height: 35px!important;
-        padding: 18px 10px!important
     }
 }
