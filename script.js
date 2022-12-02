@@ -12,6 +12,10 @@ let demoJson = {
 			"donuts": {
 				"ru": "Донаты",
 				"en": "Donuts"
+			},
+			"language": {
+				"ru": "Язык",
+				"en": "Language"
 			}
 		},
 		"about": {
