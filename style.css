@@ -92,7 +92,7 @@ li {
     background-image: linear-gradient(to right top,#333227,#343127,#342f27,#342e27,#342d28,#342d28,#332c29,#332c29,#332c29,#332c29,#332c29,#332c29)
 }
 
-#donate,#main,#projects,#social,.gradient {
+#donate,#main,#projects,#social,.gradient,#ChangeLang {
     opacity: 0;
     transition: 1s;
     animation: show 1s 1;
@@ -242,10 +242,24 @@ content {
 #liberapay>.btnLogo:hover{
     filter: invert();
 }
+  .dropdown{
+    overflow: hidden;
+  }
+  .dropdown-content {
+    border-radius: 15px;
+    left: 478px;
+    padding: 15px;
+    display: none;
+    position: absolute;
+    background: rgba(55,55,55,80%);
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+  }
+  
+  .dropdown:hover .dropdown-content {
+    display: block;
+  }
 
-.switch-lang{margin-left: auto;}
-.ChangeLang{margin-left: auto;
-}
 
 .btn:hover,.btnLong:hover {
     animation-name: floating;
@@ -261,8 +275,12 @@ content {
         width: 98%
     }
 
-    li {
-        width: 33%
+    li, .dropdown > li{
+        width: 25%
+    }
+
+    .link{
+        padding: 0 !important;
     }
 
     .img-btn {
@@ -298,4 +316,10 @@ content {
     .name-tabs,.social {
         width: auto
     }
+    .dropdown-content {
+        border-radius: 15px;
+        left: 65% !important;
+        padding: 15px;
+        bottom: 110%;
+      }
 }
