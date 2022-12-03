@@ -242,6 +242,9 @@ content {
 #liberapay>.btnLogo:hover{
     filter: invert();
 }
+#mastodon:hover {
+    background: #6364FF
+}
   .dropdown{
     overflow: hidden;
   }
