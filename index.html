@@ -1,43 +1,53 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8"><meta name="theme-color" content="#332c29">
+    <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Сайт со всеми ссылками и маленькой информации о thejenja_">
-    <title>thejenja_</title><link rel="icon" href="icon.png">
+    <title>thejenja_</title>
     <link rel="stylesheet" type="text/css" media='screen' href="style.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.3/jquery.slim.min.js"></script>
+    <script src="/scripts/script.js"></script>
+    <script src="/scripts/i18n.js"></script>
 </head>
-<body class="gradient">
-<nav id="nav-menu">
-  <a id="nav-close" class="link">&times;</a>
-  <ul>
-    <li><a href="#home"><span data-i18n="website.header.home"></span></a></li>
-    <li><a href="#donate"><span data-i18n="website.header.donuts"></span></a></li>
-    <li><a href="#social"><span data-i18n="website.header.links"></span></a></li>
-  </ul>
-</nav>
-<div id="myModal" class="modal">
-  <div class="modal-content">
-    <img height="250px" src="svg/qrcode.png">
-    <!-- Элемент, содержащий адрес кошелька -->
-<div id="wallet-address">UQCz_196viAop_yu5FTSO9Avr7usoNOTKa4YH_UBCq5DlN8Q</div>
+<body class="parent">
+    <nav><img class="logo" src="logo.svg"><div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'Tab1')"><span data-i18n="mainTab"></span></button>
+        <button class="tablinks" onclick="openTab(event, 'tab2')"><span data-i18n="linksTab"></span></button>
+        <button class="tablinks" onclick="openTab(event, 'tab3')"><span data-i18n="donateTab"></span></button>
+      </div>
+    </nav>
+    <lang>
+      <a href="?lang">Рус</a><a href="?lang=en">Eng</a><a href="?lang=uk">Укр</a>
+    </lang>
+      </div>
+    <content>
+      <noscript><h2>Для корректной работы сайта, необходим JavaScript</h2></noscript>
+        <div id="Tab1" class="tabcontent active">
+            <span data-i18n="greetings" id="greetings"></span><span id="greetings" class="gradientText">thejenja_</span><br><span data-i18n="bioBefore" id="bio"></span><span id="age"></span><span data-i18n="bioAfter" id="bio"></span>
+          </div>          
+          
+          <div id="tab2" class="tabcontent">
+            <a href="https://vk.com/thejenja" class="btn" target="_blank" id="vk"><span class="btnSpan">VK</span><img src="svg/vk.svg" class="btnLogo"></a><a href="https://www.youtube.com/channel/UCFWXqFyLd9AXDCVZ9rI4gVg" class="btn" target="_blank" id="youtube"><span class="btnSpan">YouTube</span><img src="svg/youtube.svg" class="btnLogo"></a><a href="https://www.tiktok.com/@thejenja_" class="btn" target="_blank" id="tiktok"><span class="btnSpan">TikTok</span><img src="svg/tiktok.svg" class="btnLogo"></a><a href="https://openvk.su/thejenja" class="btn" target="_blank" id="openvk"><span class="btnSpan">OpenVK</span><img src="svg/openvk.svg" class="btnLogo"></a><a href="https://vepurovk.xyz/thejenja" class="btn" target="_blank" id="vepurovk"><span class="btnSpan">VepurOVK</span><img src="svg/vepurovk.svg" class="btnLogo"></a><a href="https://threads.net/@thejenja_" class="btn" target="_blank" id="threads"><span class="btnSpan">Threads</span><img src="svg/threads.svg" class="btnLogo"></a><a rel="me" href="https://mastodon.ml/@thejenja" class="btn" target="_blank" id="mastodon"><span class="btnSpan">Mastodon</span><img src="svg/mastodon.svg" class="btnLogo"></a><a href="https://github.com/thejenja" class="btn" target="_blank" id="github"><span class="btnSpan">GitHub</span><img src="svg/github.svg" class="btnLogo"></a><a href="https://codeberg.org/thejenja" class="btn" target="_blank" id="codeberg"><span class="btnSpan">Codeberg</span><img src="svg/codeberg.svg" class="btnLogo"></a>
+          </div>
+          
+          <div id="tab3" class="tabcontent">
+            <h3>Tab 3</h3>
+            <p>Content for Tab 3 goes here.</p>
+            <a href="https://yoomoney.ru/to/410019209648036" class="btn" target="_blank" id="yoomoney"><span class="btnSpan">YooMoney</span><img src="svg/yoomoney.svg" class="btnLogo"></a>
+            <a href="https://www.donationalerts.com/r/thejenja_" class="btn" target="_blank" id="da"><span class="btnSpan">DonationAlerts</span><img src="svg/da.svg" class="btnLogo"></a>
+          </div>
+        </content>
+    <footer>кто прочитал, тот крутой</footer>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.slim.min.js" integrity="sha512-5NqgLBAYtvRsyAzAvEBWhaW+NoB+vARl6QiA02AFMhCWvPpi7RWResDcTGYvQtzsHVCfiUhwvsijP+3ixUk1xw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+      let today = new Date();
+      let bday = new Date("31 August 2006");
+      let age = today.getFullYear() - bday.getFullYear();
+      let m = today.getMonth() - bday.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) {
+    age--;
+} document.getElementById("age").innerHTML = age;
 
-<!-- Кнопка для копирования адреса -->
-<button id="copy-button">Копировать адрес кошелька</button>
-<button class="close">Закрыть</button>
-
-  </div>
-</div>
-
-<header><a id="nav-toggle" class="logo"><img height=18px src="logo.svg" alt="thejenja_"></a><ul>
-    <div class="dropdown"><a class="link"><img class="img-btn" src="svg/header/language.svg"><span class="linkName" data-i18n="website.header.language"></span></a></button>
-    <div class="dropdown-content"><ul class="switch-lang"><li id="ru">Русский</li><br><li id="en">English</li></ul></div></div></ul></div></header>
-    
-        <center><content><div id="donate"><span data-i18n="website.donuts.beforeBr"></span><br><span data-i18n="website.donuts.afterBr"></span><br><br><a href="https://yoomoney.ru/to/410019209648036" class="btn" target="_blank" id="yoomoney"><img src="svg/yoomoney.svg" class="btnLogo" title="YooMoney"></a><a href="https://qiwi.com/n/THEJENJA" class="btn" target="_blank" id="qiwi"><img src="svg/qiwi.svg" class="btnLogo" title="Qiwi"></a><a href="https://www.donationalerts.com/r/thejenja_" class="btn" target="_blank" id="da"><img src="svg/da.svg" class="btnLogo" title="DonationAlerts"></a><a href="https://liberapay.com/thejenja/" class="btn" target="_blank" id="liberapay"><img src="svg/liberapay.svg" class="btnLogo" title="Liberapay"></a><a onclick="showModal()" class="btn" target="_blank" id="ton"><img src="svg/ton.svg" class="btnLogo" title="TON Coin"></a></div>
-        <div id="social"><a href="https://vk.com/thejenja" class="btn" target="_blank" id="vk"><img src="svg/vk.svg" class="btnLogo" title="VK"></a><a href="https://www.youtube.com/channel/UCFWXqFyLd9AXDCVZ9rI4gVg" class="btn" target="_blank" id="youtube"><img src="svg/youtube.svg" class="btnLogo" title="YouTube"></a><a href="https://www.tiktok.com/@thejenja_" class="btn" target="_blank" id="tiktok"><img src="svg/tiktok.svg" class="btnLogo" title="TikTok"></a><br><a href="https://openvk.su/thejenja" class="btn" target="_blank" id="openvk"><img src="svg/openvk.svg" class="btnLogo" title="OpenVK"></a><a href="https://vepurovk.xyz/thejenja" class="btn" target="_blank" id="vepurovk"><img src="svg/vepurovk.svg" class="btnLogo" title="VepurOVK"></a><a rel="me" href="https://mastodon.ml/@thejenja" class="btn" target="_blank" id="mastodon"><img src="svg/mastodon.svg" class="btnLogo" title="Mastodon"></a><br><a href="https://github.com/thejenja" class="btn" target="_blank" id="github"><img src="svg/github.svg" class="btnLogo" title="GitHub"></a><a href="https://codeberg.org/thejenja" class="btn" target="_blank" id="codeberg"><img src="svg/codeberg.svg" class="btnLogo" title="Codeberg"></a></div>
-        <div id="home"><h1 data-i18n="website.about.grettings"></h1><span data-i18n="website.about.first"></span><span id="age"></span><span data-i18n="website.about.years"></span><br><span data-i18n="website.about.second"></span><br><span data-i18n="website.about.third"></span></content></center>
-        <script src="script.js"></script>
+      </script>
 </body>
 </html>

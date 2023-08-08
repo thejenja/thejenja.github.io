@@ -1,0 +1,8 @@
+const i18nLangs = {
+    greetings: "Hi, I'm ",
+    bioBefore: "i'm ",
+    bioAfter: " лет, я занимаюсь разработкой сайтов, музыкой и многое чем другим...",
+    mainTab: "Main",
+    linksTab: "Links",
+    donateTab: "Donate",
+}
