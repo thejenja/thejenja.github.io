@@ -1,8 +1,9 @@
 const i18nLangs = {
     greetings: "Hi, I'm ",
     bioBefore: "i'm ",
-    bioAfter: " лет, я занимаюсь разработкой сайтов, музыкой и многое чем другим...",
+    bioAfter: " years old, I do website development, music and a lot of other things....",
     mainTab: "Main",
     linksTab: "Links",
     donateTab: "Donate",
+    donate: "You can also donate to me, any amount would be appreciated"
 }

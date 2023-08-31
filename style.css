@@ -40,6 +40,7 @@ lang {
   align-items: center;
   flex-direction: row;
   justify-content: space-evenly;
+  transition: .5s;
 }
 lang a{
   text-decoration: none;
@@ -208,7 +209,20 @@ content,footer,lang,nav {
   border-radius: var(--radius);
   padding: 0 20px
 }
-
+lang a{
+  opacity: 0;
+  transition: .5s;
+}
+lang > img{
+  position: absolute;
+}
+lang:hover > img{
+  opacity: 0;
+  transition: .5s;
+}
+lang:hover a{
+  opacity: 1;
+}
 #bio, #age {
   display: inline;
   text-wrap: balance;
@@ -242,6 +256,12 @@ footer{
     grid-area: 3/1/5/6;
     justify-content: space-evenly;
 }
+body {
+  height: 97dvh;
+}
+lang {
+  grid-area: 1/1/2/6;
+}
 }
 .parent::before {
   margin: -10px;
@@ -253,4 +273,5 @@ footer{
   position: absolute;
   animation: fadeInAnimation ease-in 5s;
   animation-fill-mode: forwards;
+  z-index: -1;
 }
