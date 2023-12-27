@@ -19,6 +19,11 @@ function openTab(evt, tabName) {
   }
   
   window.onload = function() {
-    document.getElementById("Tab1").classList.add("show");
+    if (window.location.href.includes('?donate')) {
+      document.getElementById("donate").classList.add("show");
+    }
+    else{
+    document.getElementById("main").classList.add("show");
     document.getElementsByClassName("tablinks")[0].classList.add("active");  
+  }
   };
