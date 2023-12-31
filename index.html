@@ -10,29 +10,35 @@
     <script src="/scripts/script.js"></script>
     <script src="/scripts/i18n.js"></script>
 </head>
-<body class="parent">
-    <nav><img class="logo" src="logo.svg"><div class="tab">
-        <button class="tablinks active" onclick="openTab(event, 'Tab1')"><span data-i18n="mainTab"></span></button>
-        <button class="tablinks" onclick="openTab(event, 'tab2')"><span data-i18n="linksTab"></span></button>
-        <button class="tablinks" onclick="openTab(event, 'tab3')"><span data-i18n="donateTab"></span></button>
+<body>
+    <nav><img class="logo" src="logo.svg" alt="thejenja logo"><div class="tab">
+        <button class="tablinks active" onclick="openTab(event, 'main')"><img src="svg/header/home.svg"><span data-i18n="mainTab"></span></button>
+        <button class="tablinks" onclick="openTab(event, 'links')"><img src="svg/header/link.svg"><span data-i18n="linksTab"></span></button>
+        <button class="tablinks" onclick="openTab(event, 'donate')"><img src="svg/header/coin.svg"><span data-i18n="donateTab"></span></button>
       </div>
     </nav>
     <lang>
-      <img src="/svg/header/language.svg">
+      <img src="/svg/header/languageNew.svg" alt="language icon">
       <a href="?lang">Рус</a><a href="?lang=en">Eng</a><a href="?lang=uk">Укр</a>
     </lang>
       </div>
     <content>
       <noscript><h2>Для корректной работы сайта, необходим JavaScript</h2></noscript>
-        <div id="Tab1" class="tabcontent active">
+        <div id="main" class="tabcontent active">
             <span data-i18n="greetings" id="greetings"></span><span id="greetings" class="gradientText">thejenja</span><br><span data-i18n="bioBefore" id="bio"></span><span id="age"></span><span data-i18n="bioAfter" id="bio"></span>
           </div>          
           
-          <div id="tab2" class="tabcontent">
-            <a href="https://vk.com/thejenja" class="btn" target="_blank" id="vk"><span class="btnSpan">VK</span><img src="svg/vk.svg" class="btnLogo"></a><a href="https://www.youtube.com/@thejenja_" class="btn" target="_blank" id="youtube"><span class="btnSpan">YouTube</span><img src="svg/youtube.svg" class="btnLogo"></a><a href="https://www.tiktok.com/@thejenja_" class="btn" target="_blank" id="tiktok"><span class="btnSpan">TikTok</span><img src="svg/tiktok.svg" class="btnLogo"></a><a href="https://openvk.su/thejenja" class="btn" target="_blank" id="openvk"><span class="btnSpan">OpenVK</span><img src="svg/openvk.svg" class="btnLogo"></a><a href="https://vepurovk.xyz/thejenja" class="btn" target="_blank" id="vepurovk"><span class="btnSpan">VepurOVK</span><img src="svg/vepurovk.svg" class="btnLogo"></a><a rel="me" href="https://mastodon.ml/@thejenja" class="btn" target="_blank" id="mastodon"><span class="btnSpan">Mastodon</span><img src="svg/mastodon.svg" class="btnLogo"></a><a href="https://github.com/thejenja" class="btn" target="_blank" id="github"><span class="btnSpan">GitHub</span><img src="svg/github.svg" class="btnLogo"></a>
+          <div id="links" class="tabcontent">
+            <h1 data-i18n="linksTab"></h1>
+            <p data-i18n="links"></p>
+            <a href="https://vk.com/thejenja" class="btn" target="_blank" id="vk"><span class="btnSpan">VK</span><img src="svg/vk.svg" class="btnLogo"></a><a href="https://www.youtube.com/@thejenja_" class="btn" target="_blank" id="youtube"><span class="btnSpan">YouTube</span><img src="svg/youtube.svg" class="btnLogo"></a><a href="https://www.tiktok.com/@thejenja_" class="btn" target="_blank" id="tiktok"><span class="btnSpan">TikTok</span><img src="svg/tiktok.svg" class="btnLogo"></a><a href="https://openvk.su/thejenja" class="btn" target="_blank" id="openvk"><span class="btnSpan">OpenVK</span><img src="svg/openvk.svg" class="btnLogo"></a><a href="https://vepurovk.xyz/thejenja" class="btn" target="_blank" id="vepurovk"><span class="btnSpan">VepurOVK</span><img src="svg/vepurovk.svg" class="btnLogo"></a><a rel="me" href="https://mastodon.ml/@thejenja" class="btn" target="_blank" id="mastodon"><span class="btnSpan">Mastodon</span><img src="svg/mastodon.svg" class="btnLogo"></a>
+            <p data-i18n="linksProjects"></p>
+            <a href="https://github.com/thejenja" class="btn" target="_blank" id="github"><span class="btnSpan">GitHub</span><img src="svg/github.svg" class="btnLogo"></a>
+            <a href="https://codeberg.org/thejenja" class="btn" target="_blank" id="codeberg"><span class="btnSpan">Codeberg</span><img src="svg/codeberg.svg" class="btnLogo"></a>
           </div>
           
-          <div id="tab3" class="tabcontent">
+          <div id="donate" class="tabcontent">
+            <h1 data-i18n="donateTab"></h1>
             <p data-i18n="donate"></p>
             <a href="https://yoomoney.ru/to/410019209648036" class="btn" target="_blank" id="yoomoney"><span class="btnSpan">YooMoney</span><img src="svg/yoomoney.svg" class="btnLogo"></a>
             <a href="https://www.donationalerts.com/r/thejenja" class="btn" target="_blank" id="da"><span class="btnSpan">DonationAlerts</span><img src="svg/da.svg" class="btnLogo"></a>
@@ -40,17 +46,14 @@
             <a href="https://liberapay.com/thejenja/" class="btn" target="_blank" id="liberapay"><span class="btnSpan">LibreaPay</span><img src="svg/liberapay.svg" class="btnLogo"></a>
           </div>
         </content>
-    <footer>кто прочитал, тот крутой</footer>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.0/jquery.slim.min.js" integrity="sha512-5NqgLBAYtvRsyAzAvEBWhaW+NoB+vARl6QiA02AFMhCWvPpi7RWResDcTGYvQtzsHVCfiUhwvsijP+3ixUk1xw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script>
       let today = new Date();
       let bday = new Date("31 August 2006");
       let age = today.getFullYear() - bday.getFullYear();
       let m = today.getMonth() - bday.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) {
-    age--;
+      if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) {age--;
 } document.getElementById("age").innerHTML = age;
-
       </script>
 </body>
 </html>

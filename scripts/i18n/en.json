@@ -5,5 +5,7 @@ const i18nLangs = {
     mainTab: "Main",
     linksTab: "Links",
     donateTab: "Donate",
-    donate: "You can also donate to me, any amount would be appreciated"
+    donate: "this is where you can donate to me, any amount would be appreciated",
+    links: "here are my social networks",
+    linksProjects: "and here you can follow my projects"
 }
