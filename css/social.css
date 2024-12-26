@@ -1,0 +1,32 @@
+/*
+Сделал новый файл для переменных кнопок соцсетей
+*/
+
+:root {
+    --vk: #07f;
+    --youtube: red;
+    --twitch: #9146FF;
+    --tiktok: #000;
+    --openvk: #3e4a57;
+    --vepurovk: #74be69;
+    --mastodon: #6364ff;
+    --telegram: #26A5E4;
+    --github: #181717;
+    --codeberg: #2185d0;
+    --gitlab: #FC6D26;
+    --da: #f57d07;
+    --yoomoney: #8b3ffd;
+    --boosty: #F15F2C;
+    --ton: #0098EA;
+}
+
+#tiktok>img {
+    /* Указываем начальный эффект без тени или с минимальной тенью */
+    filter: drop-shadow(0 0 0 transparent);
+    /* Добавляем плавный переход для фильтра */
+    transition: filter 0.3s ease;
+}
+
+#tiktok:hover>img {
+    filter: drop-shadow(-2px -2px 0 #25f4ee) drop-shadow(2px 2px 0 #ff3353fc)
+}
