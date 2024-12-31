@@ -1,0 +1,353 @@
+@keyframes letter-breathe {
+
+    0%,
+    to {
+        font-variation-settings: "wght" 200
+    }
+
+    50% {
+        font-variation-settings: "wght" 300
+    }
+}
+
+@keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    to {
+        transform: translateY(0)
+    }
+
+    40% {
+        transform: translateY(-20px)
+    }
+
+    60% {
+        transform: translateY(-10px)
+    }
+}
+
+@keyframes horizontal-scroll {
+    to {
+        transform: translateX(calc(-50% - .6em))
+    }
+}
+
+:root {
+    --font-family: Unbounded, Arial, Helvetica, sans-serif;
+    --gradient-color-1: #1c1c1c;
+    --gradient-color-2: #1e3a5f;
+    --gradient-color-3: #5c2d3a;
+    --gradient-color-4: #45285d;
+    --text-color: #fff;
+    --border-radius: 25px
+}
+
+@font-face {
+    font-family: "Unbounded";
+    src: url(/fonts/Unbounded-Variable.woff2)
+}
+
+html {
+    box-sizing: border-box
+}
+
+*,
+:after,
+:before {
+    box-sizing: inherit
+}
+
+body,
+section {
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    flex-direction: column
+}
+
+body {
+    background: radial-gradient(at 99% 52%, var(--gradient-color-1) 0%, transparent 80%), radial-gradient(at 22% 92%, var(--gradient-color-2) 0%, transparent 80%), radial-gradient(at 27% 5%, var(--gradient-color-3) 0%, transparent 80%), var(--gradient-color-4);
+    font-family: var(--font-family);
+    margin: 0;
+    color: var(--text-color);
+    overflow-x: hidden;
+    overflow-y: overlay;
+    user-select: none;
+    box-sizing: border-box
+}
+
+a,
+div {
+    transition: .5s
+}
+
+main {
+    transition: .2s;
+}
+
+body,
+main {
+    scroll-behavior: smooth
+}
+
+main {
+    scroll-snap-type: y mandatory;
+    overflow: auto;
+    height: 100vh;
+    width: 100vw;
+    scrollbar-gutter: stable;
+    scrollbar-color: rgba(255, 255, 255, .15) transparent;
+    box-shadow: inset -8px 0 8px -8px transparent
+}
+
+main.active-scrollbar {
+    scrollbar-color: rgba(255, 255, 255, .15) rgba(0, 0, 0, .75);
+    box-shadow: inset -8px 0 8px -8px rgba(0, 0, 0, .75)
+}
+
+section {
+    justify-content: center;
+    position: relative;
+    scroll-snap-align: start
+}
+
+#start {
+    background-color: rgba(0, 0, 0, .75);
+    mix-blend-mode: overlay
+}
+
+h1 {
+    margin: 0;
+    font-weight: 200;
+    font-size: 15vw;
+    animation: letter-breathe 3s ease-in-out infinite
+}
+
+h2 {
+    font-weight: 400;
+    font-size: 16px;
+    text-wrap: pretty
+}
+
+.scroll-message {
+    position: absolute;
+    bottom: 15px;
+    width: 100%;
+    text-align: center;
+    animation: bounce 5s infinite
+}
+
+header {
+    width: calc(100vw - 30px);
+    width: -webkit-fill-available;
+    position: fixed;
+    top: 15px;
+    display: flex;
+    gap: 5px;
+    z-index: 1;
+    justify-content: space-between;
+    margin: 0 15px
+}
+
+header button {
+    appearance: none;
+    border: 0;
+    background-color: transparent;
+    padding: 0 10px
+}
+
+button img {
+    vertical-align: middle;
+}
+
+header div:has(button:hover) {
+    background-color: rgba(255, 255, 255, .15)
+}
+
+header a,
+header>div {
+    display: flex;
+    align-items: center
+}
+
+header>div {
+    padding: 10px;
+    backdrop-filter: blur(4px);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 15px rgba(0, 0, 0, .01);
+    gap: 5px;
+    flex-direction: row
+}
+
+.logo {
+    padding: 10px 20px
+}
+
+.translate {
+    aspect-ratio: 1;
+    padding: 0;
+}
+
+#language-toggle {
+    padding: 20px;
+}
+
+header a {
+    color: #fff;
+    text-decoration: none;
+    padding: 10px 15px;
+    gap: 8px
+}
+
+.btns a,
+header a.active {
+    background-color: rgba(255, 255, 255, .08)
+}
+
+header a:hover,
+header>div {
+    background-color: rgba(255, 255, 255, .05)
+}
+
+* {
+    cursor: none
+}
+
+.custom-cursor {
+    position: fixed;
+    width: 35px;
+    height: 35px;
+    background-color: rgba(255, 255, 255, .15);
+    border: dashed 2px rgba(255, 255, 255, .05);
+    border-radius: 20px;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: .4s cubic-bezier(.25, 1, .5, 1);
+    z-index: 2;
+    opacity: 0
+}
+
+.container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 15px;
+    width: 100%
+}
+
+.container.vert {
+    flex-direction: column;
+    max-width: 600px
+}
+
+.btns img {
+    width: 35px;
+    height: 35px;
+    vertical-align: middle
+}
+
+.btns {
+    display: grid;
+    grid-template-columns: repeat(4, 65px);
+    justify-content: space-around;
+    width: max-content
+}
+
+.btns,
+.info,
+.skills {
+    padding: 10px;
+    background-color: rgba(255, 255, 255, .05);
+    border-radius: var(--border-radius);
+    box-shadow: 0 0 15px rgba(0, 0, 0, .01);
+    gap: 15px;
+    align-items: center
+}
+
+.info {
+    padding: 10px 20px
+}
+
+.btns a,
+header a {
+    border-radius: calc(var(--border-radius) - 10px)
+}
+
+.btns a {
+    padding: 15px;
+    transition: .5s
+}
+
+.section-animation .container>div {
+    opacity: 0;
+    transition: opacity .6s ease, transform .6s ease
+}
+
+.section-animation .container>div:first-of-type {
+    transform: translateY(-50px)
+}
+
+.section-animation .container>div:last-of-type {
+    transform: translateY(50px)
+}
+
+.section-animation.visible .container>div {
+    opacity: 1;
+    transform: translateY(0)
+}
+
+.skills {
+    width: calc(100% - 340px);
+    display: flex
+}
+
+.Marquee {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    mask: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+}
+
+.Marquee-content {
+    display: flex;
+    animation: marquee 5s linear infinite running;
+    flex-direction: row;
+}
+
+.Marquee-content:nth-child(2n) {
+    animation-direction: reverse;
+}
+
+.Marquee-content:hover {
+    animation-play-state: paused;
+}
+
+.Marquee-tag {
+    margin: 0.5em;
+    padding: 15px;
+    background: rgba(255, 255, 255, .08);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: calc(var(--border-radius) - 10px)
+}
+
+.Marquee-tag img {
+    width: auto;
+    height: 30px;
+}
+
+@keyframes marquee {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-25%);
+    }
+}

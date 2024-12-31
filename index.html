@@ -1,59 +1,282 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>thejenja</title>
-    <link rel="stylesheet" type="text/css" media='screen' href="style.css">
-    <link rel="shortcut icon" href="icon.png" type="image/x-icon">
-    <script src="/scripts/script.js"></script>
-    <script src="/scripts/i18n.js"></script>
-</head>
-<body>
-    <nav><img class="logo" src="logo.svg" alt="thejenja logo"><div class="tab">
-        <button class="tablinks active" onclick="openTab(event, 'main')"><img src="svg/header/home.svg"><span data-i18n="mainTab"></span></button>
-        <button class="tablinks" onclick="openTab(event, 'links')"><img src="svg/header/link.svg"><span data-i18n="linksTab"></span></button>
-        <button class="tablinks" onclick="openTab(event, 'donate')"><img src="svg/header/coin.svg"><span data-i18n="donateTab"></span></button>
-      </div>
-    </nav>
-    <lang>
-      <img src="/svg/header/languageNew.svg" alt="language icon">
-      <a href="?lang">Рус</a><a href="?lang=en">Eng</a><a href="?lang=uk">Укр</a>
-    </lang>
-      </div>
-    <content>
-      <noscript><h2>Для корректной работы сайта, необходим JavaScript</h2></noscript>
-        <div id="main" class="tabcontent active">
-            <span data-i18n="greetings" id="greetings"></span><span id="greetings" class="gradientText">thejenja</span><br><span data-i18n="bioBefore" id="bio"></span><span id="age"></span><span data-i18n="bioAfter" id="bio"></span>
-          </div>          
-          
-          <div id="links" class="tabcontent">
-            <h1 data-i18n="linksTab"></h1>
-            <p data-i18n="links"></p>
-            <a href="https://vk.com/thejenja" class="btn" target="_blank" id="vk"><span class="btnSpan">VK</span><img src="svg/vk.svg" class="btnLogo"></a><a href="https://www.youtube.com/@thejenja_" class="btn" target="_blank" id="youtube"><span class="btnSpan">YouTube</span><img src="svg/youtube.svg" class="btnLogo"></a><a href="https://www.tiktok.com/@thejenja_" class="btn" target="_blank" id="tiktok"><span class="btnSpan">TikTok</span><img src="svg/tiktok.svg" class="btnLogo"></a><a href="https://openvk.su/thejenja" class="btn" target="_blank" id="openvk"><span class="btnSpan">OpenVK</span><img src="svg/openvk.svg" class="btnLogo"></a><a href="https://vepurovk.xyz/thejenja" class="btn" target="_blank" id="vepurovk"><span class="btnSpan">VepurOVK</span><img src="svg/vepurovk.svg" class="btnLogo"></a><a rel="me" href="https://mastodon.ml/@thejenja" class="btn" target="_blank" id="mastodon"><span class="btnSpan">Mastodon</span><img src="svg/mastodon.svg" class="btnLogo"></a>
-            <p data-i18n="linksProjects"></p>
-            <a href="https://github.com/thejenja" class="btn" target="_blank" id="github"><span class="btnSpan">GitHub</span><img src="svg/github.svg" class="btnLogo"></a>
-            <a href="https://codeberg.org/thejenja" class="btn" target="_blank" id="codeberg"><span class="btnSpan">Codeberg</span><img src="svg/codeberg.svg" class="btnLogo"></a>
-          </div>
-          
-          <div id="donate" class="tabcontent">
-            <h1 data-i18n="donateTab"></h1>
-            <p data-i18n="donate"></p>
-            <a href="https://yoomoney.ru/to/410019209648036" class="btn" target="_blank" id="yoomoney"><span class="btnSpan">YooMoney</span><img src="svg/yoomoney.svg" class="btnLogo"></a>
-            <a href="https://www.donationalerts.com/r/thejenja" class="btn" target="_blank" id="da"><span class="btnSpan">DonationAlerts</span><img src="svg/da.svg" class="btnLogo"></a>
-            <a href="https://qiwi.com/n/THEJENJA" class="btn" target="_blank" id="qiwi"><span class="btnSpan">Qiwi</span><img src="svg/qiwi.svg" class="btnLogo"></a>
-            <a href="https://liberapay.com/thejenja/" class="btn" target="_blank" id="liberapay"><span class="btnSpan">LibreaPay</span><img src="svg/liberapay.svg" class="btnLogo"></a>
-          </div>
-        </content>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js" integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-      let today = new Date();
-      let bday = new Date("31 August 2006");
-      let age = today.getFullYear() - bday.getFullYear();
-      let m = today.getMonth() - bday.getMonth();
-      if (m < 0 || (m === 0 && today.getDate() < bday.getDate())) {age--;
-} document.getElementById("age").innerHTML = age;
-      </script>
-</body>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>thejenja</title>
+		<!-- Стили / Styles 🎨 -->
+		<link rel="stylesheet" href="css/style.css" />
+		<link
+			rel="stylesheet"
+			media="screen and (max-width: 678px)"
+			href="css/adaptive.css"
+		/>
+		<link rel="stylesheet" href="css/social.css" />
+		<link rel="stylesheet" href="css/popup.css">
+		<link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+		<meta
+			name="description"
+			content="Личный сайт thejenja. Веб-разработка, программирование, проекты, блоги, и многое другое о моей профессиональной деятельности."
+		/>
+		<meta
+			name="keywords"
+			content="Личный сайт, веб-разработка, программирование, thejenja, портфолио, блоги"
+		/>
+		<meta name="author" content="thejenja" />
+		<meta property="og:title" content="thejenja" />
+		<meta
+			property="og:description"
+			content="Узнайте больше о моих проектах, интересах и опыте в веб-разработке и программировании."
+		/>
+		<meta property="og:image" content="[URL_изображения]" />
+		<meta property="og:url" content="thejenja.github.io" />
+		<meta property="og:type" content="website" />
+		<meta name="twitter:card" content="summary_large_image" />
+		<meta name="twitter:title" content="thejenja — Личный сайт" />
+		<meta
+			name="twitter:description"
+			content="Узнайте больше о моих проектах, интересах и опыте."
+		/>
+		<meta name="twitter:image" content="[URL_изображения]" />
+		<style id="cursorStyles"></style>
+		<style id="gradient"></style>
+	</head>
+	<body>
+		<div class="custom-cursor" id="cursor"></div>
+		<header>
+			<div class="logo">
+				<span>thejenja</span>
+			</div>
+			<div>
+				<a href="#start" class="nav-link">
+					<img
+						src="svg/home_24dp_E8EAED_FILL1_wght400_GRAD0_opsz24.svg"
+						alt="home"
+						width="24px"
+						height="24px"
+					/><span data-i18n="header.home"></span>
+				</a>
+				<a href="#about" class="nav-link">
+					<img
+						src="svg/info_24dp_E8EAED_FILL1_wght400_GRAD0_opsz24.svg"
+						alt="about"
+						width="24px"
+						height="24px"
+					/><span data-i18n="header.about-me"></span>
+				</a>
+				<a href="#donate" class="nav-link">
+					<img
+						src="svg/payments_24dp_E8EAED_FILL1_wght400_GRAD0_opsz24.svg"
+						alt="donate"
+						width="24px"
+						height="24px"
+					/><span data-i18n="header.donate"></span>
+				</a>
+			</div>
+			<div class="translate">
+				<button type="button" id="language-toggle" aria-label="Change Language">
+					<img
+						src="svg/translate_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.svg"
+						alt="translate"
+						width="24px"
+						height="24px"
+					/>
+				</button>
+			</div>
+		</header>
+		<!-- Overlay and Popup -->
+		<div class="overlay" id="donateOverlay">
+			<div class="popup" id="donatePopup">
+				<img src="svg/qr-code.png" alt="QR Code" />
+				<div class="copy-field">
+					<span id="walletAddress">UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-</span>
+					<button id="copyButton">Copy</button>
+				</div>
+				<button id="closePopup">Close</button>
+			</div>
+		</div>
+
+		<!-- Custom Alert -->
+		<div class="custom-alert" id="customAlert">
+			Wallet address copied to clipboard!
+		</div>
+		<main>
+			<section id="start">
+				<h1 data-i18n="start.hi"></h1>
+				<h1 data-i18n="start.iam"></h1>
+				<div class="scroll-message">
+					<img
+						src="svg/arrow_circle_up_24dp_E8EAED_FILL0_wght400_GRAD0_opsz24.svg"
+						alt="scroll icon"
+						width="24px"
+						height="24px"
+					/>
+					<p data-i18n="start.scroll-message"></p>
+				</div>
+			</section>
+			<section id="about">
+				<div class="container vert">
+					<div class="info">
+						<h2 data-i18n="aboutme.info" data-age="age"></h2>
+					</div>
+					<div class="container">
+						<div class="btns">
+							<a href="https://vk.com/thejenja" target="_blank" id="vk"
+								><img src="svg/vk.svg" alt="vk" /></a
+							><a
+								href="https://www.youtube.com/@thejenja_"
+								target="_blank"
+								id="youtube"
+								><img src="svg/youtube.svg" alt="youtube" /></a
+							><a
+								href="https://www.twitch.tv/thejenja"
+								target="_blank"
+								id="twitch"
+								><img src="svg/twitch.svg" alt="twitch" /></a
+							><a
+								href="https://www.tiktok.com/@thejenja_"
+								target="_blank"
+								id="tiktok"
+								><img src="svg/tiktok.svg" alt="tiktok" /></a
+							><a href="https://ovk.to/thejenja" target="_blank" id="openvk"
+								><img src="svg/openvk.svg" alt="openvk" /></a
+							><a
+								href="https://vepurovk.xyz/thejenja"
+								target="_blank"
+								id="vepurovk"
+								><img src="svg/vepurovk.svg" alt="vepurovk" /></a
+							><a
+								rel="me"
+								href="https://mastodon.ml/@thejenja"
+								target="_blank"
+								id="mastodon"
+								><img src="svg/mastodon.svg" alt="mastodon"
+							/></a>
+							<a href="https://t.me/thejenja" target="_blank" id="telegram"
+								><img src="svg/telegram.svg" alt="telegram"
+							/></a>
+							<a href="https://github.com/thejenja" target="_blank" id="github"
+								><img src="svg/github.svg" alt="github"
+							/></a>
+							<a
+								href="https://codeberg.org/thejenja"
+								target="_blank"
+								id="codeberg"
+								><img src="svg/codeberg.svg" alt="codeberg"
+							/></a>
+							<a href="https://gitlab.com/thejenja" target="_blank" id="gitlab"
+								><img src="svg/gitlab.svg" alt="gitlab"
+							/></a>
+						</div>
+						<div class="skills">
+							<div class="Marquee" id="marqueeContainer">
+								<!-- Marquee content will be dynamically inserted here -->
+							</div>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section id="donate">
+				<div class="container vert">
+					<div class="info">
+						<h2 data-i18n="donate.info"></h2>
+					</div>
+					<div class="btns">
+						<a
+							href="https://www.donationalerts.com/r/thejenja"
+							target="_blank"
+							id="da"
+							><img src="svg/da.svg" alt="donationalerts"
+						/></a>
+						<a
+							href="https://yoomoney.ru/to/410019209648036"
+							target="_blank"
+							id="yoomoney"
+							><img src="svg/yoomoney.svg" alt="yoomoney"
+						/></a>
+						<a
+							href="https://boosty.to/thejenja/donate"
+							target="_blank"
+							id="boosty"
+							><img src="svg/boosty.svg" alt="boosty"
+						/></a>
+						<a href="#" id="ton"
+							><img src="svg/ton.svg" alt="ton"
+						/></a>
+					</div>
+				</div>
+			</section>
+		</main>
+	</body>
+	<!-- Скрипты / Scripts ✍️ -->
+	<script src="scripts/gradient.js"></script>
+	<script src="scripts/tab.js"></script>
+	<script src="scripts/cursor.js"></script>
+	<script src="scripts/social.js"></script>
+	<script src="scripts/birthday.js"></script>
+	<script src="scripts/i18n.js"></script>
+	<script type="module" src="scripts/debuging.js"></script>
+	<script src="scripts/popup.js"></script>
+	<script>
+		const marqueeContainer = document.getElementById("marqueeContainer");
+		const items = [
+			{ text: "HTML", icon: "svg/html5.svg" },
+			{ text: "JavaScript", icon: "svg/javascript.svg" },
+			{ text: "PHP", icon: "svg/php.svg" },
+			{ text: "phpMyAdmin", icon: "svg/phpmyadmin.svg" },
+			{ text: "Laravel", icon: "svg/laravel.svg" },
+			{ text: "Markdown", icon: "svg/markdown.svg" },
+			{ text: "Wordpress", icon: "svg/wordpress.svg" },
+		];
+
+		// Function to create Marquee-content with evenly distributed items
+		function createMarqueeContent(itemsSubset) {
+			const marqueeContent = document.createElement("div");
+			marqueeContent.classList.add("Marquee-content");
+
+			// Repeat itemsSubset 3 times for smooth scrolling
+			for (let i = 0; i < 4; i++) {
+				itemsSubset.forEach((item) => {
+					const tag = document.createElement("div");
+					tag.classList.add("Marquee-tag");
+
+					const img = document.createElement("img");
+					img.src = item.icon;
+					img.alt = item.text;
+
+					const text = document.createElement("span");
+					text.textContent = item.text;
+
+					tag.appendChild(img);
+
+					marqueeContent.appendChild(tag);
+				});
+			}
+
+			marqueeContainer.appendChild(marqueeContent);
+		}
+
+		// Function to create multiple Marquee-content rows with balanced distribution
+		function createMultipleMarquees(numRows) {
+			const rows = [];
+			const itemsPerRow = Math.ceil(items.length / numRows);
+
+			for (let i = 0; i < numRows; i++) {
+				let rowItems = [];
+
+				// Fill the row with items
+				for (let j = 0; j < itemsPerRow; j++) {
+					rowItems.push(items[(i * itemsPerRow + j) % items.length]);
+				}
+
+				rows.push(rowItems);
+			}
+
+			// Create each Marquee-content row
+			rows.forEach((row) => createMarqueeContent(row));
+		}
+
+		// Create 3 Marquee-content rows
+		createMultipleMarquees(3);
+	</script>
 </html>

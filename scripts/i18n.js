@@ -6,11 +6,11 @@ const i18n = {
     getLang() {
         const url = new URL(window.location);
         let lang = url.searchParams.get("lang");
-        if (!lang || this.allowLang.indexOf(lang.toLowerCase()) <= -1 ) {
+if (!lang || this.allowLang.indexOf(lang.toLowerCase()) <= -1 ) {
             lang = this.defaultLang;
         }
         return lang;
-    },
+},
   
     _getScriptUrl() {
         return this.langPath + this.getLang() + ".json";
@@ -56,9 +56,39 @@ const i18n = {
                         element.placeholder = i18nLangs[element.dataset.i18n];
                     default:
                         element.innerHTML = i18nLangs[element.dataset.i18n];
-                }
-            }
-        });
-    },
-  }
-  i18n.prefixLangScript();
+					}
+				}
+			});
+		});
+	}
+
+	// Regular text replacement for given locale.
+	element.innerHTML = text;
+});
+
+// Set <html> tag lang attribute.
+const htmlElement = document.querySelector("html");
+htmlElement.setAttribute("lang", pageLanguage);
+
+// тут уже чатгпт начался
+
+// Функция для смены языка
+function toggleLanguage() {
+	// Определяем следующий язык
+	const newLanguage = pageLanguage === "en" ? "ru" : "en";
+
+	// Обновляем параметр ?lang= в URL
+	const url = new URL(window.location);
+	url.searchParams.set("lang", newLanguage);
+	window.history.pushState({}, "", url);
+
+	// надо будет сгенерить динамическую смену, а то чёт перезагрузка - фу
+
+	// Сохраняем новый язык и перезагружаем страницу
+	location.reload();
+}
+
+// Присваиваем функцию переключения языка кнопке
+document
+	.getElementById("language-toggle")
+	.addEventListener("click", toggleLanguage);
