@@ -1,61 +1,106 @@
-const i18n = {
-    allowLang: ["en", "uk"],
-    defaultLang: "ru", 
-    langPath: "scripts/i18n/",
-  
-    getLang() {
-        const url = new URL(window.location);
-        let lang = url.searchParams.get("lang");
-if (!lang || this.allowLang.indexOf(lang.toLowerCase()) <= -1 ) {
-            lang = this.defaultLang;
-        }
-        return lang;
-},
-  
-    _getScriptUrl() {
-        return this.langPath + this.getLang() + ".json";
-    },
-  
-    prefixLangScript() {
-        if (!this.getLang()) {return;}
-  
-        const xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function() {
-            if (xhr.readyState == XMLHttpRequest.DONE) {
-                if (xhr.responseText) {
-                    const langScript = document.createElement("script");
-                    langScript.innerHTML = xhr.responseText;
-                    document.getElementsByTagName('head')[0].appendChild(langScript);
-  
-                    if (i18nLangs && typeof i18n.replaceLang === 'function') {
-                        const launchI18nScript = document.createElement("script");
-                        launchI18nScript.innerHTML = "i18n.replaceLang();";
-                        document.body.appendChild(launchI18nScript);
-                    }
-                }
-            }
-        }
-        xhr.open('GET', this._getScriptUrl(), true);
-        xhr.send(null);
-    },
-  
-    replaceLang() {
-        if (!i18nLangs) {return;}
-  
-        document.querySelectorAll("[data-i18n]").forEach(function(element) {
-            if (! i18nLangs[element.dataset.i18n]) {
-                return;
-            }
-  
-            if (element.dataset.i18n_target) {
-                element[element.dataset.i18n_target] = i18nLangs[element.dataset.i18n];
-            } else {
-                switch(element.tagName.toLowerCase()) {
-                    case "input":
-                    case "textarea":
-                        element.placeholder = i18nLangs[element.dataset.i18n];
-                    default:
-                        element.innerHTML = i18nLangs[element.dataset.i18n];
+/*
+Основной код взят с https://github.com/dazecoop/vanilla-js-i18n-translator/
+
+Функция с кнопкой переключения языка сгенерирована в ChatGPT
+*/
+
+// List of available locales
+const availableLocales = ["ru", "en"];
+
+// Default locale.
+const defaultLanguage = "en";
+
+// Manually detect users' language, strip languages such as `en-GB` to just `en`.
+let language = (
+	window.navigator.userLanguage || window.navigator.language
+).substr(0, 2);
+
+// If `?lang=` exists in URL params & is valid, then use that instead.
+const urlParams = new URLSearchParams(window.location.search);
+const langFromUrl = urlParams.get("lang");
+if (langFromUrl && availableLocales.includes(langFromUrl)) {
+	language = langFromUrl;
+}
+
+// Set `pageLanguage` only if its available within our locales, otherwise default.
+let pageLanguage = defaultLanguage;
+if (availableLocales.includes(language)) {
+	pageLanguage = language;
+}
+
+// Locale translations.
+const locales = {
+	// EN
+	en: {
+		header: {
+			home: "Home",
+			"about-me": "About me",
+			donate: "Donate",
+		},
+		start: {
+			hi: "hi, i'm",
+			iam: "thejenja",
+			"scroll-message": "Use the scroll to find out about me",
+		},
+		aboutme: {
+			info: "A front-end developer focused on HTML, CSS, and JavaScript. I also contribute to translations on Hosted Weblate and Crowdin, make memes, post videos on TikTok, and experiment with AI.",
+		},
+		donate: {
+			info: "If you enjoy my content, you can support me with a donation. Any amount helps me grow and create more. Thank you for your support!",
+		},
+	},
+
+	// RU
+	ru: {
+		header: {
+			home: "Главная",
+			"about-me": "Обо мне",
+			donate: "Донат",
+		},
+		start: {
+			hi: "привет",
+			iam: "я thejenja",
+			"scroll-message": "Используй скролл, чтобы узнать обо мне",
+		},
+		aboutme: {
+			info: "Фронтенд-разработчик с фокусом на HTML, CSS и JavaScript. Занимаюсь переводами на Hosted Weblate и Crowdin, делаю мемы, выкладываю ролики в TikTok и экспериментирую с нейросетями.",
+		},
+		donate: {
+			info: "Если тебе нравится мой контент, ты можешь поддержать меня донатом. Любая сумма поможет мне развиваться и создавать больше интересного. Спасибо за поддержку!",
+		},
+	},
+};
+
+// Get all page elements to be translated.
+const elements = document.querySelectorAll("[data-i18n]");
+
+// Get JSON object of translations.
+const json = locales[pageLanguage];
+
+// On each element, found the translation from JSON file & update.
+elements.forEach((element, index) => {
+	const key = element.getAttribute("data-i18n");
+	let text = key.split(".").reduce((obj, i) => (obj ? obj[i] : null), json);
+
+	// Вот это кстати оч удобная штука, я так {age} прописывал, но до финала не дошло... вроде
+
+	// Does this text have any variables? (eg {something})
+	const variables = text.match(/{(.*?)}/g);
+	if (variables) {
+		// Iterate each variable in the text.
+		variables.forEach((variable) => {
+			// Filter all `data-*` attributes for this element to find the matching key.
+			Object.entries(element.dataset).filter(([key, value]) => {
+				if (`{${key}}` === variable) {
+					try {
+						// Attempt to run actual JavaScript code.
+						text = text.replace(
+							`${variable}`,
+							new Function(`return (${value})`)()
+						);
+					} catch (error) {
+						// Probably just static text replacement.
+						text = text.replace(`${variable}`, value);
 					}
 				}
 			});
