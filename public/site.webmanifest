@@ -1,0 +1,39 @@
+{
+	"name": "thejenja - Frontend Developer & Designer",
+	"short_name": "thejenja Portfolio",
+	"description": "Frontend разработчик и дизайнер. Создаю современные веб-приложения с фокусом на UX/UI и производительность.",
+	"icons": [
+		{
+			"src": "/favicon-light.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
+		{
+			"src": "/favicon-dark.svg",
+			"sizes": "any",
+			"type": "image/svg+xml",
+			"purpose": "any"
+		},
+		{
+			"src": "/apple-touch-icon-light.png",
+			"sizes": "180x180",
+			"type": "image/png",
+			"purpose": "any"
+		},
+		{
+			"src": "/apple-touch-icon-dark.png",
+			"sizes": "180x180",
+			"type": "image/png",
+			"purpose": "any"
+		}
+	],
+	"theme_color": "#667eea",
+	"background_color": "#ffffff",
+	"display": "standalone",
+	"start_url": "/",
+	"scope": "/",
+	"orientation": "portrait-primary",
+	"categories": ["portfolio", "developer", "design"],
+	"lang": "ru-RU"
+}

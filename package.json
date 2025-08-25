@@ -1,0 +1,37 @@
+{
+	"name": "portfolio",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"build": "nuxt build",
+		"dev": "nuxt dev",
+		"dev:host": "nuxt dev --host",
+		"generate": "nuxt generate",
+		"preview": "nuxt preview",
+		"postinstall": "nuxt prepare",
+		"i18n:sync": "node scripts/i18n-translate.js sync",
+		"i18n:stats": "node scripts/i18n-translate.js stats",
+		"i18n:clean": "node scripts/i18n-translate.js clean",
+		"i18n:help": "node scripts/i18n-translate.js help"
+	},
+	"dependencies": {
+		"@nuxt/content": "^3.6.0",
+		"@nuxt/eslint": "^1.8.0",
+		"@nuxt/fonts": "^0.11.4",
+		"@nuxt/image": "^1.11.0",
+		"@nuxtjs/color-mode": "^3.5.2",
+		"@nuxtjs/i18n": "^10.0.4",
+		"@nuxtjs/robots": "^5.4.0",
+		"@nuxtjs/sitemap": "^7.4.3",
+		"better-sqlite3": "^12.2.0",
+		"eslint": "^9.33.0",
+		"gsap": "^3.13.0",
+		"lucide-vue-next": "^0.539.0",
+		"nuxt": "^4.0.3",
+		"simple-icons": "^15.10.0",
+		"tippy.js": "^6.3.7",
+		"vue": "^3.5.18",
+		"vue-router": "^4.5.1",
+		"vue3-simple-icons": "^15.6.0"
+	}
+}
