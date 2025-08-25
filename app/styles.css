@@ -1,0 +1,356 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --gradient-1: #ac86cb66;
+    --gradient-2: #c78e9e66;
+    --bg: #ffffff;
+    --bg-secondary: #fafafa;
+    --bg-tertiary: #f0f0f0;
+    --bg-quaternary: #eee;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --text-tertiary: #94a3b8;
+    --hover-bg: #e2e8f0;
+    --border: #e5e7eb;
+}
+
+/* Dark theme */
+.dark {
+    --gradient-1: #45285d66;
+    --gradient-2: #5c2d3a66;
+    --bg: #0e0e0e;
+    --bg-secondary: #151515;
+    --bg-tertiary: #1e1e1e;
+    --bg-quaternary: #111;
+    --text: #fff;
+    --text-secondary: #9ca3af;
+    --text-tertiary: #6b7280;
+    --hover-bg: #374151;
+    --border: #262626;
+}
+
+body,
+button,
+input,
+textarea,
+select,
+option {
+    font-family: 'Onest', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html {
+    transition: background-color 0.3s ease;
+    scroll-behavior: smooth;
+    color-scheme: light dark;
+    scrollbar-color: var(--text) transparent;
+    scrollbar-width: thin;
+}
+
+section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: relative;
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 2rem;
+    color: var(--text);
+}
+
+section h2 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.app {
+    min-height: 100vh;
+    padding: 2rem;
+}
+
+.container {
+    max-width: 900px;
+    min-height: 100dvh;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin: 0 auto;
+}
+
+button svg {
+    vertical-align: middle;
+}
+
+/* Адаптивность */
+@media (max-width: 1024px) {
+    .container {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        position: static;
+        width: 100%;
+    }
+
+    .app {
+        padding: 0.5rem;
+    }
+
+    .main-content {
+        gap: 1rem;
+    }
+
+    section {
+        padding: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .app {
+        padding: 0.5rem;
+    }
+
+    .container {
+        gap: 1rem;
+    }
+
+    .main-content {
+        gap: 1rem;
+    }
+}
+
+/* Ripple эффект для кнопок */
+@keyframes ripple-animation {
+    from {
+        transform: scale(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Единые слайд анимации для всех компонентов */
+.slide-enter-active {
+    transition: all 0.4s ease-out;
+}
+
+.slide-leave-active {
+    transition: all 0.3s ease-in;
+}
+
+.slide-enter-from {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.slide-leave-to {
+    opacity: 0;
+    transform: translateX(-30px);
+}
+
+.slide-move {
+    transition: transform 0.4s ease-out;
+}
+
+/* Уважение к настройкам пользователя по анимациям */
+@media (prefers-reduced-motion: reduce) {
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .ripple-effect {
+        display: none;
+    }
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+}
+
+/* Глобальные стили для анимированного mark */
+mark {
+    position: relative;
+    background: transparent;
+    color: var(--text);
+    padding: 0 2px;
+    z-index: 0;
+}
+
+mark::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    height: 1.5em;
+    background: #ac86cb66;
+    border-radius: 8px;
+    corner-shape: superellipse(1.3);
+    transform: rotate(-2deg) scaleX(0);
+    transform-origin: left center;
+    z-index: -1;
+    transition: transform 0.6s ease;
+    translate: 0 -50%;
+}
+
+mark.animate::before {
+    transform: rotate(-2deg) scaleX(1);
+}
+
+/* Пасхалки и специальные эффекты */
+[data-brainrot="true"],
+html[lang="brainrot"] {
+    /* Gen Z brainrot стили */
+    --accent: #ff6b9d;
+    --accent-hover: #ff4d7d;
+    --text: #ff69b4;
+    --text-secondary: #ff8fab;
+}
+
+[data-brainrot="true"] .cmd-item.selected,
+html[lang="brainrot"] .cmd-item.selected {
+    background: linear-gradient(45deg, #ff6b9d, #ff8fab);
+    color: white;
+    text-shadow: 0 0 10px rgba(255, 107, 157, 0.5);
+}
+
+[data-brainrot="true"] .cmd-input,
+html[lang="brainrot"] .cmd-input {
+    border-color: #ff6b9d;
+    box-shadow: 0 0 0 2px rgba(255, 107, 157, 0.2);
+}
+
+[data-brainrot="true"] .cmd-input:focus,
+html[lang="brainrot"] .cmd-input:focus {
+    border-color: #ff4d7d;
+    box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.3);
+}
+
+/* Анимации для пасхалок */
+@keyframes brainrot-pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+[data-brainrot="true"] .cmd-container,
+html[lang="brainrot"] .cmd-container {
+    animation: brainrot-pulse 2s ease-in-out infinite;
+}
+
+/* Фильтры для пасхалок */
+body[style*="grayscale"] {
+    transition: filter 0.5s ease;
+}
+
+body[style*="blur"] {
+    transition: filter 0.5s ease;
+}
+
+body[style*="contrast"] {
+    transition: filter 0.5s ease;
+}
+
+/* Специальные эффекты для brainrot режима */
+[data-brainrot="true"] .cmd-item,
+html[lang="brainrot"] .cmd-item {
+    position: relative;
+    overflow: hidden;
+}
+
+[data-brainrot="true"] .cmd-item::before,
+html[lang="brainrot"] .cmd-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+[data-brainrot="true"] .cmd-item:hover::before,
+html[lang="brainrot"] .cmd-item:hover::before {
+    left: 100%;
+}
+
+/* Дополнительные стили для brainrot локализации */
+html[lang="brainrot"] .nav-link {
+    background: linear-gradient(45deg, #ff6b9d, #ff8fab);
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+}
+
+html[lang="brainrot"] .nav-link .language-code {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+html[lang="brainrot"] .brainrot-indicator {
+    animation: brainrot-bounce 1s ease-in-out infinite;
+}
+
+/* Анимация для brainrot режима */
+html[lang="brainrot"] .nav-link {
+    animation: brainrot-pulse 2s ease-in-out infinite;
+}
+
+/* Адаптивность для пасхалок */
+@media (max-width: 768px) {
+    .notification {
+        top: 10px;
+        right: 10px;
+        left: 10px;
+        transform: translateY(-100%);
+    }
+
+    .notification.show {
+        transform: translateY(0);
+    }
+}
