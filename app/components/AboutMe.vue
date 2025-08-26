@@ -1,6 +1,9 @@
 <template>
 	<section class="about-me">
-		<h2 class="about-title">{{ $t("about.title") }}</h2>
+		<h2>
+			{{ $t("about.title") }}
+			<FileUser />
+		</h2>
 
 		<div class="about-content" ref="contentRoot">
 			<div class="text-preview" :class="{ expanded: isExpanded }">
@@ -35,7 +38,7 @@
 </template>
 
 <script setup>
-import { ChevronDown } from "lucide-vue-next";
+import { ChevronDown, FileUser } from "lucide-vue-next";
 import { ref, onMounted, nextTick, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMarkAnimation } from "~/composables/useMarkAnimation";
@@ -97,8 +100,8 @@ watch(isExpanded, () => {
 
 .expand-button {
 	position: absolute;
-	bottom: -24px;
-	right: -24px;
+	bottom: -12px;
+	right: -12px;
 	background: var(--bg-tertiary);
 	border: none;
 	border-radius: 8px;

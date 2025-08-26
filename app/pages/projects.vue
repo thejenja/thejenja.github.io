@@ -55,8 +55,8 @@ const {
 		try {
 			const result = await loadAllProjects(locale.value);
 			return result || [];
-		} catch (error) {
-			console.error(t("projects.loadingError"), error);
+		} catch {
+			// console.error(t("projects.loadingError"), error);
 			return [];
 		}
 	}
@@ -194,14 +194,14 @@ const filtered = computed<Project[]>(() => {
 
 const applyFilters = () => {
 	// Фильтры применяются автоматически через computed свойство
-	console.log("Фильтры применены");
+	// console.log("Фильтры применены");
 };
 
 // Обработчик клика по проекту
 const handleProjectClick = (project: Project) => {
 	// Здесь можно добавить логику открытия проекта
 	// Например, переход на страницу проекта или открытие модального окна
-	console.log("Клик по проекту:", project.title);
+	// console.log("Клик по проекту:", project.title);
 
 	// Временное решение - переход на страницу проекта
 	if (project._path) {
@@ -222,11 +222,6 @@ useHead(() => ({
 		},
 	],
 }));
-
-const handleRefresh = () => {
-	refresh();
-	sessionStorage.setItem("projects-last-update", Date.now().toString());
-};
 </script>
 
 <template>
@@ -239,43 +234,20 @@ const handleRefresh = () => {
 					<p class="page-description">{{ $t("projects.description") }}</p>
 				</div>
 
-				<!-- Кнопка обновления -->
-				<button
-					@click="handleRefresh"
-					:disabled="pending"
-					class="refresh-button"
-					:title="$t('projects.refresh')"
-				>
-					<svg
-						:class="{ rotating: pending }"
-						width="20"
-						height="20"
-						viewBox="0 0 24 24"
-						fill="none"
-						stroke="currentColor"
-						stroke-width="2"
-					>
-						<path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
-						<path d="M21 3v5h-5" />
-						<path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
-						<path d="M3 21v-5h5" />
-					</svg>
-				</button>
-			</div>
-
-			<div class="controls">
-				<!-- Фильтры -->
-				<FilterSidebar
-					v-model:selected-techs="selectedTechs"
-					v-model:selected-types="selectedTypes"
-					v-model:selected-stages="selectedStages"
-					v-model:selected-project-colors="selectedProjectColors"
-					:all-techs="allTechs"
-					:all-types="allTypes"
-					:all-stages="allStages"
-					:all-project-colors="allProjectColors"
-					@apply="applyFilters"
-				/>
+				<div class="controls">
+					<!-- Фильтры -->
+					<FilterSidebar
+						v-model:selected-techs="selectedTechs"
+						v-model:selected-types="selectedTypes"
+						v-model:selected-stages="selectedStages"
+						v-model:selected-project-colors="selectedProjectColors"
+						:all-techs="allTechs"
+						:all-types="allTypes"
+						:all-stages="allStages"
+						:all-project-colors="allProjectColors"
+						@apply="applyFilters"
+					/>
+				</div>
 			</div>
 
 			<TimelineProjects

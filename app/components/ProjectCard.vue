@@ -289,14 +289,14 @@ const getStageIcon = (stage: string) => {
 
 // Определяем нужно ли показывать popover
 const shouldShowPopover = computed(() => {
-	console.log("=== DEBUG shouldShowPopover ===");
-	console.log("Title:", props.project.title);
-	console.log("Body:", props.project.body);
-	console.log("Body type:", typeof props.project.body);
-	console.log(
-		"Body keys:",
-		props.project.body ? Object.keys(props.project.body) : "no body"
-	);
+	// console.log("=== DEBUG shouldShowPopover ===");
+	// console.log("Title:", props.project.title);
+	// console.log("Body:", props.project.body);
+	// console.log("Body type:", typeof props.project.body);
+	// console.log(
+	// 	"Body keys:",
+	// 	props.project.body ? Object.keys(props.project.body) : "no body"
+	// );
 
 	// Проверяем есть ли реальный контент (не только метаданные)
 	const hasRealContent =
@@ -306,21 +306,21 @@ const shouldShowPopover = computed(() => {
 		Array.isArray((props.project.body as any).value) &&
 		(props.project.body as any).value.length > 0;
 
-	console.log("Has real content:", hasRealContent);
-	console.log(
-		"Children:",
-		props.project.body ? (props.project.body as any).children : "no children"
-	);
-	console.log(
-		"Children length:",
-		props.project.body
-			? (props.project.body as any).children?.length
-			: "no length"
-	);
+	// console.log("Has real content:", hasRealContent);
+	// console.log(
+	// 	"Children:",
+	// 	props.project.body ? (props.project.body as any).children : "no children"
+	// );
+	// console.log(
+	// 	"Children length:",
+	// 	props.project.body
+	// 		? (props.project.body as any).children?.length
+	// 		: "no length"
+	// );
 
 	// Если есть реальный контент - всегда показываем popover
 	if (hasRealContent) {
-		console.log("Есть контент - возвращаем true");
+		// console.log("Есть контент - возвращаем true");
 		return true;
 	}
 
@@ -330,7 +330,7 @@ const shouldShowPopover = computed(() => {
 		props.project.meta?.behance &&
 		props.project.meta?.dribbble
 	) {
-		console.log("Дизайн с двумя ссылками - возвращаем true");
+		// console.log("Дизайн с двумя ссылками - возвращаем true");
 		return true;
 	}
 
@@ -339,12 +339,12 @@ const shouldShowPopover = computed(() => {
 		props.project.meta?.type === "design" &&
 		(props.project.meta?.behance || props.project.meta?.dribbble)
 	) {
-		console.log("Дизайн с одной ссылкой - возвращаем false");
+		// console.log("Дизайн с одной ссылкой - возвращаем false");
 		return false;
 	}
 
 	// Для остальных проектов - показываем popover
-	console.log("Обычный проект - возвращаем true");
+	// console.log("Обычный проект - возвращаем true");
 	return true;
 });
 

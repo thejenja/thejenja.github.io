@@ -60,7 +60,7 @@ export const useProjects = () => {
 		try {
 			// Проверяем, доступен ли queryCollection
 			if (typeof queryCollection === "undefined") {
-				console.warn("queryCollection не доступен, возвращаем fallback данные");
+				// console.warn("queryCollection не доступен, возвращаем fallback данные");
 				return fallbackProjects;
 			}
 
@@ -82,7 +82,7 @@ export const useProjects = () => {
 
 			return projects;
 		} catch (error) {
-			console.error("Ошибка загрузки проектов:", error);
+			// console.error("Ошибка загрузки проектов:", error);
 			return fallbackProjects;
 		}
 	};
@@ -92,7 +92,7 @@ export const useProjects = () => {
 		try {
 			// Проверяем, доступен ли queryCollection
 			if (typeof queryCollection === "undefined") {
-				console.warn("queryCollection не доступен, возвращаем fallback данные");
+				// console.warn("queryCollection не доступен, возвращаем fallback данные");
 				return fallbackProjects.filter(
 					(project) => project.meta?.featured === true
 				);
@@ -125,7 +125,7 @@ export const useProjects = () => {
 
 			return finalResult;
 		} catch (error) {
-			console.error("Ошибка загрузки избранных проектов:", error);
+			// console.error("Ошибка загрузки избранных проектов:", error);
 			return fallbackProjects.filter(
 				(project) => project.meta?.featured === true
 			);
@@ -136,7 +136,7 @@ export const useProjects = () => {
 	const loadProjectBySlug = async (slug: string, locale?: string) => {
 		try {
 			if (typeof queryCollection === "undefined") {
-				console.warn("queryCollection не доступен, возвращаем null");
+				// console.warn("queryCollection не доступен, возвращаем null");
 				return null;
 			}
 
@@ -163,7 +163,7 @@ export const useProjects = () => {
 
 			return result || null;
 		} catch (error) {
-			console.error("Ошибка загрузки проекта:", error);
+			// console.error("Ошибка загрузки проекта:", error);
 			return null;
 		}
 	};

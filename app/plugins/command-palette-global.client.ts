@@ -67,8 +67,8 @@ export default defineNuxtPlugin(() => {
 	// Добавляем глобальный обработчик
 	document.addEventListener("keydown", onGlobalKeydown);
 
-	// Очищаем при размонтировании
-	onUnmounted(() => {
+	// Возвращаем функцию очистки для Nuxt
+	return () => {
 		document.removeEventListener("keydown", onGlobalKeydown);
-	});
+	};
 });

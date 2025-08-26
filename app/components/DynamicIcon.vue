@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, type Component, computed } from "vue";
+import { ref, onMounted, watch, type Component, computed, markRaw } from "vue";
 
 interface Props {
 	icon: string; // 'simple-icons:icon-name', 'lucide:icon-name', '/path/to/icon.svg', или просто 'icon-name'
@@ -79,8 +79,8 @@ const loadIcon = async () => {
 				await loadAutoIcon();
 				break;
 		}
-	} catch (error) {
-		console.warn(`Ошибка загрузки иконки: ${props.icon}`, error);
+	} catch {
+		// console.warn(`Ошибка загрузки иконки: ${props.icon}`, error);
 		iconComponent.value = null;
 	}
 };
@@ -99,10 +99,10 @@ const loadSimpleIcon = async () => {
 	const IconComponent = iconModule[componentName as keyof typeof iconModule];
 
 	if (IconComponent) {
-		iconComponent.value = IconComponent;
+		iconComponent.value = markRaw(IconComponent);
 		iconClass.value = "simple-icon";
 	} else {
-		console.warn(`Simple Icon не найдена: ${componentName}`);
+		// console.warn(`Simple Icon не найдена: ${componentName}`);
 		iconComponent.value = null;
 	}
 };
@@ -125,10 +125,10 @@ const loadLucideIcon = async () => {
 	const IconComponent = iconModule[componentName as keyof typeof iconModule];
 
 	if (IconComponent) {
-		iconComponent.value = IconComponent;
+		iconComponent.value = markRaw(IconComponent);
 		iconClass.value = "lucide-icon";
 	} else {
-		console.warn(`Lucide Icon не найдена: ${componentName}`);
+		// console.warn(`Lucide Icon не найдена: ${componentName}`);
 		iconComponent.value = null;
 	}
 };

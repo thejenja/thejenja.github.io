@@ -1,46 +1,37 @@
 <template>
 	<section class="contact-me">
-		<h2 class="contact-title">{{ $t("contact.title") }}</h2>
+		<h2>
+			{{ $t("contact.title") }}
+			<Mail />
+		</h2>
+		<a
+			href="https://t.me/thejenja"
+			target="_blank"
+			rel="noopener noreferrer"
+			class="contact-button telegram"
+		>
+			<img
+				src="/icons/telegram-logo.svg"
+				alt="Telegram"
+				class="contact-icon"
+				width="20"
+				height="20"
+			/>
+			{{ $t("contact.writeTelegram") }}
+		</a>
 
-		<div class="contact-buttons">
-			<a
-				href="https://t.me/thejenja"
-				target="_blank"
-				rel="noopener noreferrer"
-				class="contact-button telegram"
-			>
-				<img
-					src="/icons/telegram-logo.svg"
-					alt="Telegram"
-					class="contact-icon"
-					width="20"
-					height="20"
-				/>
-				{{ $t("contact.writeTelegram") }}
-			</a>
-
-			<a href="mailto:thejenja@example.com" class="contact-button email">
-				<AtSign />
-				{{ $t("contact.writeEmail") }}
-			</a>
-		</div>
+		<a href="mailto:thejenjagamertjg@gmail.com" class="contact-button email">
+			<AtSign />
+			{{ $t("contact.writeEmail") }}
+		</a>
 	</section>
 </template>
 
 <script setup>
-import { AtSign } from "lucide-vue-next";
-
-// Компонент не требует дополнительной логики
+import { AtSign, Mail } from "lucide-vue-next";
 </script>
 
 <style scoped>
-
-.contact-buttons {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-}
-
 .contact-button {
 	display: flex;
 	align-items: center;
@@ -72,11 +63,5 @@ import { AtSign } from "lucide-vue-next";
 
 .contact-button.email:hover {
 	background: var(--bg-secondary);
-}
-
-.contact-icon {
-	width: 20px;
-	height: 20px;
-	flex-shrink: 0;
 }
 </style>

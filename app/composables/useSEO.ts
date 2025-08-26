@@ -1,6 +1,26 @@
 export const useSEO = () => {
 	const { locale, t } = useI18n();
 	const colorMode = useColorMode();
+	const route = useRoute();
+
+	// Получаем базовый URL сайта из Site Config (падает в fallback при отсутствии)
+	let siteUrl = "https://thejenja.github.io";
+	try {
+		// @ts-ignore - доступно при установленных SEO модулях
+		const cfg = typeof useSiteConfig === "function" ? useSiteConfig() : null;
+		if (cfg?.url) siteUrl = cfg.url as string;
+	} catch {}
+
+	const getAbsoluteUrl = (path: string) => {
+		try {
+			return new URL(path, siteUrl).toString();
+		} catch {
+			return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
+		}
+	};
+
+	const currentPath = computed(() => route.path);
+	const currentUrl = computed(() => getAbsoluteUrl(currentPath.value));
 
 	// Базовые SEO мета-теги
 	const getBaseMeta = () => ({
@@ -45,12 +65,12 @@ export const useSEO = () => {
 
 	const getOpenGraphImage = () => ({
 		property: "og:image",
-		content: "/og-image.jpg",
+		content: getAbsoluteUrl("/images/qr-code.png"),
 	});
 
 	const getOpenGraphUrl = () => ({
 		property: "og:url",
-		content: "https://thejenja.github.io",
+		content: currentUrl.value,
 	});
 
 	// Twitter Card мета-теги
@@ -71,7 +91,7 @@ export const useSEO = () => {
 
 	const getTwitterImage = () => ({
 		name: "twitter:image",
-		content: "/og-image.jpg",
+		content: getAbsoluteUrl("/images/qr-code.png"),
 	});
 
 	// Адаптивные favicon ссылки
@@ -111,10 +131,7 @@ export const useSEO = () => {
 				rel: "manifest",
 				href: "/site.webmanifest",
 			},
-			{
-				rel: "canonical",
-				href: "https://thejenja.github.io",
-			},
+			// canonical генерируется i18n через useLocaleHead
 		];
 	};
 
@@ -172,7 +189,7 @@ export const useSEO = () => {
 	};
 
 	// Следим за изменениями темы и языка
-	watch([colorMode, locale], () => {
+	watch([colorMode, locale, () => route.fullPath], () => {
 		updateThemeSEO();
 		updateLocaleSEO();
 	});

@@ -1,81 +1,75 @@
 <template>
-	<button
-		ref="navToggle"
-		class="nav-toggle"
-		popovertarget="navigation"
-		@click="toggleNavigation"
-		:aria-label="$t('navigation.toggle')"
-	>
-		<transition name="blur-fade" mode="out-in">
-			<Menu v-if="!isOpen" class="nav-icon" />
-			<X v-else class="nav-icon" />
-		</transition>
-	</button>
-	<div id="navigation" popover>
-		<div class="nav-content">
-			<div class="nav-header">
-				<img
-					src="/images/thejenja.svg"
-					alt="logo"
-					class="nav-logo"
-					width="120"
-					height="32"
-				/>
-			</div>
-			<button
-				class="nav-close"
-				popovertarget="navigation"
-				popovertargetaction="hide"
-				@click="toggleNavigation"
-			>
-				<X />
-			</button>
-			<div class="nav-section">
-				<NuxtLinkLocale to="/" class="nav-link" @click="closeNavigation">
-					<Home />
-					{{ $t("navigation.home") }}
-				</NuxtLinkLocale>
-				<NuxtLinkLocale
-					to="/projects"
-					class="nav-link"
-					@click="closeNavigation"
+	<div class="navigation-wrapper">
+		<button
+			ref="navToggle"
+			class="nav-toggle"
+			popovertarget="navigation"
+			@click="toggleNavigation"
+			:aria-label="$t('navigation.toggle')"
+		>
+			<transition name="blur-fade" mode="out-in">
+				<Menu v-if="!isOpen" class="nav-icon" />
+				<X v-else class="nav-icon" />
+			</transition>
+		</button>
+		<div id="navigation" popover>
+			<div class="nav-content">
+				<div class="nav-header">
+					<img
+						src="/images/thejenja.svg"
+						alt="logo"
+						class="nav-logo"
+						width="120"
+						height="32"
+					/>
+				</div>
+				<button
+					class="nav-close"
+					popovertarget="navigation"
+					popovertargetaction="hide"
+					@click="toggleNavigation"
 				>
-					<Folder />
-					{{ $t("navigation.projects") }}
-				</NuxtLinkLocale>
-			</div>
-			<hr />
-			<div class="nav-section">
-				<LanguageToggle />
-				<ThemeToggle />
-
+					<X />
+				</button>
+				<div class="nav-section">
+					<NuxtLinkLocale to="/" class="nav-link" @click="closeNavigation">
+						<Home />
+						{{ $t("navigation.home") }}
+					</NuxtLinkLocale>
+					<NuxtLinkLocale
+						to="/projects"
+						class="nav-link"
+						@click="closeNavigation"
+					>
+						<Folder />
+						{{ $t("navigation.projects") }}
+					</NuxtLinkLocale>
+				</div>
 				<hr />
+				<div class="nav-section">
+					<LanguageToggle />
+					<ThemeToggle />
 
-				<a
-					href="https://github.com/thejenja/thejenja.github.io"
-					target="_blank"
-					rel="noopener noreferrer"
-					class="nav-link"
-				>
-					<Github />
-					{{ $t("navigation.sourceCode") }}
-				</a>
+					<hr />
+
+					<a
+						href="https://github.com/thejenja/thejenja.github.io"
+						target="_blank"
+						rel="noopener noreferrer"
+						class="nav-link"
+					>
+						<Github />
+						{{ $t("navigation.sourceCode") }}
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script setup>
-import {
-	BookOpen,
-	BookOpenText,
-	Folder,
-	Github,
-	Home,
-	Menu,
-	Star,
-	X,
-} from "lucide-vue-next";
+import { Folder, Github, Home, Menu, X } from "lucide-vue-next";
+import { watch } from "vue";
 
 const isOpen = ref(false);
 const navToggle = ref();
@@ -103,18 +97,26 @@ onMounted(() => {
 	}
 });
 
-onBeforeRouteLeave((to, from, next) => {
-	isOpen.value = false;
-	// Закрываем popover программно
-	const navigation = document.getElementById("navigation");
-	if (navigation && navigation.matches(":popover-open")) {
-		navigation.hidePopover();
+// Следим за изменениями маршрута и закрываем навигацию
+const route = useRoute();
+watch(
+	() => route.path,
+	() => {
+		isOpen.value = false;
+		// Закрываем popover программно
+		const navigation = document.getElementById("navigation");
+		if (navigation && navigation.matches(":popover-open")) {
+			navigation.hidePopover();
+		}
 	}
-	next();
-});
+);
 </script>
 
 <style scoped>
+.navigation-wrapper {
+	/* Обертка для Navigation компонента */
+}
+
 .nav-toggle {
 	position: fixed;
 	top: 1rem;

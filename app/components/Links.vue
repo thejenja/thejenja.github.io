@@ -1,6 +1,9 @@
 <template>
 	<section class="links">
-		<h2 class="links-title">{{ $t("links.title") }}</h2>
+		<h2>
+			{{ $t("links.title") }}
+			<Link />
+		</h2>
 
 		<div class="tabs">
 			<button
@@ -157,7 +160,7 @@ import {
 	TwitchIcon,
 	TikTokIcon,
 } from "vue3-simple-icons";
-import { Star, Copy, X } from "lucide-vue-next";
+import { Star, Copy, X, Link } from "lucide-vue-next";
 
 // Компонент для отображения SVG иконок
 const SvgIcon = defineComponent({
@@ -556,8 +559,8 @@ const copyToClipboard = async (text) => {
 	try {
 		await navigator.clipboard.writeText(text);
 		// Можно добавить уведомление об успешном копировании
-	} catch (err) {
-		console.error("Ошибка копирования:", err);
+	} catch {
+		// console.error("Ошибка копирования:", err);
 		// Fallback для старых браузеров
 		const textArea = document.createElement("textarea");
 		textArea.value = text;
@@ -593,8 +596,8 @@ const initTippyWithState = async () => {
 
 		// Сохраняем observer для очистки
 		window._tippyObserver = observer;
-	} catch (error) {
-		console.warn("Ошибка инициализации Tippy:", error);
+	} catch {
+		// console.warn("Ошибка инициализации Tippy:", error);
 	}
 };
 

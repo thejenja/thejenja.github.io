@@ -7,7 +7,7 @@ export const useMarkAnimation = () => {
 		if (!rootElement) return;
 
 		const marks = rootElement.querySelectorAll("mark");
-		console.log(`Found ${marks.length} mark elements`);
+		// console.log(`Found ${marks.length} mark elements`);
 
 		if (marks.length === 0) return;
 
@@ -17,7 +17,7 @@ export const useMarkAnimation = () => {
 		// Ступенчатая задержка
 		marks.forEach((el, i) => {
 			setTimeout(() => {
-				console.log(`Animating mark ${i + 1}`);
+				// console.log(`Animating mark ${i + 1}`);
 				el.classList.add("animate");
 			}, i * delay);
 		});
@@ -26,7 +26,7 @@ export const useMarkAnimation = () => {
 	// Анимация всех mark элементов на странице
 	const animateAllMarks = (delay: number = 1000) => {
 		const marks = document.querySelectorAll("mark");
-		console.log(`Found ${marks.length} mark elements globally`);
+		// console.log(`Found ${marks.length} mark elements globally`);
 
 		if (marks.length === 0) return;
 
@@ -36,7 +36,7 @@ export const useMarkAnimation = () => {
 		// Ступенчатая задержка
 		marks.forEach((el, i) => {
 			setTimeout(() => {
-				console.log(`Animating global mark ${i + 1}`);
+				// console.log(`Animating global mark ${i + 1}`);
 				el.classList.add("animate");
 			}, i * delay);
 		});

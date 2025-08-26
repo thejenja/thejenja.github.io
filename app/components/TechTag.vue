@@ -53,7 +53,7 @@ const handleClick = () => {
 	corner-shape: superellipse(1.5);
 	font-size: 1rem;
 	font-weight: 700;
-	transition: all 0.2s ease;
+	transition: all 1s ease;
 	cursor: default;
 	user-select: none;
 	background: var(--tag-color, #6b7280);
@@ -77,16 +77,20 @@ const handleClick = () => {
 
 .tech-tag__name {
 	width: 0;
+	opacity: 0;
+	transform: translateX(-1%);
 	overflow: hidden;
 	line-height: 1;
 	white-space: nowrap;
-	transition: all 0.3s ease-in-out;
+	transition: all 1s ease;
 }
 
 .tech-tag:hover .tech-tag__name {
 	overflow: visible;
 	width: auto;
 	margin-left: 0.375rem;
+	transform: translateX(0);
+	opacity: 1;
 }
 
 /* Убираем старые цветовые схемы, теперь используем CSS переменные */
@@ -94,18 +98,9 @@ const handleClick = () => {
 	color: currentColor;
 }
 
-/* Темная тема */
-:global(.dark) .tech-tag {
-	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-:global(.dark) .tech-tag--clickable:hover {
-	box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
-}
-
 /* Анимация появления */
 .tech-tag {
-	animation: tag-appear 0.3s ease-out;
+	animation: tag-appear 1s ease-out;
 }
 
 @keyframes tag-appear {

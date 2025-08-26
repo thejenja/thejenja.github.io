@@ -5,7 +5,7 @@ export default defineNuxtPlugin(() => {
 		window.addEventListener("error", (event) => {
 			if (event.message.includes("onBeforeRouteLeave")) {
 				event.preventDefault();
-				console.warn("Предотвращена ошибка onBeforeRouteLeave");
+				// console.warn("Предотвращена ошибка onBeforeRouteLeave");
 			}
 		});
 
@@ -17,7 +17,7 @@ export default defineNuxtPlugin(() => {
 				event.reason.message.includes("onBeforeRouteLeave")
 			) {
 				event.preventDefault();
-				console.warn("Предотвращена ошибка onBeforeRouteLeave в Promise");
+				        // console.warn("Предотвращена ошибка onBeforeRouteLeave в Promise");
 			}
 		});
 	}

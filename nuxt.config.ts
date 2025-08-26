@@ -33,24 +33,28 @@ export default defineNuxtConfig({
 			{
 				code: "en",
 				iso: "en-US",
+				language: "en-US",
 				name: "English",
 				file: "en.json",
 			},
 			{
 				code: "ru",
 				iso: "ru-RU",
+				language: "ru-RU",
 				name: "Русский",
 				file: "ru.json",
 			},
 			{
 				code: "brainrot",
 				iso: "en-BR",
+				language: "en",
 				name: "Brainrot",
 				file: "brainrot.json",
 			},
 		],
 		defaultLocale: "en",
 		strategy: "prefix_except_default",
+		baseUrl: "https://thejenja.github.io",
 		detectBrowserLanguage: {
 			useCookie: true,
 			cookieKey: "i18n_redirected",
@@ -82,5 +86,10 @@ export default defineNuxtConfig({
 
 	sitemap: {
 		hostname: "https://thejenja.github.io",
+	},
+
+	robots: {
+		// Блокируем шумные не-SEO боты, оставляя индексацию для продакшена
+		blockNonSeoBots: true,
 	},
 });
