@@ -180,12 +180,8 @@ watch(
 	color: var(--text);
 	flex-shrink: 0;
 	position-anchor: --btn-nav;
-	top: anchor(
-		bottom
-	); /* Positions the top of the tooltip at the bottom of the anchor */
-	left: anchor(
-		left
-	); /* Positions the left of the tooltip at the left of the anchor */
+	top: anchor(--btn-nav bottom);
+	left: anchor(--btn-nav left);
 
 	/* Современные CSS анимации для popover */
 	transition:

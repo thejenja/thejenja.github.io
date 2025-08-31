@@ -53,7 +53,7 @@ export default defineNuxtConfig({
 			},
 		],
 		defaultLocale: "en",
-		strategy: "prefix_except_default",
+		strategy: "prefix",
 		baseUrl: "https://thejenja.github.io",
 		detectBrowserLanguage: {
 			useCookie: true,

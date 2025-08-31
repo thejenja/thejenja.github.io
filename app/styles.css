@@ -56,6 +56,15 @@ html {
     color-scheme: light dark;
     scrollbar-color: var(--text) transparent;
     scrollbar-width: thin;
+    -webkit-font-smoothing: antialiased;
+    /* Chrome/Safari */
+    -moz-osx-font-smoothing: grayscale;
+    /* Firefox */
+}
+
+::selection {
+    background-color: var(--gradient-2);
+    color: var(--text);
 }
 
 section {

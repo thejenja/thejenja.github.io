@@ -906,8 +906,8 @@ const getStageLabel = (stage: string) => {
 
 .close-button {
 	position: absolute;
-	top: anchor(top);
-	left: anchor(right);
+	top: anchor(--contentScroll top);
+	left: anchor(--contentScroll right);
 	margin-inline: 1rem;
 	background: var(--bg-secondary);
 	color: var(--text);

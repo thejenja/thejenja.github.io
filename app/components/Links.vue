@@ -186,7 +186,7 @@ const SvgIcon = defineComponent({
 	},
 });
 
-const activeTab = ref("all");
+const activeTab = ref("favorites");
 const linksContainer = ref(null);
 const linkRefs = ref([]);
 let tippyInstances = [];
@@ -276,7 +276,7 @@ const allLinks = {
 		{
 			id: 3,
 			label: "Stack Overflow",
-			url: "https://stackoverflow.com/users/1234567890/thejenja",
+			url: "https://stackoverflow.com/users/23535198/evgeniy-khramov",
 			icon: StackOverflowIcon,
 			color: "#f48024",
 		},
@@ -796,6 +796,7 @@ onUnmounted(() => {
 .link-button svg,
 .link-button img {
 	transition: all 0.3s ease;
+	pointer-events: none;
 }
 
 /* Уважение к настройкам пользователя */

@@ -2,7 +2,7 @@ User-Agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://yoursite.com/sitemap.xml
+Sitemap: https://thejenja.github.io/sitemap.xml
 
 # Allow all major search engines
 User-agent: Googlebot

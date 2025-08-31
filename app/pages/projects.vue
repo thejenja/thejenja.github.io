@@ -3,6 +3,7 @@ import { computed, ref } from "vue";
 import TimelineProjects from "~/components/TimelineProjects.vue";
 import FilterSidebar from "~/components/FilterSidebar.vue";
 import { useI18n } from "vue-i18n";
+import AnimatedSection from "~/components/AnimatedSection.vue";
 const { t } = useI18n();
 
 interface Project {
@@ -228,6 +229,7 @@ useHead(() => ({
 	<div class="projects-page">
 		<div class="container">
 			<!-- Заголовок страницы -->
+
 			<div class="page-header">
 				<div class="header-content">
 					<h1 class="page-title">{{ $t("projects.title") }}</h1>
@@ -250,15 +252,17 @@ useHead(() => ({
 				</div>
 			</div>
 
-			<TimelineProjects
-				:projects="filtered || []"
-				@project-click="handleProjectClick"
-			/>
+			<AnimatedSection animation-type="fade" :delay="1">
+				<TimelineProjects
+					:projects="filtered || []"
+					@project-click="handleProjectClick"
+				/>
 
-			<!-- Сообщение о загрузке -->
-			<div v-if="pending" class="loading-message">
-				<p>{{ $t("projects.loading") }}</p>
-			</div>
+				<!-- Сообщение о загрузке -->
+				<div v-if="pending" class="loading-message">
+					<p>{{ $t("projects.loading") }}</p>
+				</div>
+			</AnimatedSection>
 		</div>
 	</div>
 </template>
