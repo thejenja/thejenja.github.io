@@ -29,7 +29,6 @@ export default defineNuxtConfig({
 	},
 
 	i18n: {
-		langDir: "locales",
 		locales: [
 			{
 				code: "en",
@@ -86,7 +85,7 @@ export default defineNuxtConfig({
 	},
 
 	sitemap: {
-		hostname: "https://thejenja.github.io",
+		urls: ["https://thejenja.github.io"],
 	},
 
 	robots: {
