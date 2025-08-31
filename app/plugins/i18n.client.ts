@@ -6,7 +6,7 @@ export default defineNuxtPlugin(() => {
 			const browserLang = navigator.language.split("-")[0];
 
 			// Проверяем доступные локали
-			const availableLocales = ["en", "ru"];
+			const availableLocales = ["en", "ru", "brainrot"];
 
 			// Если язык браузера поддерживается, возвращаем его
 			if (availableLocales.includes(browserLang)) {
@@ -14,7 +14,7 @@ export default defineNuxtPlugin(() => {
 			}
 
 			// Если основной язык не поддерживается, проверяем fallback языки
-			const fallbackLanguages = ["en", "ru"];
+			const fallbackLanguages = ["en", "ru", "brainrot"];
 			for (const fallbackLang of fallbackLanguages) {
 				if (availableLocales.includes(fallbackLang)) {
 					return fallbackLang;
@@ -37,7 +37,7 @@ export default defineNuxtPlugin(() => {
 			document.cookie = `i18n_redirected=${browserLang}; path=/; max-age=31536000`;
 		} else {
 			// Если язык уже установлен, проверяем его валидность
-			const availableLocales = ["en", "ru"];
+			const availableLocales = ["en", "ru", "brainrot"];
 			if (!availableLocales.includes(savedLocale)) {
 				// Если сохраненный язык не валиден, устанавливаем язык браузера
 				const browserLang = getBrowserLanguage();
