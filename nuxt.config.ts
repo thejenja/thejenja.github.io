@@ -16,10 +16,6 @@ export default defineNuxtConfig({
 
 	css: ["~/styles.css"],
 
-	content: {
-		// Конфигурация для Nuxt Content
-	},
-
 	colorMode: {
 		preference: "system",
 		fallback: "dark",
@@ -61,8 +57,6 @@ export default defineNuxtConfig({
 			redirectOn: "root",
 		},
 	},
-
-	// SEO конфигурация теперь управляется через useSEO composable
 	app: {
 		head: {
 			charset: "utf-8",
@@ -75,7 +69,6 @@ export default defineNuxtConfig({
 		compressPublicAssets: true,
 	},
 
-	// Экспериментальные функции для лучшего SEO
 	experimental: {
 		payloadExtraction: false,
 	},
@@ -89,7 +82,6 @@ export default defineNuxtConfig({
 	},
 
 	robots: {
-		// Блокируем шумные не-SEO боты, оставляя индексацию для продакшена
 		blockNonSeoBots: true,
 	},
 });

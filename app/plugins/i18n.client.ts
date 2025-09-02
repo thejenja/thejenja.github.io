@@ -1,4 +1,4 @@
-export default defineNuxtPlugin(() => {
+/*export default defineNuxtPlugin(() => {
 	if (process.client) {
 		// Функция для определения языка браузера
 		const getBrowserLanguage = () => {
@@ -50,3 +50,4 @@ export default defineNuxtPlugin(() => {
 		}
 	}
 });
+*/
