@@ -52,11 +52,14 @@ const toggleLanguage = () => {
 
 // Проверяем, активен ли brainrot режим
 const isBrainrotActive = computed(() => {
+	if (typeof document !== 'undefined') {
 	return document.documentElement.hasAttribute("data-brainrot");
+	}
+	return false;
 });
 
 // Функция для показа уведомления
-function showNotification(message, type = "info") {
+function showNotification(message: string, type: "success" | "info" | "warning" | "error" = "info") {
 	const notification = document.createElement("div");
 	notification.className = `notification notification-${type}`;
 	notification.textContent = message;
@@ -82,7 +85,7 @@ function showNotification(message, type = "info") {
 		error: "#ef4444",
 	};
 
-	notification.style.backgroundColor = colors[type] || colors.info;
+	notification.style.backgroundColor = colors[type as keyof typeof colors] || colors.info;
 	document.body.appendChild(notification);
 
 	setTimeout(() => {
@@ -101,7 +104,7 @@ function showNotification(message, type = "info") {
 
 // Двойной клик для активации brainrot режима
 let clickCount = 0;
-let clickTimer: NodeJS.Timeout | null = null;
+let clickTimer: ReturnType<typeof setTimeout> | null = null;
 
 const handleClick = () => {
 	clickCount++;

@@ -1,10 +1,10 @@
 {
 	"navigation": {
 		"home": "Home",
-		"projects": "Stuff",
+		"projects": "Projects",
 		"about": "About me",
 		"contact": "Hit me up",
-		"sourceCode": "Source",
+		"sourceCode": "Source code",
 		"toggle": "Open/close navigation"
 	},
 	"hero": {

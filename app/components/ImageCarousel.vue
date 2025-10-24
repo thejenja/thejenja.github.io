@@ -90,7 +90,6 @@ onUnmounted(() => {
 
 .slide {
 	position: relative;
-	height: 320px;
 	scroll-snap-align: start;
 }
 

@@ -48,8 +48,6 @@
 							:show-description="false"
 							:show-tags="true"
 							:max-tags="5"
-							:standalone="true"
-							@project-click="openProject"
 						/>
 					</div>
 				</div>
@@ -67,8 +65,6 @@
 						:show-description="false"
 						:show-tags="true"
 						:max-tags="3"
-						:standalone="true"
-						@project-click="openProject"
 					/>
 				</div>
 			</div>
@@ -104,6 +100,8 @@ interface Project {
 		date?: string;
 		behance?: string;
 		dribbble?: string;
+		demo?: string;
+		github?: string;
 	};
 	_path?: string;
 }
@@ -119,9 +117,7 @@ const props = withDefaults(defineProps<Props>(), {
 	limit: undefined,
 });
 
-const emit = defineEmits<{
-	"project-click": [project: Project];
-}>();
+// Удаляем неиспользуемый emit, так как теперь используем navigateTo
 
 // Активный год для timeline
 const activeYear = ref<number | "all">("all");
@@ -206,38 +202,6 @@ const formatMonth = (monthKey: string) => {
 		month: "long",
 		year: "numeric",
 	});
-};
-
-// Открываем проект
-const openProject = (project: Project) => {
-	// Проверяем есть ли реальный контент
-	const hasRealContent =
-		project.body &&
-		typeof project.body === "object" &&
-		(project.body as any).value &&
-		Array.isArray((project.body as any).value) &&
-		(project.body as any).value.length > 0;
-
-	// Если есть реальный контент - показываем popover
-	if (hasRealContent) {
-		emit("project-click", project);
-		return;
-	}
-
-	// Для дизайн-проектов БЕЗ текста с одной ссылкой - сразу открываем
-	if (project.meta?.type === "design") {
-		if (project.meta?.behance && !project.meta?.dribbble) {
-			window.open(project.meta.behance, "_blank");
-			return;
-		}
-		if (project.meta?.dribbble && !project.meta?.behance) {
-			window.open(project.meta.dribbble, "_blank");
-			return;
-		}
-	}
-
-	// Для остальных случаев - показываем popover
-	emit("project-click", project);
 };
 </script>
 
@@ -329,7 +293,7 @@ const openProject = (project: Project) => {
 /* Сетка проектов */
 .month-projects {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
 	gap: 1.5rem;
 }
 
@@ -359,11 +323,6 @@ const openProject = (project: Project) => {
 
 .timeline-projects.compact .month-group {
 	margin-bottom: 2rem;
-}
-
-/* Компактный режим - только проекты */
-.compact-projects {
-	padding: 1rem 0;
 }
 
 .projects-grid {

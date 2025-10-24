@@ -27,6 +27,16 @@
 <script setup>
 import TimelineProjects from "~/components/TimelineProjects.vue";
 
+// OG Image для главной страницы
+defineOgImage({
+	component: "HomeTemplate",
+	props: {
+		title: "Eugene (thejenja) - Frontend Developer",
+		description: "Personal portfolio showcasing web development projects",
+		tagline: "Creating beautiful and functional web experiences",
+	},
+});
+
 // Получаем текущую локаль
 const { locale } = useI18n();
 
@@ -56,51 +66,11 @@ useHead(getPageSEO());
 .home-page {
 	display: flex;
 	flex-direction: column;
-	gap: 1rem;
+	gap: 1.5rem;
 }
 
 /* Дополнительные стили для плавности анимаций */
 .home-page > * {
 	will-change: transform, opacity;
-}
-
-/* Стили для секции тестирования */
-.test-section {
-	text-align: center;
-	padding: 2rem;
-	background: var(--bg-secondary);
-	border-radius: 12px;
-	margin: 2rem auto;
-	max-width: 800px;
-}
-
-.test-section h2 {
-	font-size: 1.5rem;
-	margin-bottom: 1.5rem;
-	color: var(--text);
-}
-
-.test-links {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	align-items: center;
-}
-
-.test-link {
-	display: inline-block;
-	padding: 0.75rem 1.5rem;
-	background: var(--accent);
-	color: white;
-	text-decoration: none;
-	border-radius: 8px;
-	transition: all 0.3s ease;
-	font-weight: 500;
-}
-
-.test-link:hover {
-	background: var(--accent-hover, #4f46e5);
-	transform: translateY(-2px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 </style>

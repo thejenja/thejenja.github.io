@@ -1,44 +1,22 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, ref, onMounted, onUnmounted } from "vue";
+// navigateTo больше не используется, так как TimelineProjects сам переходит на страницу проекта
 import TimelineProjects from "~/components/TimelineProjects.vue";
 import FilterSidebar from "~/components/FilterSidebar.vue";
 import { useI18n } from "vue-i18n";
 import AnimatedSection from "~/components/AnimatedSection.vue";
-const { t } = useI18n();
+import { useProjects, type ProjectContent } from "~/composables/useProjects";
+import { useSEO } from "~/composables/useSEO";
 
-interface Project {
-	title?: string;
-	description?: string;
-	date?: string;
-	meta?: {
-		slug?: string;
-		color?: string;
-		background?: string;
-		technologies?: string[];
-		tags?: Array<{
-			name: string;
-			color: string;
-			icon?: string;
-		}>;
-		type?:
-			| "website"
-			| "library"
-			| "web-app"
-			| "mobile-app"
-			| "tool"
-			| "game"
-			| "design";
-		stage?: "completed" | "in-progress" | "planning" | "archived" | "on-hold";
-		featured?: boolean;
-		github?: string;
-		demo?: string | null;
-		date?: string;
-		icon?: string;
-		behance?: string;
-		dribbble?: string;
-	};
-	_path?: string;
-}
+// OG Image для страницы списка проектов
+defineOgImage({
+	component: "ProjectsListTemplate",
+	props: {
+		title: $t("projects.title"),
+	},
+});
+
+const { t } = useI18n();
 
 const { loadAllProjects, refreshProjects } = useProjects();
 
@@ -50,11 +28,11 @@ const {
 	data: projects,
 	pending,
 	refresh,
-} = await useAsyncData(
+} = await useAsyncData<ProjectContent[]>(
 	() => `all-projects-${locale.value}`,
 	async () => {
 		try {
-			const result = await loadAllProjects(locale.value);
+			const result: ProjectContent[] = await loadAllProjects(locale.value);
 			return result || [];
 		} catch {
 			// console.error(t("projects.loadingError"), error);
@@ -96,7 +74,7 @@ const selectedProjectColors = ref<string[]>([]);
 
 const allTechs = computed<string[]>(() => {
 	const set = new Set<string>();
-	(projects.value || []).forEach((p: Project) => {
+	(projects.value || []).forEach((p: ProjectContent) => {
 		(p.meta?.technologies || []).forEach((t: string) => set.add(t));
 	});
 	return Array.from(set).sort((a, b) => a.localeCompare(b));
@@ -104,7 +82,7 @@ const allTechs = computed<string[]>(() => {
 
 const allTypes = computed<string[]>(() => {
 	const set = new Set<string>();
-	(projects.value || []).forEach((p: Project) => {
+	(projects.value || []).forEach((p: ProjectContent) => {
 		if (p.meta?.type) set.add(p.meta.type);
 	});
 	return Array.from(set).sort((a, b) => a.localeCompare(b));
@@ -112,7 +90,7 @@ const allTypes = computed<string[]>(() => {
 
 const allStages = computed<string[]>(() => {
 	const set = new Set<string>();
-	(projects.value || []).forEach((p: Project) => {
+	(projects.value || []).forEach((p: ProjectContent) => {
 		if (p.meta?.stage) set.add(p.meta.stage);
 	});
 	return Array.from(set).sort((a, b) => a.localeCompare(b));
@@ -120,7 +98,7 @@ const allStages = computed<string[]>(() => {
 
 const allProjectColors = computed<string[]>(() => {
 	const set = new Set<string>();
-	(projects.value || []).forEach((p: Project) => {
+	(projects.value || []).forEach((p: ProjectContent) => {
 		if (p.meta?.color) set.add(p.meta.color);
 	});
 	return Array.from(set).sort((a, b) => a.localeCompare(b));
@@ -144,12 +122,12 @@ const isSimilarColor = (color1: string, color2: string): boolean => {
 	return color1.toLowerCase() === color2.toLowerCase();
 };
 
-const filtered = computed<Project[]>(() => {
-	let list: Project[] = [...(projects.value || [])];
+const filtered = computed<ProjectContent[]>(() => {
+	let list: ProjectContent[] = [...(projects.value || [])];
 
 	// Фильтр по технологиям (пересечение)
 	if (selectedTechs.value.length) {
-		list = list.filter((p: Project) => {
+		list = list.filter((p: ProjectContent) => {
 			const techs: string[] = p.meta?.technologies || [];
 			return selectedTechs.value.every((t) => techs.includes(t));
 		});
@@ -158,21 +136,22 @@ const filtered = computed<Project[]>(() => {
 	// Фильтр по типам
 	if (selectedTypes.value.length) {
 		list = list.filter(
-			(p: Project) => p.meta?.type && selectedTypes.value.includes(p.meta.type)
+			(p: ProjectContent) =>
+				p.meta?.type && selectedTypes.value.includes(p.meta.type)
 		);
 	}
 
 	// Фильтр по стадиям
 	if (selectedStages.value.length) {
 		list = list.filter(
-			(p: Project) =>
+			(p: ProjectContent) =>
 				p.meta?.stage && selectedStages.value.includes(p.meta.stage)
 		);
 	}
 
 	// Фильтр по цветам проектов (универсальный)
 	if (selectedProjectColors.value.length) {
-		list = list.filter((p: Project) => {
+		list = list.filter((p: ProjectContent) => {
 			const projectColor = p.meta?.color;
 			if (!projectColor) return false;
 
@@ -185,7 +164,7 @@ const filtered = computed<Project[]>(() => {
 
 	// Сортировка по дате (по умолчанию новые вперёд)
 	list.sort(
-		(a: Project, b: Project) =>
+		(a: ProjectContent, b: ProjectContent) =>
 			new Date(b.date || b.meta?.date || 0).getTime() -
 			new Date(a.date || a.meta?.date || 0).getTime()
 	);
@@ -196,18 +175,6 @@ const filtered = computed<Project[]>(() => {
 const applyFilters = () => {
 	// Фильтры применяются автоматически через computed свойство
 	// console.log("Фильтры применены");
-};
-
-// Обработчик клика по проекту
-const handleProjectClick = (project: Project) => {
-	// Здесь можно добавить логику открытия проекта
-	// Например, переход на страницу проекта или открытие модального окна
-	// console.log("Клик по проекту:", project.title);
-
-	// Временное решение - переход на страницу проекта
-	if (project._path) {
-		navigateTo(`/projects/${project._path.split("/").pop()}`);
-	}
 };
 
 // SEO для страницы проектов
@@ -227,57 +194,42 @@ useHead(() => ({
 
 <template>
 	<div class="projects-page">
-		<div class="container">
-			<!-- Заголовок страницы -->
+		<!-- Заголовок страницы -->
 
-			<div class="page-header">
-				<div class="header-content">
-					<h1 class="page-title">{{ $t("projects.title") }}</h1>
-					<p class="page-description">{{ $t("projects.description") }}</p>
-				</div>
-
-				<div class="controls">
-					<!-- Фильтры -->
-					<FilterSidebar
-						v-model:selected-techs="selectedTechs"
-						v-model:selected-types="selectedTypes"
-						v-model:selected-stages="selectedStages"
-						v-model:selected-project-colors="selectedProjectColors"
-						:all-techs="allTechs"
-						:all-types="allTypes"
-						:all-stages="allStages"
-						:all-project-colors="allProjectColors"
-						@apply="applyFilters"
-					/>
-				</div>
+		<div class="page-header">
+			<div class="header-content">
+				<h1 class="page-title">{{ $t("projects.title") }}</h1>
+				<p class="page-description">{{ $t("projects.description") }}</p>
 			</div>
 
-			<AnimatedSection animation-type="fade" :delay="1">
-				<TimelineProjects
-					:projects="filtered || []"
-					@project-click="handleProjectClick"
+			<div class="controls">
+				<!-- Фильтры -->
+				<FilterSidebar
+					v-model:selected-techs="selectedTechs"
+					v-model:selected-types="selectedTypes"
+					v-model:selected-stages="selectedStages"
+					v-model:selected-project-colors="selectedProjectColors"
+					:all-techs="allTechs"
+					:all-types="allTypes"
+					:all-stages="allStages"
+					:all-project-colors="allProjectColors"
+					@apply="applyFilters"
 				/>
-
-				<!-- Сообщение о загрузке -->
-				<div v-if="pending" class="loading-message">
-					<p>{{ $t("projects.loading") }}</p>
-				</div>
-			</AnimatedSection>
+			</div>
 		</div>
+
+		<AnimatedSection animation-type="fade" :delay="1">
+			<TimelineProjects :projects="filtered || []" />
+
+			<!-- Сообщение о загрузке -->
+			<div v-if="pending" class="loading-message">
+				<p>{{ $t("projects.loading") }}</p>
+			</div>
+		</AnimatedSection>
 	</div>
 </template>
 
 <style scoped>
-.projects-page {
-	padding: 2rem 0;
-}
-
-.container {
-	max-width: 1200px;
-	margin: 0 auto;
-	padding: 0 1rem;
-}
-
 .page-header {
 	text-align: center;
 	margin-bottom: 2rem;

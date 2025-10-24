@@ -2,10 +2,10 @@
 	<section class="projects">
 		<div class="projects-header">
 			<h2 class="projects-title">{{ $t("projects.title") }}</h2>
-			<NuxtLinkLocale to="/projects" class="show-more-button">
+			<NuxtLink to="/projects" class="show-more-button">
 				<BriefcaseBusiness />
 				{{ $t("projects.showMore") }}
-			</NuxtLinkLocale>
+			</NuxtLink>
 		</div>
 
 		<!-- Контент с анимированной загрузкой -->
@@ -22,6 +22,7 @@
 <script setup lang="ts">
 import { BriefcaseBusiness } from "lucide-vue-next";
 import TimelineProjects from "~/components/TimelineProjects.vue";
+
 
 const { loadFeaturedProjects, refreshProjects } = useProjects();
 

@@ -37,7 +37,7 @@
 		<!-- Кнопка "Показать больше" -->
 		<div v-if="showMoreButton && hasMoreProjects" class="projects-actions">
 			<slot name="actions">
-				<NuxtLinkLocale to="/projects" class="show-more-btn">
+				<NuxtLink to="/projects" class="show-more-btn">
 					{{ $t("projects.showMore") }}
 					<svg
 						width="16"
@@ -49,48 +49,57 @@
 					>
 						<path d="M5 12h14M12 5l7 7-7 7" />
 					</svg>
-				</NuxtLink>
+			</NuxtLink>
 			</slot>
 		</div>
 
-		<!-- Project Popovers -->
-		<ProjectPopover
-			v-for="project in displayedProjects"
-			:key="`popover-${project._path || project.meta?.slug || 'unknown'}`"
-			:project="project"
-			:popover-id="`project-${project.meta?.slug || (project._path ? project._path.split('/').pop() : 'unknown')}`"
-		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
 import ProjectCard from "./ProjectCard.vue";
-import ProjectPopover from "./ProjectPopover.vue";
+// Убираем ProjectPopover, так как теперь используем отдельные страницы
+
+interface ProjectMeta {
+	slug?: string;
+	color?: string;
+	background?: string;
+	backgroundImage?: string;
+	technologies?: string[];
+	tags?: Array<{
+		name: string;
+		color: string;
+		icon?: string;
+	}>;
+	type?:
+	| "web-app"
+		| "mobile-app"
+		| "website"
+		| "library"
+		| "tool"
+		| "game"
+		| "design";
+	stage?: "planning" | "in-progress" | "completed" | "on-hold" | "archived";
+	featured?: boolean;
+	github?: string;
+	demo?: string;
+	date?: string;
+	icon?: string;
+	behance?: string;
+	dribbble?: string;
+}
+
+interface ProjectContent {
+	title?: string;
+	description?: string;
+	body?: unknown;
+	meta?: ProjectMeta;
+	_path?: string;
+}
 
 interface Props {
-	projects: Array<{
-		title?: string;
-		description?: string;
-		date?: string;
-		meta?: {
-			slug?: string;
-			color?: string;
-			technologies?: string[];
-			tags?: Array<{
-				name: string;
-				color: string;
-				icon?: string;
-			}>;
-			type?: string;
-			stage?: string;
-			featured?: boolean;
-			github?: string;
-			demo?: string | null;
-			icon?: string;
-		};
-		_path?: string;
-	}>;
+	projects: ProjectContent[];
 	title?: string;
 	description?: string;
 	compact?: boolean;

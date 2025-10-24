@@ -16,6 +16,7 @@
 		"i18n:help": "node scripts/i18n-translate.js help"
 	},
 	"dependencies": {
+		"@css-inline/css-inline": "^0.17.0",
 		"@nuxt/content": "^3.6.0",
 		"@nuxt/eslint": "^1.8.0",
 		"@nuxt/fonts": "^0.11.4",
@@ -25,13 +26,16 @@
 		"@nuxtjs/robots": "^5.4.0",
 		"@nuxtjs/sitemap": "^7.4.3",
 		"@oddbird/css-anchor-positioning": "^0.0.4",
+		"@unhead/vue": "^2.0.17",
 		"better-sqlite3": "^12.2.0",
 		"eslint": "^9.33.0",
 		"gsap": "^3.13.0",
 		"lucide-vue-next": "^0.539.0",
 		"nuxt": "^4.0.3",
+		"nuxt-og-image": "^5.1.11",
 		"simple-icons": "^15.10.0",
 		"tippy.js": "^6.3.7",
+		"unstorage": "^1.17.1",
 		"vue": "^3.5.18",
 		"vue-router": "^4.5.1",
 		"vue3-simple-icons": "^15.6.0"

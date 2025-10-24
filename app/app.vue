@@ -68,13 +68,15 @@ onMounted(() => {
 	}
 
 	// Принудительный показ прелоадера
-	document.addEventListener("app:show-preloader", () => {
-		simulateLoading([
-			{ text: t("preloader.steps.init"), duration: 200 },
-			{ text: t("preloader.steps.load"), duration: 300 },
-			{ text: t("preloader.steps.ready"), duration: 150 },
-		]);
-	});
+	if (typeof document !== 'undefined') {
+		document.addEventListener("app:show-preloader", () => {
+			simulateLoading([
+				{ text: t("preloader.steps.init"), duration: 200 },
+				{ text: t("preloader.steps.load"), duration: 300 },
+				{ text: t("preloader.steps.ready"), duration: 150 },
+			]);
+		});
+	}
 });
 </script>
 

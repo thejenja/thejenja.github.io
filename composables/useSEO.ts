@@ -63,11 +63,6 @@ export const useSEO = () => {
 		content: t("seo.ogDescription"),
 	});
 
-	const getOpenGraphImage = () => ({
-		property: "og:image",
-		content: getAbsoluteUrl("/images/qr-code.png"),
-	});
-
 	const getOpenGraphUrl = () => ({
 		property: "og:url",
 		content: currentUrl.value,
@@ -87,11 +82,6 @@ export const useSEO = () => {
 	const getTwitterDescription = () => ({
 		name: "twitter:description",
 		content: t("seo.twitterDescription"),
-	});
-
-	const getTwitterImage = () => ({
-		name: "twitter:image",
-		content: getAbsoluteUrl("/images/qr-code.png"),
 	});
 
 	// Адаптивные favicon ссылки
@@ -164,12 +154,10 @@ export const useSEO = () => {
 				getOpenGraphMeta(),
 				getOpenGraphTitle(),
 				getOpenGraphDescription(),
-				getOpenGraphImage(),
 				getOpenGraphUrl(),
 				getTwitterCard(),
 				getTwitterTitle(),
 				getTwitterDescription(),
-				getTwitterImage(),
 				...getThemeMeta(),
 			],
 			link: getFaviconLinks(),

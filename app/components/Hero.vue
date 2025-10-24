@@ -18,8 +18,8 @@
 							src="/images/thejenja.svg"
 							alt="thejenja"
 							class="thejenja-logo"
-							width="120"
-							height="32"
+							width="128"
+							height="40"
 					/></span>
 					{{ preciseAge }}
 				</i18n-t>
@@ -53,19 +53,43 @@ const activitiesData = computed(() => [
 	{ text: t("activities.animation"), color: "#8b5cf6" },
 ]);
 
-let index = 0;
-let cycleInterval = null;
-let dragInstances = [];
+const index = ref(0);
+const cycleInterval = ref(null);
+const dragInstances = ref([]);
+
+// Функция для получения текущего набора активностей
+const getCurrentSet = computed(() => {
+	const start = index.value;
+	const end = start + 3;
+	let slice = activitiesData.value.slice(start, end);
+
+	// Если набор меньше 3, добавляем элементы с начала
+	if (slice.length < 3) {
+		const remaining = 3 - slice.length;
+		slice = [...slice, ...activitiesData.value.slice(0, remaining)];
+	}
+	return slice;
+});
 
 const preciseAge = computed(() => getPreciseAge(new Date("2006-08-31")));
 
 function renderActivities(set) {
 	if (!activityContainer.value) return;
 
-	dragInstances.forEach((instance) => instance.kill());
-	dragInstances = [];
+	// Убиваем все существующие draggable экземпляры
+	dragInstances.value.forEach((instance) => {
+		if (instance && typeof instance.kill === "function") {
+			try {
+				instance.kill();
+			} catch (error) {
+				console.warn("Error killing Draggable instance:", error);
+			}
+		}
+	});
+	dragInstances.value = [];
 
-	activityContainer.value.innerHTML = "";
+	// Оптимизируем DOM-операции: создаем фрагмент для уменьшения перерисовок
+	const fragment = document.createDocumentFragment();
 
 	set.forEach((act) => {
 		const el = document.createElement("div");
@@ -73,94 +97,160 @@ function renderActivities(set) {
 		el.textContent = act.text;
 		el.style.background = `color-mix(in srgb, ${act.color}, var(--bg) 80%)`;
 		el.style.color = act.color;
-		activityContainer.value.appendChild(el);
+		// Устанавливаем начальное состояние для анимации
+		el.style.opacity = "0";
+		el.style.transform = "translateX(-15px)";
+		fragment.appendChild(el);
 	});
 
+	// Очищаем контейнер и добавляем фрагмент за один раз
+	activityContainer.value.innerHTML = "";
+	activityContainer.value.appendChild(fragment);
+
+	// Получаем все созданные элементы
 	const activities = activityContainer.value.querySelectorAll(".activity");
-	activities.forEach((activity) => {
-		const dragInstance = Draggable.create(activity, {
-			type: "x,y",
-			bounds: "body",
-			edgeResistance: 0.65,
-			throwProps: true,
-		});
-		if (Array.isArray(dragInstance) && dragInstance.length > 0) {
-			dragInstances.push(dragInstance[0]);
-		} else if (dragInstance) {
-			dragInstances.push(dragInstance);
-		}
+
+	// Запускаем анимацию появления
+	gsap.to(activities, {
+		opacity: 1,
+		x: 0,
+		duration: 0.8,
+		stagger: 0.15,
+		ease: "power2.out",
+		onComplete: () => {
+			// Создаем draggable экземпляры после завершения анимации
+			activities.forEach((activity) => {
+				if (!Draggable) return;
+
+				try {
+					const dragInstance = Draggable.create(activity, {
+						type: "x,y",
+						bounds: activityContainer.value || "body",
+						edgeResistance: 0.65,
+						throwProps: true,
+						onDragStart: function () {
+							activity.classList.add("dragging");
+						},
+						onDragEnd: function () {
+							activity.classList.remove("dragging");
+							activity.classList.add("returning");
+							// Убираем класс после завершения анимации
+							setTimeout(() => {
+								activity.classList.remove("returning");
+							}, 500);
+						},
+					});
+
+					if (Array.isArray(dragInstance) && dragInstance.length > 0) {
+						dragInstances.value.push(dragInstance[0]);
+					} else if (dragInstance) {
+						dragInstances.value.push(dragInstance);
+					}
+				} catch (error) {
+					console.warn("Error creating Draggable:", error);
+				}
+			});
+		},
 	});
 }
 
 function cycleActivities() {
-	const currentSet = activitiesData.value.slice(index, index + 3);
-	if (currentSet.length < 3) {
-		currentSet.push(...activitiesData.value.slice(0, 3 - currentSet.length));
-	}
+	const currentSet = getCurrentSet.value;
 	renderActivities(currentSet);
-	index = (index + 3) % activitiesData.value.length;
+	index.value = (index.value + 3) % activitiesData.value.length;
 }
 
 function slideReplace(container, update) {
+	if (!container) return;
+
 	const oldItems = container.querySelectorAll(".activity");
 
-	const tl = gsap.timeline({ defaults: { ease: "power2.inOut" } });
-
-	// СТАРЫЕ: плавный уход (1 → 0)
-	tl.to(oldItems, {
-		x: 15,
+	// Анимация исчезновения старых элементов
+	gsap.to(oldItems, {
 		opacity: 0,
+		x: 15,
 		duration: 0.6,
 		stagger: 0.1,
 		ease: "power2.inOut",
-	});
+		onComplete: () => {
+			// Обновляем DOM после ухода
+			update();
 
-	// Обновляем DOM после ухода
-	tl.add(() => {
-		update();
+			const newItems = container.querySelectorAll(".activity");
 
-		const newItems = container.querySelectorAll(".activity");
+			// Новые изначально невидимые и слева
+			gsap.set(newItems, { x: -15, opacity: 0 });
 
-		// Новые изначально невидимые и слева
-		gsap.set(newItems, { x: -15, opacity: 0 });
-
-		// НОВЫЕ: плавный заезд и проявление (0 → 1)
-		tl.to(newItems, {
-			x: 0,
-			opacity: 1,
-			duration: 0.8,
-			stagger: 0.15,
-			ease: "power2.out",
-		});
+			// НОВЫЕ: плавный заезд и проявление (0 → 1)
+			gsap.to(newItems, {
+				x: 0,
+				opacity: 1,
+				duration: 0.8,
+				stagger: 0.15,
+				ease: "power2.out",
+			});
+		},
 	});
 }
 
 onMounted(() => {
+	// Проверяем, не запущен ли уже цикл
+	if (cycleInterval.value) return;
+
 	const prefersReducedMotion = window.matchMedia(
 		"(prefers-reduced-motion: reduce)"
 	).matches;
+
 	if (prefersReducedMotion) {
-		cycleActivities();
+		try {
+			renderActivities(getCurrentSet.value);
+		} catch (error) {
+			console.error("Error rendering activities:", error);
+		}
 		return;
 	}
 
 	const startActivityCycle = () => {
-		if (cycleInterval) return;
-		cycleInterval = setInterval(() => {
-			slideReplace(activityContainer.value, () => cycleActivities());
+		// Проверяем, не запущен ли уже цикл
+		if (cycleInterval.value) return;
+
+		cycleInterval.value = setInterval(() => {
+			try {
+				slideReplace(activityContainer.value, () => {
+					try {
+						cycleActivities();
+					} catch (error) {
+						console.error("Error cycling activities:", error);
+					}
+				});
+			} catch (error) {
+				console.error("Error in slideReplace:", error);
+			}
 		}, 4000);
 	};
 
 	setTimeout(() => {
-		cycleActivities();
-		startActivityCycle();
+		try {
+			cycleActivities();
+			startActivityCycle();
+		} catch (error) {
+			console.error("Error starting activity cycle:", error);
+		}
 	}, 500);
 });
 
 onUnmounted(() => {
-	if (cycleInterval) clearInterval(cycleInterval);
-	dragInstances.forEach((instance) => instance.kill?.());
-	dragInstances = [];
+	if (cycleInterval.value) clearInterval(cycleInterval.value);
+	dragInstances.value.forEach((instance) => {
+		if (instance && typeof instance.kill === "function") {
+			try {
+				instance.kill();
+			} catch (error) {
+				console.warn("Error killing Draggable instance:", error);
+			}
+		}
+	});
+	dragInstances.value = [];
 	gsap.killTweensOf(".activity");
 });
 
@@ -203,14 +293,45 @@ function getPreciseAge(birthDate) {
 	--y2: 0%;
 	background:
 		radial-gradient(
-			100% 100% at var(--x1) var(--y1),
+			circle at var(--x1) var(--y1),
 			var(--gradient-1) 0%,
-			transparent 100%
+			transparent 50%
 		),
 		radial-gradient(
-			100% 100% at var(--x2) var(--y2),
+			circle at var(--x2) var(--y2),
 			var(--gradient-2) 0%,
-			transparent 100%
+			transparent 50%
+		),
+		var(--bg-quaternary);
+	animation: moveGradient 10s ease-in-out infinite alternate;
+	min-height: 320px;
+	position: relative;
+	border: 0;
+	box-shadow: none;
+}
+
+.hero::before {
+	content: '';
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	z-index: -1;
+	filter: blur(50px);
+	--x1: 0%;
+	--y1: 100%;
+	--x2: 100%;
+	--y2: 0%;
+	background:
+		radial-gradient(
+			circle at var(--x1) var(--y1),
+			var(--gradient-1) 0%,
+			transparent 50%
+		),
+		radial-gradient(
+			circle at var(--x2) var(--y2),
+			var(--gradient-2) 0%,
+			transparent 50%
 		),
 		var(--bg-quaternary);
 	animation: moveGradient 10s ease-in-out infinite alternate;
@@ -249,7 +370,6 @@ function getPreciseAge(birthDate) {
 }
 
 .thejenja-logo {
-	height: 2rem;
 	vertical-align: middle;
 }
 

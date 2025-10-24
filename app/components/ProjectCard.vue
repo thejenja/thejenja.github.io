@@ -1,17 +1,12 @@
 <template>
 	<div class="project-card-wrapper">
-		<button
+		<NuxtLinkLocale
+			:to="getProjectLink()"
 			:class="['project-card', { 'project-card--compact': compact }]"
-			type="button"
-			:popovertarget="
-				shouldShowPopover
-					? `project-${project.meta?.slug || (project._path ? project._path.split('/').pop() : '')}`
-					: undefined
-			"
-			@click="handleProjectClick"
 			:style="{
 				'--accent': project.meta?.color || '#4b5563',
 			}"
+			@click="handleProjectClick"
 		>
 			<!-- Фон на всю ширину -->
 			<div class="project-background" :style="backgroundStyle">
@@ -53,22 +48,24 @@
 						<div
 							v-if="project.meta?.type"
 							class="meta-badge meta-type"
-							@mouseenter="showMetaTooltip('type', project.meta.type!)"
-							@mouseleave="hideMetaTooltip"
+							@mouseenter="showMetaTooltip('type', project.meta.type!, $event)"
+							@mouseleave="hideMetaTooltip('type')"
 						>
-							<DynamicIcon :icon="getTypeIcon(project.meta.type!)" size="14" />
+							<DynamicIcon :icon="getTypeIcon(project.meta.type!)" size="16" />
 						</div>
 
 						<!-- Статус проекта -->
 						<div
 							v-if="project.meta?.stage"
 							class="meta-badge meta-stage"
-							@mouseenter="showMetaTooltip('stage', project.meta.stage!)"
-							@mouseleave="hideMetaTooltip"
+							@mouseenter="
+								showMetaTooltip('stage', project.meta.stage!, $event)
+							"
+							@mouseleave="hideMetaTooltip('stage')"
 						>
 							<DynamicIcon
 								:icon="getStageIcon(project.meta.stage!)"
-								size="14"
+								size="16"
 							/>
 						</div>
 					</div>
@@ -101,27 +98,22 @@
 					</div>
 				</div>
 			</div>
-		</button>
+		</NuxtLinkLocale>
 
-		<!-- ProjectPopover для каждого проекта (только когда нужен) -->
+		<!-- ProjectPopover больше не используется, так как открываем отдельную страницу -->
 		<!-- DEBUG: shouldShowPopover = {{ shouldShowPopover }} -->
-		<ProjectPopover
-			v-if="shouldShowPopover"
-			:project="project"
-			:popover-id="`project-${project.meta?.slug || (project._path ? project._path.split('/').pop() : '')}`"
-		/>
-
-		<!-- Tooltip для мета-информации -->
-		<div v-if="tooltip.show" class="meta-tooltip" :style="tooltip.style">
-			{{ tooltip.text }}
-		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
+import type { Instance } from "tippy.js";
+import tippy, { createSingleton } from "tippy.js";
+import "tippy.js/dist/tippy.css";
+import "tippy.js/themes/light.css";
+import "tippy.js/themes/light-border.css";
 import TechTag from "./TechTag.vue";
-import ProjectPopover from "./ProjectPopover.vue";
+// ProjectPopover больше не используется, так как открываем отдельную страницу
 import DynamicIcon from "./DynamicIcon.vue";
 
 interface ProjectMeta {
@@ -254,12 +246,8 @@ const backgroundStyle = computed(() => {
 	return { background: (meta.color as string) || "#4b5563" };
 });
 
-// Tooltip для мета-информации
-const tooltip = ref({
-	show: false,
-	text: "",
-	style: {},
-});
+// Singleton для мета-информации
+let singletonInstance: Instance | null = null;
 
 // Получаем иконку типа проекта
 const getTypeIcon = (type: string) => {
@@ -287,121 +275,73 @@ const getStageIcon = (stage: string) => {
 	return iconMap[stage] || "lucide:code";
 };
 
-// Определяем нужно ли показывать popover
-const shouldShowPopover = computed(() => {
-	// console.log("=== DEBUG shouldShowPopover ===");
-	// console.log("Title:", props.project.title);
-	// console.log("Body:", props.project.body);
-	// console.log("Body type:", typeof props.project.body);
-	// console.log(
-	// 	"Body keys:",
-	// 	props.project.body ? Object.keys(props.project.body) : "no body"
-	// );
 
-	// Проверяем есть ли реальный контент (не только метаданные)
-	const hasRealContent =
-		props.project.body &&
-		typeof props.project.body === "object" &&
-		(props.project.body as any).value &&
-		Array.isArray((props.project.body as any).value) &&
-		(props.project.body as any).value.length > 0;
-
-	// console.log("Has real content:", hasRealContent);
-	// console.log(
-	// 	"Children:",
-	// 	props.project.body ? (props.project.body as any).children : "no children"
-	// );
-	// console.log(
-	// 	"Children length:",
-	// 	props.project.body
-	// 		? (props.project.body as any).children?.length
-	// 		: "no length"
-	// );
-
-	// Если есть реальный контент - всегда показываем popover
-	if (hasRealContent) {
-		// console.log("Есть контент - возвращаем true");
-		return true;
+// Получаем ссылку проекта
+const getProjectLink = () => {
+	// Определяем slug проекта
+	const slug = props.project.meta?.slug || (props.project._path ? props.project._path.split('/').pop() : '');
+	
+	// Если есть slug, возвращаем ссылку на страницу проекта
+	if (slug) {
+	return `/projects/${slug}`;
 	}
-
-	// Для дизайн-проектов с двумя ссылками - показываем popover для выбора
-	if (
-		props.project.meta?.type === "design" &&
-		props.project.meta?.behance &&
-		props.project.meta?.dribbble
-	) {
-		// console.log("Дизайн с двумя ссылками - возвращаем true");
-		return true;
-	}
-
-	// Для дизайн-проектов с одной ссылкой - не показываем popover
-	if (
-		props.project.meta?.type === "design" &&
-		(props.project.meta?.behance || props.project.meta?.dribbble)
-	) {
-		// console.log("Дизайн с одной ссылкой - возвращаем false");
-		return false;
-	}
-
-	// Для остальных проектов - показываем popover
-	// console.log("Обычный проект - возвращаем true");
-	return true;
-});
+	
+	// Если slug нет, возвращаем пустую строку или '#' для предотвращения перехода по ссылке
+	return '#';
+};
 
 // Обработчик клика по проекту
-const handleProjectClick = () => {
-	// Проверяем есть ли реальный контент
-	const hasRealContent =
-		props.project.body &&
-		typeof props.project.body === "object" &&
-		(props.project.body as any).value &&
-		Array.isArray((props.project.body as any).value) &&
-		(props.project.body as any).value.length > 0;
-
-	// Если есть реальный контент - всегда показываем popover
-	if (hasRealContent) {
-		// Если standalone - эмитим событие для TimelineProjects
-		if (props.standalone) {
-			emit("project-click", props.project);
-		}
-		// Popover откроется автоматически благодаря popovertarget
-		return;
-	}
-
-	// Для дизайн-проектов БЕЗ текста с одной ссылкой - сразу открываем
-	if (props.project.meta?.type === "design") {
-		if (props.project.meta?.behance && !props.project.meta?.dribbble) {
-			// Если standalone - эмитим событие для TimelineProjects
-			if (props.standalone) {
-				emit("project-click", props.project);
-			} else {
-				window.open(props.project.meta.behance, "_blank");
-			}
-			return;
-		}
-		if (props.project.meta?.dribbble && !props.project.meta?.behance) {
-			// Если standalone - эмитим событие для TimelineProjects
-			if (props.standalone) {
-				emit("project-click", props.project);
-			} else {
-				window.open(props.project.meta.dribbble, "_blank");
-			}
-			return;
-		}
-	}
-
-	// Для остальных случаев - показываем popover (если он настроен)
+const handleProjectClick = (event: MouseEvent) => {
 	// Если standalone - эмитим событие для TimelineProjects
 	if (props.standalone) {
-		emit("project-click", props.project);
+	emit("project-click", props.project);
+	event.preventDefault(); // Предотвращаем переход по ссылке
+	return;
 	}
-	// Popover откроется автоматически благодаря popovertarget
+
+	// Определяем slug проекта
+	const slug = props.project.meta?.slug || (props.project._path ? props.project._path.split('/').pop() : '');
+	
+	// Если slug нет, проверяем тип проекта и открываем соответствующую ссылку
+	if (!slug) {
+	event.preventDefault(); // Предотвращаем переход по NuxtLink
+		
+		if (props.project.meta?.type === "design") {
+			if (props.project.meta?.behance) {
+				window.open(props.project.meta.behance, "_blank");
+				return;
+			}
+			if (props.project.meta?.dribbble) {
+				window.open(props.project.meta.dribbble, "_blank");
+				return;
+			}
+		}
+		
+		// Для остальных проектов без slug - открываем демо или GitHub, если доступно
+		if (props.project.meta?.demo) {
+			window.open(props.project.meta.demo, "_blank");
+		} else if (props.project.meta?.github) {
+			window.open(props.project.meta.github, "_blank");
+		}
+	}
+	// Если slug есть, то NuxtLink сам выполнит переход, и нам не нужно ничего делать
 };
 
 // Показываем tooltip для мета-информации
-const { t } = useI18n();
+const { t } = useNuxtApp().$i18n || { t: (key) => key };
 
-const showMetaTooltip = (type: "type" | "stage", value: string) => {
+// Массив для хранения всех экземпляров tippy
+// eslint-disable-next-line prefer-const
+let tippyInstances: Instance[] = [];
+
+const showMetaTooltip = (
+	type: "type" | "stage",
+	value: string,
+	event: Event
+) => {
+	const target = event.target as HTMLElement;
+
+	// Определяем текст для tooltip
 	let text = value;
 	if (type === "type") {
 		text = t(`projectTypes.${value}`, value);
@@ -409,35 +349,69 @@ const showMetaTooltip = (type: "type" | "stage", value: string) => {
 		text = t(`projectStages.${value}`, value);
 	}
 
-	tooltip.value = {
-		show: true,
-		text,
-		style: {},
-	};
+	// Проверяем, не существует ли уже tippy для этого элемента
+	const existingInstance = tippyInstances.find(
+		(instance) => instance.reference === target
+	);
+	if (existingInstance) {
+		// Обновляем содержимое существующего tooltip
+		existingInstance.setContent(text);
+		return;
+	}
+
+	// Создаем новый экземпляр tippy
+	const tippyInstance = tippy(target, {
+		content: text,
+		theme: "light", // Используем светлую тему, которую можно кастомизировать
+		placement: "top",
+		arrow: true,
+		animation: "shift-away",
+		duration: [200, 200],
+		delay: [300, 0], // Задержка показа 300ms, скрытие без задержки
+		appendTo: () => document.body,
+		zIndex: 9999,
+		allowHTML: false,
+		maxWidth: 240,
+		offset: [0, 8], // 8px отступ от элемента
+		trigger: "mouseenter focus",
+		hideOnClick: false,
+		interactive: false,
+	});
+
+	// Добавляем экземпляр в массив
+	tippyInstances.push(tippyInstance);
+
+	// Обновляем singleton для плавных переходов между tooltip'ами
+	if (singletonInstance) {
+		singletonInstance.destroy();
+	}
+	singletonInstance = createSingleton(tippyInstances, {
+		delay: [300, 0],
+		moveTransition: "transform 0.2s ease-out", // для плавного перехода
+		overrides: ["placement", "offset", "theme"],
+	});
 };
 
 // Скрываем tooltip
-const hideMetaTooltip = () => {
-	tooltip.value.show = false;
-};
-
-// Обработчик движения мыши для tooltip
-const handleMouseMove = (event: MouseEvent) => {
-	if (tooltip.value.show) {
-		tooltip.value.style = {
-			left: event.clientX + 10 + "px",
-			top: event.clientY - 30 + "px",
-		};
-	}
+const hideMetaTooltip = (_type: "type" | "stage") => {
+	// При использовании singleton, скрытие происходит автоматически при уходе с элемента
+	// Можно оставить пустой функцией или реализовать по необходимости
 };
 
 // Lifecycle хуки для tooltip
 onMounted(() => {
-	document.addEventListener("mousemove", handleMouseMove);
+	// Ничего не нужно делать при монтировании
 });
 
 onUnmounted(() => {
-	document.removeEventListener("mousemove", handleMouseMove);
+	// Уничтожаем singleton и все экземпляры tippy при размонтировании компонента
+	if (singletonInstance) {
+		singletonInstance.destroy();
+	}
+	// Уничтожаем все экземпляры tippy
+	tippyInstances.forEach((instance) => instance.destroy());
+	// Очищаем массив
+	tippyInstances = [];
 });
 </script>
 
@@ -459,6 +433,7 @@ onUnmounted(() => {
 	flex-direction: column;
 	position: relative;
 	aspect-ratio: 16/9;
+	text-decoration: none; /* Убираем подчеркивание ссылки */
 }
 
 .project-card:hover {
@@ -471,6 +446,18 @@ onUnmounted(() => {
 
 .project-card:active {
 	transform: translateY(-2px);
+}
+
+/* Стили для состояния ссылки */
+.project-card:link,
+.project-card:visited,
+.project-card:active {
+	color: inherit; /* Наследуем цвет текста */
+}
+
+.project-card:focus {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
 }
 
 .project-card--compact {
@@ -683,31 +670,18 @@ onUnmounted(() => {
 .meta-badge {
 	width: 32px;
 	height: 32px;
-	background: rgba(0, 0, 0, 0.7);
-	border-radius: 8px;
+	background: var(--bg);
+	border-radius: 16px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: white;
+	color: var(--text);
 	transition: all 0.3s ease;
 }
 
 .meta-badge:hover {
-	background: rgba(0, 0, 0, 0.9);
+	background: var(--bg-tertiary);
 	transform: scale(1.1);
-}
-
-/* Tooltip */
-.meta-tooltip {
-	position: fixed;
-	z-index: 1000;
-	background: rgba(0, 0, 0, 0.9);
-	color: white;
-	padding: 0.5rem 0.75rem;
-	border-radius: 6px;
-	font-size: 0.875rem;
-	pointer-events: none;
-	white-space: nowrap;
 }
 
 /* Уважение к настройкам пользователя */

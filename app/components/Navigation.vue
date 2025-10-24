@@ -80,20 +80,24 @@ const toggleNavigation = () => {
 
 const closeNavigation = () => {
 	// Закрываем popover программно
-	const navigation = document.getElementById("navigation");
-	if (navigation && navigation.matches(":popover-open")) {
-		navigation.hidePopover();
+	if (typeof document !== 'undefined') {
+		const navigation = document.getElementById("navigation");
+		if (navigation && navigation.matches(":popover-open")) {
+			navigation.hidePopover();
+		}
 	}
 };
 
 // Отслеживаем события popover для синхронизации состояния
 onMounted(() => {
-	const navigation = document.getElementById("navigation");
+	if (typeof document !== 'undefined') {
+		const navigation = document.getElementById("navigation");
 
-	if (navigation) {
-		navigation.addEventListener("toggle", (event) => {
-			isOpen.value = event.newState === "open";
-		});
+		if (navigation) {
+			navigation.addEventListener("toggle", (event) => {
+				isOpen.value = event.newState === "open";
+			});
+		}
 	}
 });
 
@@ -104,9 +108,11 @@ watch(
 	() => {
 		isOpen.value = false;
 		// Закрываем popover программно
-		const navigation = document.getElementById("navigation");
-		if (navigation && navigation.matches(":popover-open")) {
-			navigation.hidePopover();
+		if (typeof document !== 'undefined') {
+			const navigation = document.getElementById("navigation");
+			if (navigation && navigation.matches(":popover-open")) {
+				navigation.hidePopover();
+			}
 		}
 	}
 );

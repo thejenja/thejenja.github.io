@@ -12,9 +12,25 @@ export default defineNuxtConfig({
 		"@nuxtjs/i18n",
 		"@nuxtjs/sitemap",
 		"@nuxtjs/robots",
+		"nuxt-og-image",
 	],
 
-	css: ["~/styles.css"],
+	fonts: {
+		families: [
+			{
+				name: 'Onest',
+				local: '~/assets/fonts/Onest[wght].woff2',
+			},
+		],
+		sources: {
+			// Отключаем все внешние источники шрифтов
+			google: { enabled: false },
+			fontshare: { enabled: false },
+			iconify: { enabled: false },
+		},
+	},
+
+css: ["~/styles.css"],
 
 	colorMode: {
 		preference: "system",
@@ -49,7 +65,7 @@ export default defineNuxtConfig({
 			},
 		],
 		defaultLocale: "en",
-		strategy: "prefix",
+		strategy: "prefix_and_default",
 		baseUrl: "https://thejenja.github.io",
 		detectBrowserLanguage: {
 			useCookie: true,
@@ -57,6 +73,18 @@ export default defineNuxtConfig({
 			redirectOn: "root",
 		},
 	},
+
+	// Конфигурация nuxt-og-image
+	ogImage: {
+		// Указываем путь к шаблонам OG-изображений
+		componentDirs: ["./OgImage"],
+		// Настройки размеров OG-изображений
+		defaults: {
+			width: 1200,
+			height: 630,
+		},
+	},
+
 	app: {
 		head: {
 			charset: "utf-8",
@@ -70,7 +98,7 @@ export default defineNuxtConfig({
 	},
 
 	experimental: {
-		payloadExtraction: false,
+		payloadExtraction: true,
 	},
 
 	site: {

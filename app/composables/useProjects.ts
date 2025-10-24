@@ -1,5 +1,59 @@
+// Типы данных для проектов
+export interface ProjectMeta {
+	slug?: string;
+	color?: string;
+	background?: string;
+	backgroundImage?: string;
+	technologies?: string[];
+	tags?: Array<{
+		name: string;
+		color: string;
+		icon?: string;
+	}>;
+	type?:
+	| "web-app"
+		| "mobile-app"
+		| "website"
+		| "library"
+		| "tool"
+		| "game"
+		| "design";
+	stage?: "planning" | "in-progress" | "completed" | "on-hold" | "archived";
+	featured?: boolean;
+	github?: string;
+	demo?: string;
+	date?: string;
+	icon?: string;
+	behance?: string;
+	dribbble?: string;
+	linksTop?: ProjectLink[];
+	linksBottom?: ProjectLink[];
+	gallery?: Array<string | GalleryItem>;
+}
+
+// Типы для ссылок и галереи
+export interface ProjectLink {
+	label: string;
+	href: string;
+	icon: string;
+}
+
+export interface GalleryItem {
+	src: string;
+	alt?: string;
+}
+
+export interface ProjectContent {
+	title?: string;
+	description?: string;
+	body?: unknown;
+	meta?: ProjectMeta;
+	date?: string;
+	_path?: string;
+}
+
 // Fallback данные для проектов (если queryCollection недоступен)
-const fallbackProjects = [
+const fallbackProjects: ProjectContent[] = [
 	{
 		title: "Portfolio",
 		description:
@@ -18,7 +72,7 @@ const fallbackProjects = [
 				{ name: "Tailwind CSS", color: "cyan", icon: "css" },
 			],
 			github: "https://github.com/thejenja/portfolio",
-			demo: null,
+			demo: undefined,
 		},
 		_path: "/projects/portfolio",
 	},
@@ -26,7 +80,7 @@ const fallbackProjects = [
 
 export const useProjects = () => {
 	// Создаем реактивные ссылки для кэширования
-	const projectsCache = ref(new Map<string, any>());
+	const projectsCache = ref(new Map<string, ProjectContent[]>());
 
 	// Функция для получения уникального ключа кэша
 	const getCacheKey = (
@@ -56,60 +110,56 @@ export const useProjects = () => {
 	};
 
 	// Загружаем проекты в зависимости от текущей локали
-	const loadAllProjects = async (locale?: string) => {
-		try {
+	const loadAllProjects = async (locale?: string): Promise<ProjectContent[]> => {
+	try {
 			// Проверяем, доступен ли queryCollection
 			if (typeof queryCollection === "undefined") {
 				// console.warn("queryCollection не доступен, возвращаем fallback данные");
-				return fallbackProjects;
+				return fallbackProjects as ProjectContent[];
 			}
 
 			const currentLocale = locale || "en";
-			const collectionName =
-				currentLocale === "en" ? "projectsEn" : "projectsRu";
-			const cacheKey = getCacheKey(collectionName, currentLocale, "all");
+			const cacheKey = getCacheKey("projects", currentLocale, "all");
 
 			// Проверяем кэш
 			if (projectsCache.value.has(cacheKey)) {
-				return projectsCache.value.get(cacheKey);
+				return projectsCache.value.get(cacheKey)!;
 			}
 
-			const result = await queryCollection(collectionName).all();
+			const result = await queryCollection(currentLocale === "en" ? "projectsEn" : "projectsRu").all();
 			const projects = result || fallbackProjects;
 
 			// Сохраняем в кэш
-			projectsCache.value.set(cacheKey, projects);
+			projectsCache.value.set(cacheKey, projects as ProjectContent[]);
 
-			return projects;
-		} catch (error) {
+			return projects as ProjectContent[];
+		} catch {
 			// console.error("Ошибка загрузки проектов:", error);
-			return fallbackProjects;
+			return fallbackProjects as ProjectContent[];
 		}
 	};
 
 	// Загружаем только избранные проекты
-	const loadFeaturedProjects = async (locale?: string) => {
+	const loadFeaturedProjects = async (locale?: string): Promise<ProjectContent[]> => {
 		try {
 			// Проверяем, доступен ли queryCollection
 			if (typeof queryCollection === "undefined") {
 				// console.warn("queryCollection не доступен, возвращаем fallback данные");
 				return fallbackProjects.filter(
 					(project) => project.meta?.featured === true
-				);
+				) as ProjectContent[];
 			}
 
 			const currentLocale = locale || "ru";
-			const collectionName =
-				currentLocale === "en" ? "projectsEn" : "projectsRu";
-			const cacheKey = getCacheKey(collectionName, currentLocale, "featured");
+			const cacheKey = getCacheKey("projects", currentLocale, "featured");
 
 			// Проверяем кэш
 			if (projectsCache.value.has(cacheKey)) {
-				return projectsCache.value.get(cacheKey);
+				return projectsCache.value.get(cacheKey)!;
 			}
 
-			const projects = await queryCollection(collectionName).all();
-			const result = projects.filter(
+			const projects = await queryCollection(currentLocale === "en" ? "projectsEn" : "projectsRu").all();
+			const result = (projects as ProjectContent[]).filter(
 				(project) => project.meta?.featured === true
 			);
 
@@ -118,22 +168,22 @@ export const useProjects = () => {
 					? result
 					: fallbackProjects.filter(
 							(project) => project.meta?.featured === true
-						);
+						) as ProjectContent[];
 
 			// Сохраняем в кэш
 			projectsCache.value.set(cacheKey, finalResult);
 
 			return finalResult;
-		} catch (error) {
+		} catch {
 			// console.error("Ошибка загрузки избранных проектов:", error);
 			return fallbackProjects.filter(
 				(project) => project.meta?.featured === true
-			);
+			) as ProjectContent[];
 		}
 	};
 
 	// Загружаем проект по slug
-	const loadProjectBySlug = async (slug: string, locale?: string) => {
+	const loadProjectBySlug = async (slug: string, locale?: string): Promise<ProjectContent | null> => {
 		try {
 			if (typeof queryCollection === "undefined") {
 				// console.warn("queryCollection не доступен, возвращаем null");
@@ -141,28 +191,29 @@ export const useProjects = () => {
 			}
 
 			const currentLocale = locale || "ru";
-			const collectionName =
-				currentLocale === "en" ? "projectsEn" : "projectsRu";
 			const cacheKey = getCacheKey(
-				collectionName,
+				"projects",
 				currentLocale,
 				`slug-${slug}`
 			);
 
 			// Проверяем кэш
 			if (projectsCache.value.has(cacheKey)) {
-				return projectsCache.value.get(cacheKey);
+				return projectsCache.value.get(cacheKey) as ProjectContent || null;
 			}
 
-			const result = await queryCollection(collectionName)
-				.where({ slug })
-				.findOne();
+			// Загружаем все проекты и фильтруем по slug
+			console.log(`Loading all projects for locale ${currentLocale}`);
+			const projects = await queryCollection(currentLocale === "en" ? "projectsEn" : "projectsRu").all();
+			console.log(`All projects loaded:`, projects);
+			const result = (projects as ProjectContent[]).find(project => project.meta?.slug === slug);
+			console.log(`Project found by slug ${slug}:`, result);
 
 			// Сохраняем в кэш
-			projectsCache.value.set(cacheKey, result);
+			projectsCache.value.set(cacheKey, [result] as ProjectContent[]);
 
 			return result || null;
-		} catch (error) {
+		} catch {
 			// console.error("Ошибка загрузки проекта:", error);
 			return null;
 		}

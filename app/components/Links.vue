@@ -21,55 +21,66 @@
 
 		<div ref="linksContainer" class="links-content">
 			<div class="links-grid-container">
-				<TransitionGroup name="slide" tag="div" class="links-grid">
-					<div
-						v-for="link in currentLinks"
-						:key="`${activeTab}-${link.id}`"
-						class="link-item"
+				<div class="links-grid">
+					<transition
+						name="tab"
+						mode="out-in"
+						@before-leave="onBeforeLeave"
+						@enter="onEnter"
+						@after-enter="onAfterEnter"
 					>
-						<a
-							v-if="!link.popovertarget"
-							ref="linkRefs"
-							:href="link.url"
-							target="_blank"
-							:rel="link.rel || 'noopener noreferrer'"
-							class="link-button"
-							:class="{
-								favorite: activeTab === 'favorites',
-								[link.label.toLowerCase()]: true,
-							}"
-							:style="{ background: link.color }"
-							:data-tooltip="link.label"
-						>
-							<component
-								:is="link.icon"
-								v-if="link.iconType !== 'svg'"
-								:size="36"
-								:style="{ fill: 'white' }"
-							/>
-							<SvgIcon v-else :src="link.icon" :size="36" />
-						</a>
-						<button
-							v-else
-							:popovertarget="link.popovertarget"
-							class="link-button"
-							:class="{
-								favorite: activeTab === 'favorites',
-								[link.label.toLowerCase()]: true,
-							}"
-							:style="{ background: link.color }"
-							:data-tooltip="link.label"
-						>
-							<component
-								:is="link.icon"
-								v-if="link.iconType !== 'svg'"
-								:size="36"
-								:style="{ fill: 'white' }"
-							/>
-							<SvgIcon v-else :src="link.icon" :size="36" />
-						</button>
-					</div>
-				</TransitionGroup>
+						<div :key="activeTab" class="links-grid-container-inner">
+							<div
+								v-for="(link, index) in currentLinks"
+								:key="`${activeTab}-${link.id}`"
+								class="link-item"
+								:style="getRowBasedAnimationStyle(index)"
+							>
+								<a
+									v-if="!link.popovertarget"
+									ref="linkRefs"
+									:href="link.url"
+									target="_blank"
+									:rel="link.rel || 'noopener noreferrer'"
+									class="link-button"
+									:class="{
+										favorite: activeTab === 'favorites',
+										[link.label.toLowerCase()]: true,
+									}"
+									:style="{ background: link.color }"
+									:data-tooltip="link.label"
+								>
+									<component
+										:is="link.icon"
+										v-if="link.iconType !== 'svg'"
+										:size="36"
+										:style="{ fill: 'white' }"
+									/>
+									<SvgIcon v-else :src="link.icon" :size="36" />
+								</a>
+								<button
+									v-else
+									:popovertarget="link.popovertarget"
+									class="link-button"
+									:class="{
+										favorite: activeTab === 'favorites',
+										[link.label.toLowerCase()]: true,
+									}"
+									:style="{ background: link.color }"
+									:data-tooltip="link.label"
+								>
+									<component
+										:is="link.icon"
+										v-if="link.iconType !== 'svg'"
+										:size="36"
+										:style="{ fill: 'white' }"
+									/>
+									<SvgIcon v-else :src="link.icon" :size="36" />
+								</button>
+							</div>
+						</div>
+					</transition>
+				</div>
 			</div>
 		</div>
 
@@ -159,6 +170,7 @@ import {
 	BehanceIcon,
 	TwitchIcon,
 	TikTokIcon,
+	BlueskyIcon,
 } from "vue3-simple-icons";
 import { Star, Copy, X, Link } from "lucide-vue-next";
 
@@ -185,6 +197,34 @@ const SvgIcon = defineComponent({
 			});
 	},
 });
+
+// Добавляем методы для управления анимацией
+const onBeforeLeave = (el) => {
+	el.style.position = "absolute";
+	el.style.width = "100%";
+};
+
+const onEnter = (el) => {
+	el.style.position = "relative";
+};
+
+const onAfterEnter = (el) => {
+	el.style.position = "";
+};
+
+// Вычисляем количество рядов в гриде
+const getRowBasedAnimationStyle = (index) => {
+	if (currentLinks.value.length <= 6) {
+		// Если 6 или меньше элементов, то один ряд
+		return {
+			"--animation-delay": `${index * 100}ms`, // Плавное появление по одной ссылке
+		};
+	} else {
+		return {
+			"--animation-delay": "0ms", // Анимация сразу для всех
+		};
+	}
+};
 
 const activeTab = ref("favorites");
 const linksContainer = ref(null);
@@ -256,6 +296,14 @@ const allLinks = {
 			url: "https://tiktok.com/@thejenja_",
 			icon: TikTokIcon,
 			color: "#000000",
+		},
+		{
+			id: 8,
+			label: "TenChat",
+			url: "https://tenchat.ru/thejenja",
+			icon: "/icons/tenchat.svg",
+			iconType: "svg",
+			color: "#fc3234",
 		},
 	],
 	code: [
@@ -373,11 +421,18 @@ const allLinks = {
 			rel: "me",
 		},
 		{
-			id: 3,
+			id: 2,
 			label: "Medium",
 			url: "https://medium.com/@thejenja",
 			icon: MediumIcon,
 			color: "#000000",
+		},
+		{
+			id: 3,
+			label: "Bluesky",
+			url: "https://bsky.app/profile/thejenja.bsky.social",
+			icon: BlueskyIcon,
+			color: "#1185fe",
 		},
 	],
 };
@@ -632,7 +687,6 @@ onUnmounted(() => {
 .tabs {
 	display: flex;
 	gap: 0.5rem;
-	margin-bottom: 1.5rem;
 	flex-wrap: wrap;
 }
 
@@ -648,13 +702,13 @@ onUnmounted(() => {
 	padding: 0.5rem 1rem;
 	border-radius: 12px;
 	corner-shape: superellipse(1.5);
-	font-size: 1rem;
-	font-weight: 500;
+	font-size: 1.05rem;
+	font-weight: 600;
 	cursor: pointer;
 	transition: all 0.3s ease;
 	position: relative;
 	overflow: hidden;
-	border: 2px solid transparent;
+	border: 0;
 }
 
 .tab-button:hover {
@@ -666,9 +720,8 @@ onUnmounted(() => {
 }
 
 .tab-button.active {
-	background: color-mix(in srgb, var(--tab-color), var(--bg) 65%);
-	color: color-mix(in srgb, var(--tab-color), var(--text) 25%);
-	border-color: color-mix(in srgb, var(--tab-color), var(--text) 25%);
+	background: color-mix(in srgb, var(--tab-color), var(--text) 25%);
+	color: color-mix(in srgb, var(--tab-color), var(--bg) 65%);
 }
 
 .links-grid {
@@ -678,6 +731,7 @@ onUnmounted(() => {
 	align-items: start;
 	justify-items: center;
 	position: relative;
+	min-height: 64px;
 }
 
 @media (max-width: 768px) {
@@ -706,56 +760,49 @@ onUnmounted(() => {
 	color: white;
 	text-decoration: none;
 	transition: all 0.3s ease;
+	transition-delay: var(--animation-delay, 0ms);
 	border: none;
 	cursor: pointer;
 	position: relative;
 	overflow: hidden;
 }
 
-/* Правильные стили для TransitionGroup анимаций */
-.slide-enter-active,
-.slide-leave-active {
+/* Анимация смены вкладок */
+.tab-enter-active,
+.tab-leave-active {
 	transition: all 0.3s ease;
 }
 
-.slide-enter-from {
+.tab-enter-from {
 	opacity: 0;
-	transform: translateY(20px) scale(0.9);
+	transform: translateY(10px);
 }
 
-.slide-leave-to {
+.tab-leave-to {
 	opacity: 0;
-	transform: translateY(-20px) scale(0.9);
-}
-
-.slide-move {
-	transition: transform 0.3s ease;
-}
-
-/* Убираем position: absolute для leave-active, который вызывает проблемы */
-.slide-leave-active {
-	position: relative;
-	z-index: 0;
-}
-
-/* Предотвращаем растягивание элементов во время анимации */
-.slide-enter-active .link-item,
-.slide-leave-active .link-item {
+	transform: translateY(-10px);
+	position: absolute;
 	width: 100%;
-	max-width: 120px;
 }
 
 /* Обеспечиваем плавность анимации без скачков размеров */
 .links-grid {
 	contain: layout style;
+	position: relative;
 }
 
-/* Мобильная адаптация для анимаций */
-@media (max-width: 768px) {
-	.slide-enter-active .link-item,
-	.slide-leave-active .link-item {
-		max-width: 100px;
-	}
+.links-grid-container-inner {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+	gap: 1rem;
+	align-items: start;
+	justify-items: center;
+	width: 100%;
+}
+
+.link-button {
+	transition: all 0.3s ease;
+	transition-delay: var(--animation-delay, 0ms);
 }
 
 .link-button:hover {
