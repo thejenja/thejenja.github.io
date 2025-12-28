@@ -1,6 +1,6 @@
 ---
-title: "Rasena"
-description: "Personal application for healthy lifestyle and self-development"
+title: "Zhivizna"
+description: "Personal app for a healthy lifestyle and self-development"
 color: "#4ade80"
 background: "radial-gradient(100% 100% at 100% 100%, #5050a3 0%, hsl(0, 0.00%, 0.00%) 100%), radial-gradient(60.32% 60.32% at 0% 66.26%, rgb(80, 99, 159) 0%, rgb(0, 0, 0) 100%), #1e1e1e"
 icon: "🌱"
@@ -18,86 +18,30 @@ gallery:
   ]
 ---
 
-# Rasena
+# Zhivizna: Harmony of Body and Mind in Your Pocket
 
-Innovative web application for healthy lifestyle, combining physical training, mental practices and gaming mechanics.
+In the world of fitness trackers and meditation apps, integrity is often missing. Some pump muscles, others soothe the mind. The project **"Zhivizna"** (Vitality) unites these worlds. It is a comprehensive PWA application that turns self-care from a routine into an exciting game. We created a tool that helps the user become the best version of themselves through physical workouts, mental practices, and cognitive games.
 
-## Project Description
+## Technologies Guarding Health
 
-"Rasena" is a comprehensive platform for healthy lifestyle that turns health care into an exciting journey. The application combines modern technologies, scientifically proven practices and gaming elements, creating a unique experience for users striving for physical and mental well-being.
+The application is built as a **Progressive Web App (PWA)**. This is a strategic decision: users can install "Zhivizna" on their smartphone home screen directly from the browser, bypassing app stores. It works offline, sends push notifications, and feels like a native app, while being a cross-platform website.
 
-## Key Features
+The frontend is implemented on **Vue.js 3** using the **Vite** bundler, which ensures instant interface response. **Supabase** was chosen as the backend—a modern open-source alternative to Firebase. It provides a PostgreSQL database with powerful Row Level Security (RLS), guaranteeing that users' personal health data is securely protected.
 
-- **Comprehensive approach to healthy lifestyle** - physical training, breathing practices, mental games
-- **Gaming mechanics** - achievement system, progress tracking, competitions
-- **Personalization** - individual training plans and recommendations
-- **Social functions** - friends, leaderboards, experience sharing
-- **PWA support** - works as a native application
-- **Smart reminders** - notification system for habit formation
+## Gamification and Functionality
 
-## Technologies
+"Zhivizna" bets on engagement. We don't just give a list of exercises; we create a game environment:
 
-### Frontend
+- **Mental Games**: Trainers for memory, attention, and reaction help keep the brain in shape.
+- **Physics and Breathing**: Built-in timers for workouts and guides for breathing practices.
+- **Achievement System**: For regularity and progress, users receive awards, increase their level, and unlock new content.
 
-- **Vue.js 3** - modern reactive framework with Composition API
-- **Vite** - fast build tool and dev server
-- **Vue Router 4** - navigation and routing
-- **Lucide Vue** - beautiful icons
+The social aspect is also important. Leaderboards and the ability to create interest groups add an element of healthy competition and community support.
 
-### Backend & Database
+## Design and UX
 
-- **Supabase** - full-featured BaaS platform
-- **PostgreSQL** - reliable relational database
-- **Row Level Security** - row-level security
+The interface is designed considering color psychology and one-handed usability. A dark theme with soft gradients (using shades of green and purple in the background) reduces eye strain and sets a calm, productive mood. The use of **Lucide Vue** icons adds lightness and clarity to the interface.
 
-### Additional Technologies
+## Outcome
 
-- **PWA** - progressive web application
-- **Vue Toastification** - notification system
-- **Marked** - Markdown parsing for articles
-
-## Architecture
-
-The project is built on Vue.js component architecture with clear separation of responsibilities:
-
-### Application Structure
-
-- **Components** - reusable UI elements
-- **Pages** - main application sections
-- **Services** - business logic and API interaction
-- **Composables** - reusable logic
-- **Middleware** - intermediate handlers
-
-### Key Modules
-
-- **Authentication system** - secure login through Supabase Auth
-- **Training management** - planning, execution, progress tracking
-- **Gaming mechanics** - mini-games for cognitive development
-- **Achievement system** - gamification for motivation
-- **Social functions** - user interaction
-
-## Functionality
-
-### Physical Health
-
-- **Training** - diverse exercise complexes with timer
-- **Habit tracker** - calendar for tracking daily activities
-- **Progress analytics** - detailed statistics and charts
-
-### Mental Health
-
-- **Breathing practices** - relaxation and concentration techniques
-- **Brain games** - memory, attention and reaction training
-- **Meditation exercises** - mindfulness practices
-
-### Social Functions
-
-- **Friends and groups** - creating communities by interests
-- **Leaderboards** - competitions and achievements
-- **Experience sharing** - articles, reviews, recommendations
-
-### Personal Settings
-
-- **User profile** - goal and preference settings
-- **Privacy** - control over personal data
-- **Appearance** - interface customization
+"Zhivizna" is proof that web technologies are capable of solving complex tasks to improve quality of life. The project demonstrates a full cycle of modern product development: from idea and PWA architecture to the implementation of a secure backend and attractive UI. It is a digital companion for those who choose mindfulness.

@@ -13,7 +13,7 @@ export const defaultTagIcons: TagIcon[] = [
 		slug: "vue",
 		name: "Vue.js",
 		icon: "simple-icons:VueDotjs",
-		color: "#4FC08D",
+		color: "#41b883",
 	},
 	{
 		slug: "react",
@@ -25,7 +25,7 @@ export const defaultTagIcons: TagIcon[] = [
 		slug: "nuxt",
 		name: "Nuxt.js",
 		icon: "simple-icons:Nuxt",
-		color: "#00DC82",
+		color: "#00dc82",
 	},
 	{
 		slug: "next",
@@ -159,13 +159,13 @@ export const defaultTagIcons: TagIcon[] = [
 		slug: "vue-router",
 		name: "Vue Router",
 		icon: "simple-icons:VueDotjs",
-		color: "#4FC08D",
+		color: "#41b883",
 	},
 	{
 		slug: "vue-i18n",
 		name: "Vue I18n",
 		icon: "simple-icons:VueDotjs",
-		color: "#4FC08D",
+		color: "#41b883",
 	},
 	{
 		slug: "fabric",
@@ -257,14 +257,26 @@ export const defaultTagIcons: TagIcon[] = [
 	{
 		slug: "lucide-icons",
 		name: "Lucide Icons",
-		icon: "simple-icons:lucide",
+		icon: "/icons/lucide.svg",
 		color: "#F56565",
 	},
 	{
 		slug: "sora",
 		name: "Sora",
-		icon: "simple-icons:openai",
+		icon: "/icons/openai.svg",
 		color: "#0e0e0e",
+	},
+	{
+		slug: "chatgpt",
+		name: "ChatGPT",
+		icon: "/icons/openai.svg",
+		color: "#0e0e0e",
+	},
+	{
+		slug: "gemini",
+		name: "Gemini",
+		icon: "/icons/gemini.svg",
+		color: "#fff",
 	},
 ];
 

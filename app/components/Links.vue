@@ -1,5 +1,5 @@
 <template>
-	<section class="links">
+	<section class="links" role="region" aria-labelledby="links-title">
 		<h2>
 			{{ $t("links.title") }}
 			<Link />
@@ -19,13 +19,15 @@
 			</button>
 		</div>
 
-		<div ref="linksContainer" class="links-content">
+		<div class="links-content">
 			<div class="links-grid-container">
-				<div class="links-grid">
+				<!-- Добавляем ref для управления высотой и класс для CSS transition высоты -->
+				<div ref="gridContainer" class="links-grid">
 					<transition
-						name="tab"
+						:name="transitionName"
 						mode="out-in"
 						@before-leave="onBeforeLeave"
+						@leave="onLeave"
 						@enter="onEnter"
 						@after-enter="onAfterEnter"
 					>
@@ -36,9 +38,9 @@
 								class="link-item"
 								:style="getRowBasedAnimationStyle(index)"
 							>
+								<!-- Ссылка -->
 								<a
 									v-if="!link.popovertarget"
-									ref="linkRefs"
 									:href="link.url"
 									target="_blank"
 									:rel="link.rel || 'noopener noreferrer'"
@@ -48,16 +50,20 @@
 										[link.label.toLowerCase()]: true,
 									}"
 									:style="{ background: link.color }"
-									:data-tooltip="link.label"
 								>
-									<component
-										:is="link.icon"
-										v-if="link.iconType !== 'svg'"
-										:size="36"
-										:style="{ fill: 'white' }"
-									/>
-									<SvgIcon v-else :src="link.icon" :size="36" />
+									<div class="icon-wrapper">
+										<component
+											:is="link.icon"
+											v-if="link.iconType !== 'svg'"
+											:size="36"
+											:style="{ fill: 'white' }"
+										/>
+										<SvgIcon v-else :src="link.icon" :size="36" />
+									</div>
+									<span class="link-label">{{ link.label }}</span>
 								</a>
+
+								<!-- Кнопка Popover -->
 								<button
 									v-else
 									:popovertarget="link.popovertarget"
@@ -67,15 +73,17 @@
 										[link.label.toLowerCase()]: true,
 									}"
 									:style="{ background: link.color }"
-									:data-tooltip="link.label"
 								>
-									<component
-										:is="link.icon"
-										v-if="link.iconType !== 'svg'"
-										:size="36"
-										:style="{ fill: 'white' }"
-									/>
-									<SvgIcon v-else :src="link.icon" :size="36" />
+									<div class="icon-wrapper">
+										<component
+											:is="link.icon"
+											v-if="link.iconType !== 'svg'"
+											:size="36"
+											:style="{ fill: 'white' }"
+										/>
+										<SvgIcon v-else :src="link.icon" :size="36" />
+									</div>
+									<span class="link-label">{{ link.label }}</span>
 								</button>
 							</div>
 						</div>
@@ -84,7 +92,7 @@
 			</div>
 		</div>
 
-		<!-- TON Space Popover -->
+		<!-- Popover (без изменений) -->
 		<div id="ton" popover class="ton-popover">
 			<div class="popover-content">
 				<button
@@ -94,24 +102,19 @@
 				>
 					<X />
 				</button>
-
-				<!-- Цветная шапка -->
 				<div class="project-header" style="background: #0098ea">
 					<div class="project-logo">
 						<div class="project-icon-large">
 							<SvgIcon src="/icons/ton.svg" :size="36" />
 						</div>
 					</div>
-					<div class="gradient-mask"></div>
+					<div class="gradient-mask" />
 				</div>
-
-				<!-- Контент -->
 				<div class="project-content-wrapper">
 					<h2 class="project-title">TON Space</h2>
 					<p class="project-description">
 						{{ $t("links.supportProject") }}
 					</p>
-
 					<div class="ton-qr-container">
 						<div class="ton-qr-code">
 							<SvgIcon src="/images/qr-code.png" :size="120" />
@@ -125,12 +128,12 @@
 									>UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-</code
 								>
 								<button
+									class="ton-copy-btn"
 									@click="
 										copyToClipboard(
 											'UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-'
 										)
 									"
-									class="ton-copy-btn"
 									:title="$t('links.copyAddress')"
 								>
 									<Copy :size="16" />
@@ -145,18 +148,7 @@
 </template>
 
 <script setup>
-import {
-	ref,
-	computed,
-	onMounted,
-	onUnmounted,
-	defineComponent,
-	h,
-	nextTick,
-	watch,
-} from "vue";
-import tippy from "tippy.js";
-import "tippy.js/dist/tippy.css";
+import { ref, computed, defineComponent, h } from "vue";
 import {
 	DribbbleIcon,
 	GitHubIcon,
@@ -164,28 +156,23 @@ import {
 	XIcon,
 	YouTubeIcon,
 	VkIcon,
-	StackOverflowIcon,
 	MastodonIcon,
 	MediumIcon,
 	BehanceIcon,
 	TwitchIcon,
 	TikTokIcon,
 	BlueskyIcon,
+	ThreadsIcon,
 } from "vue3-simple-icons";
 import { Star, Copy, X, Link } from "lucide-vue-next";
+import { useI18n } from "vue-i18n";
 
 // Компонент для отображения SVG иконок
 const SvgIcon = defineComponent({
 	name: "SvgIcon",
 	props: {
-		src: {
-			type: String,
-			required: true,
-		},
-		size: {
-			type: Number,
-			default: 24,
-		},
+		src: { type: String, required: true },
+		size: { type: Number, default: 24 },
 	},
 	setup(props) {
 		return () =>
@@ -198,49 +185,12 @@ const SvgIcon = defineComponent({
 	},
 });
 
-// Добавляем методы для управления анимацией
-const onBeforeLeave = (el) => {
-	el.style.position = "absolute";
-	el.style.width = "100%";
-};
-
-const onEnter = (el) => {
-	el.style.position = "relative";
-};
-
-const onAfterEnter = (el) => {
-	el.style.position = "";
-};
-
-// Вычисляем количество рядов в гриде
-const getRowBasedAnimationStyle = (index) => {
-	if (currentLinks.value.length <= 6) {
-		// Если 6 или меньше элементов, то один ряд
-		return {
-			"--animation-delay": `${index * 100}ms`, // Плавное появление по одной ссылке
-		};
-	} else {
-		return {
-			"--animation-delay": "0ms", // Анимация сразу для всех
-		};
-	}
-};
-
-const activeTab = ref("favorites");
-const linksContainer = ref(null);
-const linkRefs = ref([]);
-let tippyInstances = [];
-let tippySingleton = null;
-
+const activeTab = ref("all");
+const gridContainer = ref(null);
+const transitionName = ref("slide-next"); // Начальное направление
 const { t } = useI18n();
 
 const tabs = [
-	{
-		id: "favorites",
-		label: t("links.favorites"),
-		color: "#fbbf24",
-		icon: Star,
-	},
 	{ id: "all", label: t("links.all"), color: "#8b5cf6" },
 	{ id: "social", label: t("links.social"), color: "#3b82f6" },
 	{ id: "code", label: t("links.code"), color: "#10b981" },
@@ -249,8 +199,69 @@ const tabs = [
 	{ id: "alt", label: t("links.alt"), color: "#ec4899" },
 ];
 
-// Массив избранных ссылок (только названия)
-const favoriteLinks = ["Telegram", "DonationAlerts", "Behance", "GitHub"];
+// --- ЛОГИКА АНИМАЦИИ ВЫСОТЫ И СМЕНЫ ВКЛАДОК ---
+
+// Установка активной вкладки с определением направления
+const setActiveTab = (tabId) => {
+	const oldIndex = tabs.findIndex((t) => t.id === activeTab.value);
+	const newIndex = tabs.findIndex((t) => t.id === tabId);
+
+	// Если индекс новой вкладки больше -> слайд справа налево (next)
+	// Если меньше -> слайд слева направо (prev)
+	transitionName.value = newIndex > oldIndex ? "slide-next" : "slide-prev";
+	activeTab.value = tabId;
+};
+
+// 1. Перед уходом элемента фиксируем текущую высоту контейнера
+const onBeforeLeave = (el) => {
+	if (gridContainer.value) {
+		gridContainer.value.style.height = `${gridContainer.value.offsetHeight}px`;
+		// el.style.position = 'absolute'; // Опционально, для mode='in-out', но мы используем mode='out-in'
+		// el.style.width = '100%';
+	}
+};
+
+const onLeave = (el) => {
+	// Здесь можно добавить дополнительную логику при необходимости
+};
+
+// 2. Когда новый элемент вставлен, вычисляем его высоту и анимируем контейнер
+const onEnter = (el) => {
+	if (gridContainer.value) {
+		const container = gridContainer.value;
+
+		// Сбрасываем высоту на auto, чтобы измерить новый контент
+		const prevHeight = container.style.height;
+		container.style.height = "auto";
+		const targetHeight = getComputedStyle(container).height;
+
+		// Возвращаем зафиксированную высоту для начала анимации
+		container.style.height = prevHeight;
+
+		// Форсируем перерисовку браузером (Repaint)
+		// eslint-disable-next-line no-unused-expressions
+		container.offsetHeight;
+
+		// Анимируем к новой высоте
+		requestAnimationFrame(() => {
+			container.style.height = targetHeight;
+		});
+	}
+};
+
+// 3. После завершения анимации убираем жесткую высоту
+const onAfterEnter = (el) => {
+	if (gridContainer.value) {
+		gridContainer.value.style.height = "auto";
+	}
+};
+
+const getRowBasedAnimationStyle = (index) => {
+	if (currentLinks.value.length <= 6) {
+		return { "--animation-delay": `${index * 50}ms` };
+	}
+	return { "--animation-delay": "0ms" };
+};
 
 const allLinks = {
 	social: [
@@ -262,43 +273,28 @@ const allLinks = {
 			color: "#ff0000",
 		},
 		{
-			id: 3,
-			label: "X",
-			url: "https://x.com/thejenja",
-			icon: XIcon,
-			color: "#000",
-		},
-		{
-			id: 4,
-			label: "Telegram",
-			url: "https://t.me/thejenja",
-			icon: "/icons/telegram-logo.svg",
-			iconType: "svg",
-			color: "#0088cc",
-		},
-		{
-			id: 5,
+			id: 2,
 			label: "VK",
 			url: "https://vk.com/thejenja",
 			icon: VkIcon,
 			color: "#0d7eff",
 		},
 		{
-			id: 6,
+			id: 3,
 			label: "Twitch",
 			url: "https://twitch.tv/thejenja",
 			icon: TwitchIcon,
 			color: "#9146ff",
 		},
 		{
-			id: 7,
+			id: 4,
 			label: "TikTok",
 			url: "https://tiktok.com/@thejenja_",
 			icon: TikTokIcon,
 			color: "#000000",
 		},
 		{
-			id: 8,
+			id: 5,
 			label: "TenChat",
 			url: "https://tenchat.ru/thejenja",
 			icon: "/icons/tenchat.svg",
@@ -323,13 +319,6 @@ const allLinks = {
 		},
 		{
 			id: 3,
-			label: "Stack Overflow",
-			url: "https://stackoverflow.com/users/23535198/evgeniy-khramov",
-			icon: StackOverflowIcon,
-			color: "#f48024",
-		},
-		{
-			id: 4,
 			label: "UserStyles",
 			url: "https://userstyles.world/user/thejenja",
 			icon: "/icons/userstyles-logo.svg",
@@ -380,8 +369,8 @@ const allLinks = {
 	donate: [
 		{
 			id: 1,
-			label: "DonationAlerts",
-			url: "https://donationalerts.com/r/thejenja",
+			label: "DALink",
+			url: "https://dalink.to/thejenja",
 			icon: "/icons/da.svg",
 			iconType: "svg",
 			color: "#f57d07",
@@ -434,34 +423,29 @@ const allLinks = {
 			icon: BlueskyIcon,
 			color: "#1185fe",
 		},
+		{
+			id: 4,
+			label: "Threads",
+			url: "https://www.threads.com/@thejenja_",
+			icon: ThreadsIcon,
+			color: "#0a0a0a",
+		},
 	],
 };
 
-// Автоматически создаем раздел "all" из всех остальных разделов
 const allLinksWithAll = computed(() => {
 	const all = [];
 	let idCounter = 1;
-
-	// Собираем все ссылки из всех разделов
 	Object.keys(allLinks).forEach((category) => {
 		allLinks[category].forEach((link) => {
-			all.push({
-				...link,
-				id: idCounter++,
-				category, // добавляем информацию о категории для отладки
-			});
+			all.push({ ...link, id: idCounter++, category });
 		});
 	});
-
-	return {
-		all,
-		...allLinks,
-	};
+	return { all, ...allLinks };
 });
 
 const currentLinks = computed(() => {
 	if (activeTab.value === "favorites") {
-		// Для вкладки "избранное" фильтруем ссылки по названиям
 		return allLinksWithAll.value.all.filter((link) =>
 			favoriteLinks.includes(link.label)
 		);
@@ -469,154 +453,10 @@ const currentLinks = computed(() => {
 	return allLinksWithAll.value[activeTab.value] || [];
 });
 
-const setActiveTab = (tabId) => {
-	activeTab.value = tabId;
-};
-
-// Инициализация Tippy с улучшенным Singleton
-const initTippy = async () => {
-	// Очищаем старые экземпляры
-	cleanupTippy();
-
-	await nextTick();
-
-	const linkElements = document.querySelectorAll(".link-button[data-tooltip]");
-	if (!linkElements.length) return;
-
-	// Создаем тултипы для всех ссылок
-	tippyInstances = Array.from(linkElements).map((el) =>
-		tippy(el, {
-			content: el.getAttribute("data-tooltip") || "",
-			theme: "light",
-			placement: "top",
-			arrow: true,
-			animation: false,
-			duration: [0, 0],
-			delay: [0, 0],
-			appendTo: () => document.body,
-			zIndex: 9999,
-			allowHTML: false,
-			maxWidth: 240,
-			offset: [0, 8],
-			trigger: "mouseenter focus",
-			hideOnClick: false,
-		})
-	);
-
-	// Создаем singleton с плавным переходом между ссылками
-	tippySingleton = tippy.createSingleton(tippyInstances, {
-		delay: [300, 0], // Задержка показа 300ms, скрытие без задержки
-		moveTransition: "transform 0.2s ease-out",
-		overrides: ["placement", "offset", "theme"],
-	});
-
-	// Глобальные обработчики для UX
-	addGlobalTippyHandlers();
-};
-
-// Функция очистки Tippy для предотвращения утечек памяти
-const cleanupTippy = () => {
-	if (tippySingleton) {
-		tippySingleton.destroy();
-		tippySingleton = null;
-	}
-	tippyInstances.forEach((instance) => instance.destroy());
-	tippyInstances = [];
-};
-
-// Глобальные обработчики для улучшенного UX
-const addGlobalTippyHandlers = () => {
-	// Обработчик для клавиши Escape - скрывает все тултипы
-	const handleEscape = (e) => {
-		if (e.key === "Escape" && tippySingleton) {
-			tippySingleton.hideAll();
-		}
-	};
-
-	// Обработчик для клика вне тултипов - скрывает все тултипы
-	const handleClickOutside = (e) => {
-		if (tippySingleton && !e.target.closest(".tippy-box")) {
-			tippySingleton.hideAll();
-		}
-	};
-
-	// Обработчик для изменения размера окна - скрывает все тултипы
-	const handleResize = () => {
-		if (tippySingleton) {
-			tippySingleton.hideAll();
-		}
-	};
-
-	// Добавляем обработчики
-	document.addEventListener("keydown", handleEscape);
-	document.addEventListener("click", handleClickOutside);
-	window.addEventListener("resize", handleResize);
-
-	// Сохраняем ссылки на обработчики для очистки
-	window._tippyHandlers = {
-		handleEscape,
-		handleClickOutside,
-		handleResize,
-	};
-};
-
-// Удаление глобальных обработчиков для очистки памяти
-const removeGlobalTippyHandlers = () => {
-	if (window._tippyHandlers) {
-		const { handleEscape, handleClickOutside, handleResize } =
-			window._tippyHandlers;
-		document.removeEventListener("keydown", handleEscape);
-		document.removeEventListener("click", handleClickOutside);
-		window.removeEventListener("resize", handleResize);
-		delete window._tippyHandlers;
-	}
-};
-
-// Дополнительные функции для управления тултипами
-const _showAllTooltips = () => {
-	if (tippySingleton) {
-		tippySingleton.showAll();
-	}
-};
-
-const _hideAllTooltips = () => {
-	if (tippySingleton) {
-		tippySingleton.hideAll();
-	}
-};
-
-// Функция для обновления контента тултипа
-const _updateTooltipContent = (elementId, newContent) => {
-	const instance = tippyInstances.find(
-		(inst) => inst.reference.id === elementId
-	);
-	if (instance) {
-		instance.setContent(newContent);
-	}
-};
-
-// Функция для принудительного обновления позиции всех тултипов
-const _refreshTooltipPositions = () => {
-	if (tippySingleton) {
-		tippySingleton.hideAll();
-		setTimeout(() => {
-			tippyInstances.forEach((instance) => {
-				if (instance.state.isVisible) {
-					instance.show();
-				}
-			});
-		}, 100);
-	}
-};
-
-// Простая функция копирования в буфер обмена
 const copyToClipboard = async (text) => {
 	try {
 		await navigator.clipboard.writeText(text);
-		// Можно добавить уведомление об успешном копировании
 	} catch {
-		// console.error("Ошибка копирования:", err);
-		// Fallback для старых браузеров
 		const textArea = document.createElement("textarea");
 		textArea.value = text;
 		document.body.appendChild(textArea);
@@ -625,62 +465,6 @@ const copyToClipboard = async (text) => {
 		document.body.removeChild(textArea);
 	}
 };
-
-// Улучшенная функция инициализации с проверкой состояния
-const initTippyWithState = async () => {
-	try {
-		await initTippy();
-
-		// Добавляем обработчик для изменения видимости элементов
-		const observer = new IntersectionObserver(
-			(entries) => {
-				entries.forEach((entry) => {
-					if (!entry.isIntersecting && tippySingleton) {
-						// Скрываем тултип если элемент не виден
-						tippySingleton.hideAll();
-					}
-				});
-			},
-			{ threshold: 0.1 }
-		);
-
-		// Наблюдаем за всеми ссылками
-		document.querySelectorAll(".link-button").forEach((link) => {
-			observer.observe(link);
-		});
-
-		// Сохраняем observer для очистки
-		window._tippyObserver = observer;
-	} catch {
-		// console.warn("Ошибка инициализации Tippy:", error);
-	}
-};
-
-// Обновляем тултипы при смене активной вкладки
-watch(
-	() => activeTab.value,
-	() => {
-		// Добавляем небольшую задержку для завершения анимации
-		setTimeout(() => {
-			initTippyWithState();
-		}, 350); // Увеличиваем задержку до 350ms для завершения анимации
-	}
-);
-
-onMounted(() => {
-	initTippyWithState();
-});
-
-onUnmounted(() => {
-	cleanupTippy();
-	removeGlobalTippyHandlers();
-
-	// Очищаем observer
-	if (window._tippyObserver) {
-		window._tippyObserver.disconnect();
-		delete window._tippyObserver;
-	}
-});
 </script>
 
 <style scoped>
@@ -724,18 +508,26 @@ onUnmounted(() => {
 	color: color-mix(in srgb, var(--tab-color), var(--bg) 65%);
 }
 
+/* === Контейнер для анимации высоты === */
 .links-grid {
+	position: relative;
+	/* Добавляем плавность для изменения высоты */
+	transition: height 0.3s ease;
+	min-height: 64px;
+	contain: layout style;
+}
+
+.links-grid-container-inner {
 	display: grid;
 	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 	gap: 1rem;
 	align-items: start;
 	justify-items: center;
-	position: relative;
-	min-height: 64px;
+	width: 100%;
 }
 
 @media (max-width: 768px) {
-	.links-grid {
+	.links-grid-container-inner {
 		grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
 	}
 }
@@ -748,7 +540,7 @@ onUnmounted(() => {
 	width: 100%;
 }
 
-/* Общие стили для всех link-button (a и button) */
+/* === Стили кнопок ссылок === */
 .link-button {
 	width: 100%;
 	height: 64px;
@@ -767,101 +559,121 @@ onUnmounted(() => {
 	overflow: hidden;
 }
 
-/* Анимация смены вкладок */
-.tab-enter-active,
-.tab-leave-active {
-	transition: all 0.3s ease;
-}
-
-.tab-enter-from {
-	opacity: 0;
-	transform: translateY(10px);
-}
-
-.tab-leave-to {
-	opacity: 0;
-	transform: translateY(-10px);
+/* Смена иконки на текст */
+.icon-wrapper {
 	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%) scale(1);
+	transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	opacity: 1;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.link-label {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -40%);
+	opacity: 0;
+	transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+	font-weight: 600;
+	font-size: 1.25rem;
+	text-align: center;
 	width: 100%;
+	pointer-events: none;
+	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Обеспечиваем плавность анимации без скачков размеров */
-.links-grid {
-	contain: layout style;
-	position: relative;
+.link-button:hover .icon-wrapper {
+	opacity: 0;
+	transform: translate(-50%, -50%) scale(0.5);
 }
 
-.links-grid-container-inner {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-	gap: 1rem;
-	align-items: start;
-	justify-items: center;
-	width: 100%;
-}
-
-.link-button {
-	transition: all 0.3s ease;
-	transition-delay: var(--animation-delay, 0ms);
+.link-button:hover .link-label {
+	opacity: 1;
+	transform: translate(-50%, -50%);
 }
 
 .link-button:hover {
 	transform: translateY(-4px);
+	box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.2);
 }
 
 .link-button:active {
 	transform: translateY(-1px);
 }
 
-/* Стили для button элементов (TON Space) */
 .link-button[type="button"] {
 	background: none;
 	font-family: inherit;
 	font-size: inherit;
 }
 
-.link-button[type="button"]:hover {
-	transform: scale(1.05) translateY(-2px);
-	box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-}
+/* === Анимации переходов Slide Next/Prev === */
 
-.link-button[type="button"]:active {
-	transform: scale(0.95);
-}
-
-.tiktok svg,
-.tiktok {
-	filter: drop-shadow(0 0 0 transparent);
-	transition: filter 0.3s ease;
-}
-
-.tiktok:hover svg,
-.tiktok:hover {
-	filter: drop-shadow(-2px -2px 0 #25f4ee) drop-shadow(2px 2px 0 #ff3353fc);
-}
-
-.link-button svg,
-.link-button img {
+/* Общие стили для переходов */
+.slide-next-enter-active,
+.slide-next-leave-active,
+.slide-prev-enter-active,
+.slide-prev-leave-active {
 	transition: all 0.3s ease;
-	pointer-events: none;
 }
 
-/* Уважение к настройкам пользователя */
+/* Slide Next (справа налево) */
+/* Старый уходит влево */
+.slide-next-leave-to {
+	opacity: 0;
+	transform: translateX(-30px);
+}
+/* Новый приходит справа */
+.slide-next-enter-from {
+	opacity: 0;
+	transform: translateX(30px);
+}
+
+/* Slide Prev (слева направо) */
+/* Старый уходит вправо */
+.slide-prev-leave-to {
+	opacity: 0;
+	transform: translateX(30px);
+}
+/* Новый приходит слева */
+.slide-prev-enter-from {
+	opacity: 0;
+	transform: translateX(-30px);
+}
+
+/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
 	.link-button,
-	.link-button::before {
-		transition: none;
+	.link-button::before,
+	.icon-wrapper,
+	.link-label,
+	.links-grid {
+		transition: none !important;
 	}
 
-	.link-button:hover,
-	.link-button:active {
+	.slide-next-enter-active,
+	.slide-next-leave-active,
+	.slide-prev-enter-active,
+	.slide-prev-leave-active {
+		transition: opacity 0.3s ease;
 		transform: none;
-		box-shadow: none;
+	}
+
+	.slide-next-leave-to,
+	.slide-next-enter-from,
+	.slide-prev-leave-to,
+	.slide-prev-enter-from {
+		opacity: 0;
+		transform: none;
 	}
 }
 
-/* TON Popover стили */
-/* Нативный popover стили */
+/* Popover стили */
 [popover] {
 	background: transparent;
 	border: none;
@@ -869,13 +681,32 @@ onUnmounted(() => {
 	margin: auto;
 	max-width: 500px;
 	overflow: visible;
+	transition:
+		opacity 0.4s ease,
+		transform 0.4s ease,
+		overlay 0.4s ease allow-discrete,
+		display 0.4s ease allow-discrete;
+}
+
+[popover]:popover-open {
+	opacity: 1;
+	transform: scale(1) translateY(0);
+}
+@starting-style {
+	[popover]:popover-open {
+		opacity: 0;
+		transform: scale(0.9) translateY(-20px);
+	}
+}
+[popover]:not(:popover-open) {
+	opacity: 0;
+	transform: scale(0.9) translateY(-20px);
 }
 
 ::backdrop {
 	background: rgba(0, 0, 0, 0.5);
 	backdrop-filter: blur(10px);
 }
-
 .ton-popover {
 	background: var(--bg);
 	border: 2px solid var(--border);
@@ -884,7 +715,6 @@ onUnmounted(() => {
 	max-width: 400px;
 	width: 90vw;
 }
-
 .popover-content {
 	background: var(--bg-secondary);
 	border: 1px solid var(--border);
@@ -898,7 +728,6 @@ onUnmounted(() => {
 	flex-direction: column;
 	position: relative;
 }
-
 .close-button {
 	position: absolute;
 	top: 1rem;
@@ -912,11 +741,9 @@ onUnmounted(() => {
 	transition: background 0.3s ease;
 	z-index: 10;
 }
-
 .close-button:hover {
 	background: var(--bg-tertiary);
 }
-
 .project-header {
 	display: flex;
 	align-items: center;
@@ -927,12 +754,10 @@ onUnmounted(() => {
 	border-radius: 12px 12px 0 0;
 	height: 100px;
 }
-
 .project-logo {
 	position: relative;
 	z-index: 2;
 }
-
 .project-icon-large {
 	font-size: 3rem;
 	font-weight: bold;
@@ -940,7 +765,6 @@ onUnmounted(() => {
 	text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
 }
-
 .gradient-mask {
 	position: absolute;
 	top: 0;
@@ -950,25 +774,21 @@ onUnmounted(() => {
 	background: linear-gradient(0deg, var(--bg-secondary) 0%, transparent 100%);
 	z-index: 1;
 }
-
 .project-content-wrapper {
 	padding: 2rem;
 	text-align: center;
 }
-
 .project-title {
 	margin: 0 0 0.5rem 0;
 	font-size: 1.5rem;
 	font-weight: 700;
 	color: var(--text);
 }
-
 .project-description {
 	margin: 0 0 1.5rem 0;
 	font-size: 0.9rem;
 	color: var(--text-secondary);
 }
-
 .ton-qr-container {
 	display: flex;
 	flex-direction: column;
@@ -976,7 +796,6 @@ onUnmounted(() => {
 	align-items: center;
 	margin-bottom: 1.5rem;
 }
-
 .ton-qr-code {
 	width: 200px;
 	height: 200px;
@@ -988,24 +807,20 @@ onUnmounted(() => {
 	background: linear-gradient(135deg, #0098ea, #0066cc);
 	overflow: hidden;
 }
-
 .ton-qr-code img {
 	width: 100%;
 	height: 100%;
 	object-fit: contain;
 }
-
 .ton-address-info {
 	width: 100%;
 	text-align: center;
 }
-
 .ton-address-label {
 	margin: 0 0 0.5rem 0;
 	font-size: 0.9rem;
 	color: var(--text-secondary);
 }
-
 .ton-address-container {
 	display: flex;
 	align-items: center;
@@ -1015,7 +830,6 @@ onUnmounted(() => {
 	padding: 0.75rem;
 	border: 1px solid var(--border);
 }
-
 .ton-address {
 	font-family: "Courier New", monospace;
 	font-size: 0.8rem;
@@ -1023,7 +837,6 @@ onUnmounted(() => {
 	word-break: break-all;
 	flex: 1;
 }
-
 .ton-copy-btn {
 	background: var(--bg-tertiary);
 	border: none;
@@ -1038,85 +851,36 @@ onUnmounted(() => {
 	min-width: 32px;
 	height: 32px;
 }
-
 .ton-copy-btn:hover {
 	background: var(--bg-secondary);
 	transform: scale(1.05);
 }
 
-/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
 	[popover] {
 		max-width: 95vw;
 	}
-
 	.project-content-wrapper {
 		padding: 1.5rem;
 	}
-
 	.project-title {
 		font-size: 1.25rem;
 	}
 }
-
 @media (max-width: 480px) {
 	.ton-popover {
 		width: 95vw;
 		margin: 1rem;
 	}
-
 	.popover-content {
 		padding: 1rem;
 	}
-
 	.ton-qr-code {
 		width: 100px;
 		height: 100px;
 	}
-
 	.ton-address {
 		font-size: 0.7rem;
-	}
-}
-
-/* Современные CSS анимации для popover */
-[popover] {
-	transition:
-		opacity 0.4s ease,
-		transform 0.4s ease,
-		overlay 0.4s ease allow-discrete,
-		display 0.4s ease allow-discrete;
-}
-
-/* Анимация появления */
-[popover]:popover-open {
-	opacity: 1;
-	transform: scale(1) translateY(0);
-}
-
-/* Начальное состояние */
-@starting-style {
-	[popover]:popover-open {
-		opacity: 0;
-		transform: scale(0.9) translateY(-20px);
-	}
-}
-
-/* Анимация исчезновения */
-[popover]:not(:popover-open) {
-	opacity: 0;
-	transform: scale(0.9) translateY(-20px);
-}
-
-/* Уважение к настройкам пользователя */
-@media (prefers-reduced-motion: reduce) {
-	[popover] {
-		transition: none;
-	}
-
-	[popover]:popover-open,
-	[popover]:not(:popover-open) {
-		transform: none;
 	}
 }
 </style>

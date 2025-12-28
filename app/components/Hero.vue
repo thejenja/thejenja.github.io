@@ -3,30 +3,60 @@
 		<div class="hero-content">
 			<h1 class="hero-title">
 				{{ $t("hero.greeting") }}
-				<img
+				<NuxtImg
 					src="/images/waving-hand.svg"
 					alt="waving-hand"
 					class="waving-hand"
 					width="48"
 					height="48"
+					sizes="xs:24px sm:32px md:40px lg:48px"
+					loading="lazy"
 				/>
 			</h1>
 			<p class="hero-subtitle">
 				<i18n-t keypath="hero.subtitle" tag="span">
-					<span class="highlight"
-						><img
+					<span class="highlight">
+						<NuxtImg
 							src="/images/thejenja.svg"
 							alt="thejenja"
 							class="thejenja-logo"
 							width="128"
 							height="40"
-					/></span>
+							sizes="xs:64px sm:80px md:96px lg:128px"
+							loading="lazy"
+						/>
+					</span>
 					{{ preciseAge }}
 				</i18n-t>
 			</p>
+
 			<div class="hero-activity">
-				<span>{{ $t("hero.activity") }}</span>
-				<div ref="activityContainer" class="activity-tags"></div>
+				<span class="activity-label">{{ $t("hero.activity") }}</span>
+
+				<div class="activity-viewport">
+					<TransitionGroup
+						tag="div"
+						class="activity-tags"
+						:class="{ 'shaking-mode': isAnyDragging }"
+						:css="false"
+						@before-enter="onBeforeEnter"
+						@enter="onEnter"
+						@leave="onLeave"
+					>
+						<div
+							v-for="(act, index) in visibleItems"
+							:key="act.text"
+							:data-index="index"
+							class="activity"
+							:style="{
+								'--act-color': act.color,
+								'--bg-mix': `color-mix(in srgb, ${act.color}, var(--bg) 85%)`,
+							}"
+						>
+							{{ act.text }}
+						</div>
+					</TransitionGroup>
+				</div>
 			</div>
 		</div>
 	</section>
@@ -34,17 +64,17 @@
 
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { gsap } from "gsap";
-import { Draggable } from "gsap/Draggable";
+import { Draggable } from "gsap/draggable";
 
 if (typeof gsap !== "undefined" && Draggable) {
 	gsap.registerPlugin(Draggable);
 }
 
-const activityContainer = ref(null);
 const { t } = useI18n();
 
-const activitiesData = computed(() => [
+const allActivities = computed(() => [
 	{ text: t("activities.frontend"), color: "#fbbf24" },
 	{ text: t("activities.backend"), color: "#f43f5e" },
 	{ text: t("activities.design"), color: "#10b981" },
@@ -53,204 +83,173 @@ const activitiesData = computed(() => [
 	{ text: t("activities.animation"), color: "#8b5cf6" },
 ]);
 
-const index = ref(0);
-const cycleInterval = ref(null);
-const dragInstances = ref([]);
-
-// Функция для получения текущего набора активностей
-const getCurrentSet = computed(() => {
-	const start = index.value;
-	const end = start + 3;
-	let slice = activitiesData.value.slice(start, end);
-
-	// Если набор меньше 3, добавляем элементы с начала
-	if (slice.length < 3) {
-		const remaining = 3 - slice.length;
-		slice = [...slice, ...activitiesData.value.slice(0, remaining)];
-	}
-	return slice;
-});
+const visibleItems = ref([]);
+const currentIndex = ref(0);
+const cycleTimeout = ref(null);
+const isAnimating = ref(false);
+const isAnyDragging = ref(false);
 
 const preciseAge = computed(() => getPreciseAge(new Date("2006-08-31")));
 
-function renderActivities(set) {
-	if (!activityContainer.value) return;
+// --- Анимация (Motion Blur + Slide) ---
 
-	// Убиваем все существующие draggable экземпляры
-	dragInstances.value.forEach((instance) => {
-		if (instance && typeof instance.kill === "function") {
-			try {
-				instance.kill();
-			} catch (error) {
-				console.warn("Error killing Draggable instance:", error);
-			}
-		}
-	});
-	dragInstances.value = [];
+const onBeforeEnter = (el) => {
+	// Критически важно: скрываем элемент CSS-ом до начала JS анимации,
+	// чтобы избежать мелькания "сжатого" контента
+	el.style.opacity = 0;
+};
 
-	// Оптимизируем DOM-операции: создаем фрагмент для уменьшения перерисовок
-	const fragment = document.createDocumentFragment();
-
-	set.forEach((act) => {
-		const el = document.createElement("div");
-		el.className = "activity";
-		el.textContent = act.text;
-		el.style.background = `color-mix(in srgb, ${act.color}, var(--bg) 80%)`;
-		el.style.color = act.color;
-		// Устанавливаем начальное состояние для анимации
-		el.style.opacity = "0";
-		el.style.transform = "translateX(-15px)";
-		fragment.appendChild(el);
+const onEnter = (el, done) => {
+	// Начальное состояние:
+	// Сдвиг влево, прозрачность, сильное размытие (имитация скорости)
+	gsap.set(el, {
+		opacity: 0,
+		x: -40,
+		filter: "blur(12px)",
+		scale: 0.95,
 	});
 
-	// Очищаем контейнер и добавляем фрагмент за один раз
-	activityContainer.value.innerHTML = "";
-	activityContainer.value.appendChild(fragment);
-
-	// Получаем все созданные элементы
-	const activities = activityContainer.value.querySelectorAll(".activity");
-
-	// Запускаем анимацию появления
-	gsap.to(activities, {
+	gsap.to(el, {
 		opacity: 1,
 		x: 0,
-		duration: 0.8,
-		stagger: 0.15,
-		ease: "power2.out",
+		filter: "blur(0px)", // Убираем размытие к концу
+		scale: 1,
+		duration: 0.9,
+		delay: el.dataset.index * 0.12,
+		ease: "power3.out",
 		onComplete: () => {
-			// Создаем draggable экземпляры после завершения анимации
-			activities.forEach((activity) => {
-				if (!Draggable) return;
-
-				try {
-					const dragInstance = Draggable.create(activity, {
-						type: "x,y",
-						bounds: activityContainer.value || "body",
-						edgeResistance: 0.65,
-						throwProps: true,
-						onDragStart: function () {
-							activity.classList.add("dragging");
-						},
-						onDragEnd: function () {
-							activity.classList.remove("dragging");
-							activity.classList.add("returning");
-							// Убираем класс после завершения анимации
-							setTimeout(() => {
-								activity.classList.remove("returning");
-							}, 500);
-						},
-					});
-
-					if (Array.isArray(dragInstance) && dragInstance.length > 0) {
-						dragInstances.value.push(dragInstance[0]);
-					} else if (dragInstance) {
-						dragInstances.value.push(dragInstance);
-					}
-				} catch (error) {
-					console.warn("Error creating Draggable:", error);
-				}
-			});
+			// Очищаем inline-фильтр, чтобы не мылило текст после анимации
+			el.style.filter = "";
+			initDraggable(el);
+			done();
 		},
 	});
-}
+};
 
-function cycleActivities() {
-	const currentSet = getCurrentSet.value;
-	renderActivities(currentSet);
-	index.value = (index.value + 3) % activitiesData.value.length;
-}
+const onLeave = (el, done) => {
+	const draggableInstance = Draggable.get(el);
+	if (draggableInstance) draggableInstance.kill();
 
-function slideReplace(container, update) {
-	if (!container) return;
-
-	const oldItems = container.querySelectorAll(".activity");
-
-	// Анимация исчезновения старых элементов
-	gsap.to(oldItems, {
+	// Уход: Сдвиг вправо, исчезновение, появление размытия
+	gsap.to(el, {
 		opacity: 0,
-		x: 15,
-		duration: 0.6,
-		stagger: 0.1,
-		ease: "power2.inOut",
-		onComplete: () => {
-			// Обновляем DOM после ухода
-			update();
+		x: 40,
+		filter: "blur(12px)", // Размываем в движении
+		scale: 0.95,
+		duration: 0.5,
+		delay: el.dataset.index * 0.05,
+		ease: "power2.in",
+		onComplete: done,
+	});
+};
 
-			const newItems = container.querySelectorAll(".activity");
+// --- Логика смены ---
 
-			// Новые изначально невидимые и слева
-			gsap.set(newItems, { x: -15, opacity: 0 });
+function updateActivities() {
+	if (isAnimating.value || isAnyDragging.value || document.hidden) return;
+	isAnimating.value = true;
 
-			// НОВЫЕ: плавный заезд и проявление (0 → 1)
-			gsap.to(newItems, {
+	visibleItems.value = [];
+
+	setTimeout(() => {
+		if (document.hidden) {
+			isAnimating.value = false;
+			return;
+		}
+
+		const total = allActivities.value.length;
+		const nextSet = [];
+		for (let i = 0; i < 3; i++) {
+			nextSet.push(allActivities.value[(currentIndex.value + i) % total]);
+		}
+		currentIndex.value = (currentIndex.value + 3) % total;
+
+		visibleItems.value = nextSet;
+
+		setTimeout(() => {
+			isAnimating.value = false;
+			scheduleNextCycle();
+		}, 4500);
+	}, 600); // Чуть увеличил паузу для чистоты
+}
+
+function scheduleNextCycle() {
+	if (cycleTimeout.value) clearTimeout(cycleTimeout.value);
+
+	const prefersReducedMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)"
+	).matches;
+	if (prefersReducedMotion) return;
+
+	cycleTimeout.value = setTimeout(() => {
+		updateActivities();
+	}, 100);
+}
+
+function handleVisibilityChange() {
+	if (document.hidden) {
+		if (cycleTimeout.value) clearTimeout(cycleTimeout.value);
+	} else {
+		if (!isAnimating.value && visibleItems.value.length > 0) {
+			scheduleNextCycle();
+		} else if (visibleItems.value.length === 0) {
+			updateActivities();
+		}
+	}
+}
+
+// --- Draggable ---
+
+function initDraggable(el) {
+	if (!Draggable) return;
+
+	Draggable.create(el, {
+		type: "x,y",
+		edgeResistance: 0.65,
+		throwProps: true,
+		zIndexBoost: true,
+		onDragStart: function () {
+			el.classList.add("dragging");
+			isAnyDragging.value = true;
+			gsap.to(el, { scale: 1.1, duration: 0.2 });
+		},
+		onDragEnd: function () {
+			el.classList.remove("dragging");
+			isAnyDragging.value = false;
+			el.classList.add("returning");
+
+			gsap.to(el, {
 				x: 0,
-				opacity: 1,
-				duration: 0.8,
-				stagger: 0.15,
-				ease: "power2.out",
+				y: 0,
+				scale: 1,
+				duration: 0.5,
+				ease: "elastic.out(1, 0.4)",
+				onComplete: () => {
+					el.classList.remove("returning");
+				},
 			});
 		},
 	});
 }
 
 onMounted(() => {
-	// Проверяем, не запущен ли уже цикл
-	if (cycleInterval.value) return;
+	document.addEventListener("visibilitychange", handleVisibilityChange);
 
-	const prefersReducedMotion = window.matchMedia(
-		"(prefers-reduced-motion: reduce)"
-	).matches;
-
-	if (prefersReducedMotion) {
-		try {
-			renderActivities(getCurrentSet.value);
-		} catch (error) {
-			console.error("Error rendering activities:", error);
-		}
-		return;
+	const startSet = [];
+	for (let i = 0; i < 3; i++) {
+		startSet.push(allActivities.value[i]);
 	}
-
-	const startActivityCycle = () => {
-		// Проверяем, не запущен ли уже цикл
-		if (cycleInterval.value) return;
-
-		cycleInterval.value = setInterval(() => {
-			try {
-				slideReplace(activityContainer.value, () => {
-					try {
-						cycleActivities();
-					} catch (error) {
-						console.error("Error cycling activities:", error);
-					}
-				});
-			} catch (error) {
-				console.error("Error in slideReplace:", error);
-			}
-		}, 4000);
-	};
+	visibleItems.value = startSet;
+	currentIndex.value = 3;
 
 	setTimeout(() => {
-		try {
-			cycleActivities();
-			startActivityCycle();
-		} catch (error) {
-			console.error("Error starting activity cycle:", error);
-		}
-	}, 500);
+		scheduleNextCycle();
+	}, 3000);
 });
 
 onUnmounted(() => {
-	if (cycleInterval.value) clearInterval(cycleInterval.value);
-	dragInstances.value.forEach((instance) => {
-		if (instance && typeof instance.kill === "function") {
-			try {
-				instance.kill();
-			} catch (error) {
-				console.warn("Error killing Draggable instance:", error);
-			}
-		}
-	});
-	dragInstances.value = [];
+	document.removeEventListener("visibilitychange", handleVisibilityChange);
+	if (cycleTimeout.value) clearTimeout(cycleTimeout.value);
 	gsap.killTweensOf(".activity");
 });
 
@@ -264,7 +263,6 @@ function getPreciseAge(birthDate) {
 </script>
 
 <style scoped>
-/* Определяем кастомные переменные для позиций */
 @property --x1 {
 	syntax: "<percentage>";
 	inherits: false;
@@ -273,7 +271,7 @@ function getPreciseAge(birthDate) {
 @property --y1 {
 	syntax: "<percentage>";
 	inherits: false;
-	initial-value: 100%;
+	initial-value: 0%;
 }
 @property --x2 {
 	syntax: "<percentage>";
@@ -283,84 +281,79 @@ function getPreciseAge(birthDate) {
 @property --y2 {
 	syntax: "<percentage>";
 	inherits: false;
-	initial-value: 0%;
+	initial-value: 100%;
 }
 
 .hero {
 	--x1: 0%;
-	--y1: 100%;
+	--y1: 0%;
 	--x2: 100%;
-	--y2: 0%;
+	--y2: 100%;
+	position: relative;
+	min-height: 320px;
+	border: 0;
+	box-shadow: none;
 	background:
 		radial-gradient(
 			circle at var(--x1) var(--y1),
 			var(--gradient-1) 0%,
-			transparent 50%
+			transparent 40%
 		),
 		radial-gradient(
 			circle at var(--x2) var(--y2),
 			var(--gradient-2) 0%,
-			transparent 50%
+			transparent 40%
 		),
 		var(--bg-quaternary);
-	animation: moveGradient 10s ease-in-out infinite alternate;
-	min-height: 320px;
-	position: relative;
-	border: 0;
-	box-shadow: none;
+	animation: rotateBlobs 12s linear infinite;
 }
 
 .hero::before {
-	content: '';
+	content: "";
 	position: absolute;
 	inset: 0;
-	width: 100%;
-	height: 100%;
 	z-index: -1;
-	filter: blur(50px);
-	--x1: 0%;
-	--y1: 100%;
-	--x2: 100%;
-	--y2: 0%;
-	background:
-		radial-gradient(
-			circle at var(--x1) var(--y1),
-			var(--gradient-1) 0%,
-			transparent 50%
-		),
-		radial-gradient(
-			circle at var(--x2) var(--y2),
-			var(--gradient-2) 0%,
-			transparent 50%
-		),
-		var(--bg-quaternary);
-	animation: moveGradient 10s ease-in-out infinite alternate;
+	filter: blur(60px);
+	background: inherit;
 }
 
-@keyframes moveGradient {
+@keyframes rotateBlobs {
 	0% {
+		--x1: 0%;
+		--y1: 0%;
+		--x2: 100%;
+		--y2: 100%;
+	}
+	25% {
+		--x1: 100%;
+		--y1: 0%;
+		--x2: 0%;
+		--y2: 100%;
+	}
+	50% {
+		--x1: 100%;
+		--y1: 100%;
+		--x2: 0%;
+		--y2: 0%;
+	}
+	75% {
 		--x1: 0%;
 		--y1: 100%;
 		--x2: 100%;
 		--y2: 0%;
 	}
-	50% {
-		--x1: 15%;
-		--y1: 70%;
-		--x2: 70%;
-		--y2: 15%;
-	}
 	100% {
-		--x1: 100%;
+		--x1: 0%;
 		--y1: 0%;
-		--x2: 0%;
+		--x2: 100%;
 		--y2: 100%;
 	}
 }
 
 .hero-content {
 	font-size: clamp(1.5rem, 2vw, 2rem);
-	font-weight: 700;
+	position: relative;
+	z-index: 2;
 }
 
 .hero-title {
@@ -369,70 +362,119 @@ function getPreciseAge(birthDate) {
 	gap: 0.5rem;
 }
 
-.thejenja-logo {
+.highlight {
+	display: inline-flex;
+	align-items: center;
 	vertical-align: middle;
-}
-
-.highlight,
-.highlight-text {
-	background: linear-gradient(to right, #69527d, #6a537d);
-	background-clip: text;
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-	color: white;
-	font-weight: 150;
+	height: 1.2em;
 }
 
 .hero-activity {
+	height: 3.5rem;
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	flex-wrap: wrap;
 	margin: 0 0 1.5rem 0;
+	flex-wrap: nowrap;
+}
+
+.activity-label {
+	white-space: nowrap;
+	flex-shrink: 0;
+}
+
+.activity-viewport {
+	flex-grow: 1;
+	height: 100%;
+	display: flex;
+	align-items: center;
+	overflow: visible;
+	position: relative;
 }
 
 .activity-tags {
 	display: flex;
 	gap: 0.5rem;
-	flex-wrap: wrap;
 	position: relative;
+	width: 100%;
 }
 
-.activity-tags > *,
+/* --- Стили Активности --- */
 .activity {
 	padding: 0.25rem 0.75rem;
 	border-radius: 16px;
 	cursor: grab;
 	user-select: none;
-	transform: translateX(-15px);
-	opacity: 0;
-	transition: all 0.3s ease;
-	position: relative;
-	z-index: 1;
+	font-weight: 500;
 	white-space: nowrap;
+
+	/* Начальные стили (по умолчанию) */
+	background: var(--bg-mix);
+	color: var(--act-color);
+
+	/* Для производительности анимации блюра */
+	will-change: transform, opacity, filter;
+	/* Важно для корректного отображения 3D/блюра */
+	backface-visibility: hidden;
+
+	display: inline-flex;
+	align-items: center;
+	transition:
+		background-color 0.3s ease,
+		color 0.3s ease,
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
 }
 
-.activity-tags > *:hover,
+/* Инверсия цветов при наведении */
 .activity:hover {
+	background-color: var(--act-color) !important;
+	color: var(--bg-mix) !important;
 	transform: translateY(-2px);
 	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	z-index: 10;
 }
 
 .activity:active {
 	cursor: grabbing;
 }
 
-/* Стили для перетаскиваемых элементов */
 .activity.dragging {
 	z-index: 1000 !important;
-	transform: scale(1.1) rotate(2deg) !important;
-	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
-	transition: none !important;
+	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
+	/* При перетаскивании цвет тоже яркий */
+	background-color: var(--act-color) !important;
+	color: #ffffff !important;
 }
 
-/* Анимация возврата */
-.activity.returning {
-	transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) !important;
+/* --- iPhone Shake Effect --- */
+.shaking-mode .activity:not(.dragging) {
+	animation: shake 0.3s ease-in-out infinite;
+}
+
+.shaking-mode .activity:nth-child(2n):not(.dragging) {
+	animation-delay: 0.1s;
+}
+.shaking-mode .activity:nth-child(3n):not(.dragging) {
+	animation-delay: 0.05s;
+}
+
+@keyframes shake {
+	0% {
+		transform: rotate(0deg);
+	}
+	25% {
+		transform: rotate(1deg) translateY(1px);
+	}
+	50% {
+		transform: rotate(0deg);
+	}
+	75% {
+		transform: rotate(-1deg) translateY(-1px);
+	}
+	100% {
+		transform: rotate(0deg);
+	}
 }
 
 html:not(.dark) .waving-hand {

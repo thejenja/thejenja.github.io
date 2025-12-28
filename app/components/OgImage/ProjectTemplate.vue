@@ -6,11 +6,13 @@
 	>
 		<div class="header">
 			<div class="logo-placeholder" style="margin: auto">
-				<img
+				<NuxtImg
 					v-if="computedProjectIcon"
 					:src="computedProjectIcon"
 					:alt="`${title} icon`"
 					class="project-icon"
+					width="200"
+					height="200"
 				/>
 				<span v-else>{{ displayIcon }}</span>
 			</div>

@@ -1,26 +1,38 @@
 <template>
-	<div class="navigation-wrapper">
-		<button
-			ref="navToggle"
-			class="nav-toggle"
-			popovertarget="navigation"
-			@click="toggleNavigation"
-			:aria-label="$t('navigation.toggle')"
-		>
-			<transition name="blur-fade" mode="out-in">
-				<Menu v-if="!isOpen" class="nav-icon" />
-				<X v-else class="nav-icon" />
-			</transition>
-		</button>
+	<div class="navigation-wrapper" role="banner">
+		<div class="nav-toggle-container">
+			<NuxtLinkLocale
+				v-if="isProjectPage"
+				to="/projects"
+				class="nav-toggle"
+				:aria-label="$t('navigation.backToProjects')"
+			>
+				<ArrowLeft class="nav-icon" />
+			</NuxtLinkLocale>
+			<button
+				ref="navToggle"
+				class="nav-toggle"
+				popovertarget="navigation"
+				@click="toggleNavigation"
+				:aria-label="$t('navigation.toggle')"
+			>
+				<transition name="blur-fade" mode="out-in">
+					<Menu v-if="!isOpen" class="nav-icon" />
+					<X v-else class="nav-icon" />
+				</transition>
+			</button>
+		</div>
 		<div id="navigation" popover>
 			<div class="nav-content">
 				<div class="nav-header">
-					<img
+					<NuxtImg
 						src="/images/thejenja.svg"
 						alt="logo"
 						class="nav-logo"
 						width="120"
 						height="32"
+						sizes="xs:80px sm:100px md:120px"
+						loading="lazy"
 					/>
 				</div>
 				<button
@@ -68,11 +80,22 @@
 </template>
 
 <script setup>
-import { Folder, Github, Home, Menu, X } from "lucide-vue-next";
+import { Folder, Github, Home, Menu, X, ArrowLeft } from "lucide-vue-next";
 import { watch } from "vue";
 
 const isOpen = ref(false);
 const navToggle = ref();
+
+const route = useRoute();
+
+// Определяем, находимся ли мы на странице проекта
+const isProjectPage = computed(() => {
+	return (
+		route.path.includes("/projects/") &&
+		route.params.slug &&
+		Object.keys(route.params).includes("slug")
+	);
+});
 
 const toggleNavigation = () => {
 	// Состояние будет обновлено через события popover
@@ -80,7 +103,7 @@ const toggleNavigation = () => {
 
 const closeNavigation = () => {
 	// Закрываем popover программно
-	if (typeof document !== 'undefined') {
+	if (typeof document !== "undefined") {
 		const navigation = document.getElementById("navigation");
 		if (navigation && navigation.matches(":popover-open")) {
 			navigation.hidePopover();
@@ -90,7 +113,7 @@ const closeNavigation = () => {
 
 // Отслеживаем события popover для синхронизации состояния
 onMounted(() => {
-	if (typeof document !== 'undefined') {
+	if (typeof document !== "undefined") {
 		const navigation = document.getElementById("navigation");
 
 		if (navigation) {
@@ -102,13 +125,12 @@ onMounted(() => {
 });
 
 // Следим за изменениями маршрута и закрываем навигацию
-const route = useRoute();
 watch(
 	() => route.path,
 	() => {
 		isOpen.value = false;
 		// Закрываем popover программно
-		if (typeof document !== 'undefined') {
+		if (typeof document !== "undefined") {
 			const navigation = document.getElementById("navigation");
 			if (navigation && navigation.matches(":popover-open")) {
 				navigation.hidePopover();
@@ -119,15 +141,16 @@ watch(
 </script>
 
 <style scoped>
-.navigation-wrapper {
-	/* Обертка для Navigation компонента */
-}
-
-.nav-toggle {
+.nav-toggle-container {
+	z-index: 1000;
+	display: flex;
+	gap: 10px;
 	position: fixed;
 	top: 1rem;
 	left: 1rem;
-	z-index: 1000;
+}
+
+.nav-toggle {
 	appearance: none;
 	border: 0;
 	background: transparent;
@@ -144,9 +167,25 @@ watch(
 	transition: all 0.3s ease;
 }
 
+.nav-toggle-return {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	color: var(--text);
+	border-radius: 8px;
+	cursor: pointer;
+	padding: 0.75rem;
+	width: 48px;
+	height: 48px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	transition: all 0.3s ease;
+	text-decoration: none;
+}
+
 .nav-toggle:hover {
 	background: var(--bg-tertiary);
-	transform: scale(1.05);
 }
 
 .nav-logo {
@@ -177,7 +216,6 @@ watch(
 	position: fixed;
 	top: 0;
 	left: 0;
-	bottom: 0;
 	background: var(--bg-secondary);
 	border: 0;
 	border-radius: 16px;
@@ -321,10 +359,23 @@ hr {
 }
 
 @media (max-width: 768px) {
+	/* Оставляем STICKY только для обычной кнопки меню, если нужно */
 	.nav-toggle {
 		position: sticky;
 		margin: 0.5rem 0;
 	}
+
+	/* Для кнопки НАЗАД (в проекте) форсируем FIXED, чтобы она не двигала контент */
+	.nav-toggle-return {
+		position: fixed; /* Было sticky */
+		top: 1rem;
+		left: 1rem;
+		margin: 0; /* Убираем отступы, которые могли двигать контент */
+		background: rgba(0, 0, 0, 0.3); /* Немного фона для читаемости на фото */
+		backdrop-filter: blur(8px);
+		border-radius: 50%; /* Круглая кнопка на телефоне выглядит лучше */
+	}
+
 	#navigation {
 		width: 100%;
 		left: 0;
@@ -336,13 +387,16 @@ hr {
 		border-radius: 0 0 16px 16px;
 		border: 0;
 	}
+
 	[popover]::backdrop {
 		background-color: var(--bg) / 0.5;
 		backdrop-filter: blur(10px);
 	}
+
 	.nav-link {
 		width: 100%;
 	}
+
 	.nav-header,
 	.nav-close {
 		display: block;
@@ -365,6 +419,7 @@ hr {
 	#navigation,
 	.nav-link,
 	.nav-toggle,
+	.nav-toggle-return,
 	.nav-icon__line {
 		transition: none;
 		animation: none;
@@ -375,7 +430,8 @@ hr {
 		transform: none;
 	}
 
-	.nav-toggle:hover {
+	.nav-toggle:hover,
+	.nav-toggle-return:hover {
 		transform: none;
 	}
 }

@@ -1,8 +1,9 @@
 ---
 title: "marlowMC"
-description: "official website of Minecraft server with musical concerts"
+description: "Official website of a Minecraft server with music concerts"
 color: "#6dd16b"
 backgroundImage: "/projects/marlowmc/background.webp"
+backgroundOpacity: "opaque"
 icon: "🎵"
 featured: true
 slug: "marlowmc"
@@ -11,68 +12,34 @@ demo: "https://marlowmc.vercel.app"
 date: 2024-12-10
 type: "website"
 stage: "completed"
-gallery: ["/projects/marlowmc/main.png", "/projects/marlowmc/about.png", "/projects/marlowmc/faq.png"]
+gallery:
+  [
+    "/projects/marlowmc/main.png",
+    "/projects/marlowmc/about.png",
+    "/projects/marlowmc/faq.png",
+  ]
 ---
 
-# MarlowMC
+# MarlowMC: Portal to the Musical Metaverse
 
-Official website of a unique Minecraft server with musical concerts and custom features.
+Game servers are a unique world with their own atmosphere and rules. **MarlowMC** is not just another Minecraft project, but a unique venue specializing in virtual music concerts. The website's task was to convey this drive and become an entry point for new players. The project balances on the intersection of a gaming landing page and a social platform.
 
-## Project Description
+## Design and Atmosphere
 
-MarlowMC is a modern website created to promote and manage a unique Minecraft server. The project is a landing page with social network elements where players can learn about the server, its features and upcoming events. The site is developed using modern web technologies and responsive design.
+The visual style of the site is inspired by Minecraft aesthetics but in a modern interpretation. The color scheme, built on shades of green, refers to the in-game experience, while **Tabler Icons** add professional rigor to the interface. The main page greets the user not with boring text, but with a dynamic call to action and a countdown to upcoming events.
 
-## Key Features
+We rejected graphics-heavy solutions in favor of cleanliness and speed. Using **Vue.js 3** allowed creating smooth transitions between sections ("About", "FAQ", "Store"), turning navigation into a pleasant process. Content appearance animations and hover effects add life to the site, making it interactive.
 
-- **Musical theme** - server specializes in musical concerts in Minecraft
-- **Custom items** - unique gaming mechanics and items
-- **Economic system** - built-in gaming economy
-- **Responsive design** - correct display on all devices
-- **SEO optimization** - complete setup for search engines
+## Technological Foundation
 
-## Technologies
+Despite its apparent simplicity, a powerful modern stack works under the hood. The **Vite** bundler ensures lightning-fast resource loading—a critically important parameter for a gamer audience not used to waiting.
 
-- **Vue.js 3** - modern progressive JavaScript framework
-- **Vite** - fast build tool for modern web development
-- **Vue Router 4** - official router for Vue.js
-- **Tabler Icons** - beautiful icon library
-- **ESLint + Prettier** - code quality tools
+The architecture is built on Vue components, which allowed easy reuse of interface elements, such as product cards or Q&A blocks. Routing via **Vue Router 4** is configured to preserve transition state and ensure the browser's "Back" button works correctly, which is often overlooked in simple landing pages.
 
-## Architecture
+## SEO and Accessibility
 
-The project is built on Vue.js component architecture:
-
-- **Components** - reusable UI elements (Header, Footer)
-- **Views** - application pages (Home, About, FAQ)
-- **Router** - navigation between pages
-- **Services** - business logic and API interaction
-- **Assets** - static resources (images, styles)
-
-## Functionality
-
-- **Home page** - countdown to server launch
-- **About server** - detailed information about capabilities
-- **FAQ** - answers to frequently asked questions
-- **Responsive menu** - mobile and desktop versions
-- **Smooth transitions** - animations between pages
-- **SEO meta tags** - optimization for search engines
-
-## Design and UX
-
-- **Modern interface** - minimalist and functional design
-- **Responsiveness** - correct operation on all devices
-- **Smooth animations** - transitions and hover effects
-- **Tabler Icons** - professional appearance
-- **Color scheme** - green tones corresponding to Minecraft
-
-## Results
-
-- **High performance** - fast loading thanks to Vite
-- **SEO ready** - complete optimization for search engines
-- **Cross-browser compatibility** - support for all modern browsers
-- **Mobile optimization** - excellent experience on mobile devices
-- **Easy maintenance** - clean and understandable code
+For a gaming project, being found is vital. The MarlowMC site is optimized for SEO: semantic layout, correct meta-tags, and heading structure help search engines correctly index content. Furthermore, the responsive design guarantees that the site looks perfect both on a gaming 4K monitor and on a smartphone screen, from which a student checks server status during recess.
 
 ## Conclusion
 
-MarlowMC demonstrates how modern web technologies can be used to create an effective landing page for a gaming server. The project combines beautiful design, excellent performance and functionality necessary to attract players to a unique Minecraft server with a musical theme.
+MarlowMC is a bright example of how web technologies help build gaming communities. The site acts as a showcase, an instruction manual, and a news portal simultaneously. It is simple, fast, and beautiful—exactly what a modern web resource for the gaming industry should be.

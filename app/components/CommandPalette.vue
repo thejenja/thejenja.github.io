@@ -1,301 +1,437 @@
 <template>
 	<Teleport to="body">
-		<!-- Мобильная кнопка для открытия CommandPalette -->
-		<button
-			v-if="!isOpen && isMobile"
-			class="mobile-cmd-button"
-			@click="open"
-			:title="$t('commandPalette.openHint')"
-			aria-label="Open command palette"
-		>
-			<svg
-				width="20"
-				height="20"
-				viewBox="0 0 24 24"
-				fill="none"
-				stroke="currentColor"
-				stroke-width="2"
-			>
-				<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-			</svg>
-		</button>
-
-		<div v-if="isOpen" class="cmd-overlay" @click="close" />
-		<div v-if="isOpen" class="cmd-container" role="dialog" aria-modal="true">
-			<div class="cmd-header">
-				<input
-					ref="inputRef"
-					v-model="query"
-					class="cmd-input"
-					type="text"
-					:placeholder="placeholder"
-					@keydown.down.prevent="move(1)"
-					@keydown.up.prevent="move(-1)"
-					@keydown.enter.prevent="runSelected"
-					@keydown.esc.prevent="close"
-				/>
-			</div>
-			<div class="cmd-list" role="listbox">
-				<div
-					v-for="(cmd, idx) in filtered"
-					:key="cmd.id"
-					:class="['cmd-item', { selected: idx === selectedIndex }]"
-					role="option"
-					@click="run(cmd)"
-				>
-					<div class="cmd-title">{{ cmd.title }}</div>
-					<div v-if="cmd.subtitle" class="cmd-subtitle">{{ cmd.subtitle }}</div>
-				</div>
-				<div v-if="filtered.length === 0" class="cmd-empty">
-					{{ $t("commandPalette.notFound") }}
-				</div>
-			</div>
-			<div class="cmd-footer">
-				<div class="shortcuts-info">
-					<span class="shortcut"> <kbd>Ctrl</kbd> + <kbd>K</kbd> </span>
-					<span class="shortcut"> <kbd>Ctrl</kbd> + <kbd>J</kbd> </span>
-					<span class="shortcut">
-						<kbd>F1</kbd>
-					</span>
-					<span class="shortcut">
-						<kbd>/</kbd>
-					</span>
-				</div>
-				<div class="footer-hints">
-					<span>/</span>
-					<span>{{ $t("commandPalette.openHint") }}</span>
-					<span>Esc</span>
-					<span>{{ $t("commandPalette.closeHint") }}</span>
+		<div v-if="bsodActive" class="bsod-overlay" @click="disableBSOD">
+			<div class="bsod-content">
+				<div class="bsod-face">:(</div>
+				<div class="bsod-text">
+					Your PC ran into a problem and needs to restart. We're just collecting
+					some error info, and then we'll restart for you.
+					<br /><br />
+					0% complete
+					<br /><br />
+					<small>Stop code: CRITICAL_PROCESS_DIED</small>
 				</div>
 			</div>
 		</div>
+
+		<Transition name="fade">
+			<button
+				v-if="!isOpen && isMobile && !bsodActive"
+				class="mobile-fab"
+				@click="open"
+			>
+				<CommandIcon class="w-6 h-6" />
+			</button>
+		</Transition>
+
+		<Transition name="fade">
+			<div v-if="isOpen" class="cmd-backdrop" @click="close" />
+		</Transition>
+
+		<Transition name="slide-up">
+			<div v-if="isOpen" class="cmd-modal" role="dialog">
+				<div class="cmd-search-wrapper">
+					<SearchIcon class="cmd-search-icon" />
+					<input
+						ref="inputRef"
+						v-model="query"
+						class="cmd-input"
+						type="text"
+						:placeholder="placeholderText"
+						@keydown.down.prevent="move(1)"
+						@keydown.up.prevent="move(-1)"
+						@keydown.enter.prevent="runSelected"
+						@keydown.esc.prevent="close"
+						autocomplete="off"
+					/>
+					<div v-if="query" class="cmd-clear" @click="query = ''">
+						<XIcon class="w-4 h-4" />
+					</div>
+				</div>
+
+				<div class="cmd-list" role="listbox">
+					<div
+						v-for="(cmd, idx) in filtered"
+						:key="cmd.id"
+						:class="[
+							'cmd-item',
+							{ selected: idx === selectedIndex, 'danger-item': cmd.danger },
+						]"
+						@click="run(cmd)"
+						@mousemove="selectedIndex = idx"
+					>
+						<div class="cmd-item-icon" :class="{ 'spin-hover': cmd.spin }">
+							<component :is="cmd.icon" stroke-width="2" />
+						</div>
+
+						<div class="cmd-item-content">
+							<div class="cmd-item-title">
+								{{ cmd.title }}
+								<span v-if="cmd.tag" :class="['cmd-tag', cmd.tagColor]">{{
+									cmd.tag
+								}}</span>
+							</div>
+							<div v-if="cmd.subtitle" class="cmd-item-subtitle">
+								{{ cmd.subtitle }}
+							</div>
+						</div>
+
+						<div v-if="cmd.shortcut" class="cmd-item-shortcut">
+							{{ cmd.shortcut }}
+						</div>
+					</div>
+
+					<div v-if="filtered.length === 0" class="cmd-empty">
+						<GhostIcon class="w-8 h-8 opacity-50 mb-2" />
+						<span>{{
+							$t("commandPalette.notFound") || "Ничего не найдено..."
+						}}</span>
+					</div>
+				</div>
+
+				<div class="cmd-footer">
+					<div class="cmd-footer-left">
+						<span v-if="activeEffects.length > 0" class="active-effects">
+							Active: {{ activeEffects.join(", ") }}
+						</span>
+					</div>
+					<div class="cmd-key-group">
+						<span class="cmd-key">Esc</span>
+						<span class="label">Close</span>
+					</div>
+				</div>
+			</div>
+		</Transition>
 	</Teleport>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, nextTick, readonly } from "vue";
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
+import {
+	Command as CommandIcon,
+	Search as SearchIcon,
+	X as XIcon,
+	Home,
+	Briefcase,
+	Moon,
+	Sun,
+	Languages,
+	Terminal,
+	Zap,
+	RotateCw,
+	Move,
+	Calculator,
+	Bug,
+	MonitorX,
+	Music,
+	FlipHorizontal,
+} from "lucide-vue-next";
 
+// Состояние
 const isOpen = ref(false);
 const query = ref("");
 const selectedIndex = ref(0);
 const inputRef = ref(null);
-
-// Определяем, является ли устройство мобильным
 const isMobile = ref(false);
+const bsodActive = ref(false);
+const activeEffects = ref([]); // Список активных эффектов для отображения
 
 const router = useRouter();
 const colorMode = useColorMode();
-const { locale, setLocale } = useI18n();
-const { showPreloader, togglePreloader } = useAppSettings();
+const { locale, setLocale, t } = useI18n();
 
-// Функция для определения мобильного устройства
-function checkMobile() {
-	isMobile.value = window.innerWidth <= 768 || "ontouchstart" in window;
-}
+// Placeholder меняется если включен режим "Инцидент 31 августа"
+const placeholderText = computed(() => {
+	return activeEffects.value.includes("BrokenLocales")
+		? "cmd.input_placeholder_render_text"
+		: t("commandPalette.placeholder") || "Type a command...";
+});
 
-// Функция для показа уведомлений
-function showNotification(message, type = "info") {
-	// Создаем элемент уведомления
-	const notification = document.createElement("div");
-	notification.className = `notification notification-${type}`;
-	notification.textContent = message;
+// --- Утилиты ---
 
-	// Стили для уведомления
-	Object.assign(notification.style, {
-		position: "fixed",
-		top: "20px",
-		right: "20px",
-		padding: "12px 20px",
-		borderRadius: "8px",
-		color: "white",
-		fontWeight: "500",
-		zIndex: "10000",
-		transform: "translateX(100%)",
-		transition: "transform 0.3s ease",
-		boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-	});
-
-	// Цвета для разных типов уведомлений
-	const colors = {
-		success: "#10b981",
-		info: "#3b82f6",
-		warning: "#f59e0b",
-		error: "#ef4444",
-	};
-
-	notification.style.backgroundColor = colors[type] || colors.info;
-
-	// Добавляем в DOM
-	document.body.appendChild(notification);
-
-	// Показываем уведомление
+function showNotification(message, icon = "✨") {
+	const el = document.createElement("div");
+	el.className = "toast-notification";
+	el.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+	document.body.appendChild(el);
+	requestAnimationFrame(() => el.classList.add("show"));
 	setTimeout(() => {
-		notification.style.transform = "translateX(0)";
-	}, 100);
-
-	// Скрываем через 3 секунды
-	setTimeout(() => {
-		notification.style.transform = "translateX(100%)";
-		setTimeout(() => {
-			if (notification.parentNode) {
-				notification.parentNode.removeChild(notification);
-			}
-		}, 300);
+		el.classList.remove("show");
+		setTimeout(() => el.remove(), 300);
 	}, 3000);
 }
 
-const placeholder = computed(() => $t("commandPalette.placeholder"));
+function checkMobile() {
+	isMobile.value = window.innerWidth <= 768;
+}
 
-const commands = computed(() => [
-	{
-		id: "nav-home",
-		title: $t("commandPalette.commands.goHome"),
-		keywords: "home главная",
-		action: () => router.push("/"),
-	},
-	{
-		id: "nav-projects",
-		title: $t("commandPalette.commands.goProjects"),
-		keywords: "projects проекты",
-		action: () => router.push("/projects"),
-	},
-	{
-		id: "theme-toggle",
-		title: $t("commandPalette.commands.toggleTheme"),
-		subtitle: $t("commandPalette.commands.themeCurrent", [
-			colorMode.preference === "dark" ? $t("theme.dark") : $t("theme.light"),
-		]),
-		keywords: "theme тема dark light тёмная светлая",
-		action: () => {
-			const next = colorMode.preference === "dark" ? "light" : "dark";
-			colorMode.preference = next;
+// --- Логика Эффектов ---
+
+// Сброс всего
+const resetReality = () => {
+	document.body.style = "";
+	document.body.classList.remove(
+		"matrix-mode",
+		"gravity-mode",
+		"mirror-mode",
+		"barrel-roll-active"
+	);
+
+	// Восстанавливаем тексты для 31 августа
+	if (window._originalTexts) {
+		window._originalTexts.forEach(({ node, text }) => {
+			node.textContent = text;
+		});
+		window._originalTexts = null;
+	}
+
+	bsodActive.value = false;
+	activeEffects.value = [];
+	showNotification("Reality restored", "😌");
+};
+
+// Barrel Roll (Исправленный)
+const triggerBarrelRoll = () => {
+	if (document.body.classList.contains("barrel-roll-active")) return;
+
+	document.body.classList.add("barrel-roll-active");
+	showNotification("Do a Barrel Roll!", "✈️");
+
+	// Автоматический сброс класса после завершения анимации
+	setTimeout(() => {
+		document.body.classList.remove("barrel-roll-active");
+	}, 2000);
+};
+
+// Инцидент 31 августа (Broken Locales)
+const triggerAug31 = () => {
+	if (activeEffects.value.includes("BrokenLocales")) return;
+
+	activeEffects.value.push("BrokenLocales");
+	window._originalTexts = [];
+
+	const walker = document.createTreeWalker(
+		document.body,
+		NodeFilter.SHOW_TEXT,
+		{
+			acceptNode: (node) => {
+				// Игнорируем скрипты, стили и саму палитру
+				if (
+					node.parentElement.closest(".cmd-modal") ||
+					node.parentElement.tagName === "SCRIPT" ||
+					node.parentElement.tagName === "STYLE"
+				) {
+					return NodeFilter.FILTER_REJECT;
+				}
+				return node.textContent.trim().length > 0
+					? NodeFilter.FILTER_ACCEPT
+					: NodeFilter.FILTER_REJECT;
+			},
+		}
+	);
+
+	let node;
+	while ((node = walker.nextNode())) {
+		window._originalTexts.push({ node, text: node.textContent });
+		// Генерируем "ключ" из текста: "Привет мир" -> "common.privet_mir_label"
+		const mockKey = node.textContent
+			.trim()
+			.slice(0, 10)
+			.toLowerCase()
+			.replace(/[^a-z0-9]/g, "_");
+		node.textContent = `loc.${mockKey}_undefined`;
+	}
+
+	showNotification("Localization service unavailable", "⚠️");
+};
+
+// 52 + 15 (Meme)
+const triggerMemeMath = () => {
+	showNotification("Wait, that's illegal...", "🧮");
+	window.open("https://knowyourmeme.com/memes/52-15-67", "_blank");
+};
+
+// BSOD
+const triggerBSOD = () => {
+	bsodActive.value = true;
+	// Авто выход через 5 секунд, если пользователь испугался
+	setTimeout(() => {
+		if (bsodActive.value) disableBSOD();
+	}, 8000);
+};
+
+const disableBSOD = () => {
+	bsodActive.value = false;
+	showNotification("System recovered", "💻");
+};
+
+// Mirror Mode
+const triggerMirror = () => {
+	document.body.classList.toggle("mirror-mode");
+	if (document.body.classList.contains("mirror-mode")) {
+		activeEffects.value.push("Mirror");
+	} else {
+		activeEffects.value = activeEffects.value.filter((e) => e !== "Mirror");
+	}
+};
+
+// --- Команды ---
+
+const commands = computed(() => {
+	const list = [
+		// === Основное ===
+		{
+			id: "home",
+			title: t("commandPalette.commands.goHome") || "Go Home",
+			icon: Home,
+			keywords: "home главная",
+			action: () => router.push("/"),
 		},
-	},
-	{
-		id: "lang-ru",
-		title: "Русский",
-		subtitle:
-			locale.value === "ru"
-				? "Текущий"
-				: $t("commandPalette.commands.switchToRussian"),
-		keywords: "ru русский russian язык",
-		action: () => setLocale("ru"),
-	},
-	{
-		id: "lang-en",
-		title: "English",
-		subtitle:
-			locale.value === "en"
-				? "Current"
-				: $t("commandPalette.commands.switchToEnglish"),
-		keywords: "en english англ язык",
-		action: () => setLocale("en"),
-	},
-	// Пасхалка: Brainrot En
-	{
-		id: "lang-brainrot",
-		title: "Brainrot",
-		subtitle: "Gen Z mode activated",
-		keywords: "brainrot genz zoomer brain rot",
-		action: () => {
-			// Переключаемся на brainrot локализацию
-			setLocale("brainrot");
-			// Включаем специальные стили
-			document.documentElement.setAttribute("data-brainrot", "true");
-			// Показываем уведомление
-			showNotification("Brainrot mode activated! 🤪", "success");
+		{
+			id: "projects",
+			title: t("commandPalette.commands.goProjects") || "Projects",
+			icon: Briefcase,
+			keywords: "work projects проекты",
+			action: () => router.push("/projects"),
 		},
-	},
-	// Пасхалка: Серость
-	{
-		id: "filter-grayscale",
-		title: "Серость",
-		subtitle: "filter: grayscale(100%)",
-		keywords: "серость grayscale filter серая",
-		action: () => {
-			document.body.style.filter = "grayscale(100%)";
-			showNotification("Серость активирована! 🌫️", "info");
+		{
+			id: "theme",
+			title: colorMode.preference === "dark" ? "Light Mode" : "Dark Mode",
+			icon: colorMode.preference === "dark" ? Sun : Moon,
+			keywords: "theme dark light тема",
+			shortcut: "Ctrl+J",
+			action: () =>
+				(colorMode.preference =
+					colorMode.preference === "dark" ? "light" : "dark"),
 		},
-	},
-	// Пасхалка: Где мои очки?
-	{
-		id: "filter-blur",
-		title: "Где мои очки?",
-		subtitle: "filter: blur(2px)",
-		keywords: "очки blur filter размытие",
-		action: () => {
-			document.body.style.filter = "blur(2px)";
-			showNotification("Очки потерялись! 👓", "warning");
+		{
+			id: "lang",
+			title: locale.value === "ru" ? "English" : "Русский",
+			icon: Languages,
+			keywords: "lang ru en язык",
+			action: () => setLocale(locale.value === "ru" ? "en" : "ru"),
 		},
-	},
-	// Пасхалка: АААААА МОИ ГЛАЗА
-	{
-		id: "filter-contrast",
-		title: "АААААА МОИ ГЛАЗА",
-		subtitle: "filter: contrast(200%) brightness(150%)",
-		keywords: "глаза contrast brightness filter контраст яркость",
-		action: () => {
-			document.body.style.filter = "contrast(200%) brightness(150%)";
-			showNotification("АААААА МОИ ГЛАЗА! 😵‍💫", "error");
+
+		// === Fun & Easter Eggs ===
+		{
+			id: "egg-barrel",
+			title: "Barrel Roll",
+			icon: RotateCw,
+			tag: "Fun",
+			tagColor: "tag-orange",
+			keywords: "spin roll barrel бочка",
+			spin: true,
+			action: triggerBarrelRoll,
 		},
-	},
-	// Пасхалка: Сброс фильтров
-	{
-		id: "filter-reset",
-		title: "Вернуть нормально",
-		subtitle: "Сбросить все фильтры и локализацию",
-		keywords: "сброс reset filter нормально english",
-		action: () => {
-			document.body.style.filter = "";
-			document.documentElement.removeAttribute("data-brainrot");
-			// Возвращаемся к обычному English
-			setLocale(locale.value === "en" ? "ru" : "en");
-			showNotification("Back to normal English! 😌", "success");
+		{
+			id: "egg-matrix",
+			title: "Matrix Mode",
+			subtitle: "Wake up, Neo",
+			icon: Terminal,
+			tag: "Geek",
+			tagColor: "tag-green",
+			keywords: "matrix neo hack code матрица",
+			action: () => {
+				document.body.classList.add("matrix-mode");
+				activeEffects.value.push("Matrix");
+				showNotification("Follow the white rabbit", "🐰");
+			},
 		},
-	},
-	{
-		id: "open-nav",
-		title: $t("commandPalette.commands.openNavigation"),
-		keywords: "menu навигация navigation",
-		action: () => {
-			const nav = document.getElementById("navigation");
-			if (nav && nav.showPopover) nav.showPopover();
+		{
+			id: "egg-gravity",
+			title: "Broken Gravity",
+			icon: Move,
+			tag: "Phys",
+			tagColor: "tag-blue",
+			keywords: "gravity fall newton физика падение",
+			action: () => {
+				document.body.classList.add("gravity-mode");
+				activeEffects.value.push("Gravity");
+				showNotification("Gravity: OFF", "🍎");
+			},
 		},
-	},
-	{
-		id: "open-source",
-		title: $t("commandPalette.commands.openSource"),
-		keywords: "github source код",
-		action: () =>
-			window.open("https://github.com/thejenja/thejenja.github.io", "_blank"),
-	},
-	{
-		id: "preloader-toggle",
-		title: $t("commandPalette.commands.preloaderToggle", [
-			showPreloader.value
-				? $t("commandPalette.commands.on")
-				: $t("commandPalette.commands.off"),
-		]),
-		keywords: "preloader loading прелоадер",
-		action: () => togglePreloader(),
-	},
-	{
-		id: "preloader-show-now",
-		title: $t("commandPalette.commands.preloaderShow"),
-		keywords: "preloader show now",
-		action: () => document.dispatchEvent(new CustomEvent("app:show-preloader")),
-	},
-]);
+		{
+			id: "egg-aug31",
+			title: "August 31st Incident",
+			subtitle: "Break localization keys",
+			icon: Bug,
+			tag: "Meme",
+			tagColor: "tag-red",
+			keywords: "bug i18n key localization locale 31 августа",
+			danger: true,
+			action: triggerAug31,
+		},
+		{
+			id: "egg-bsod",
+			title: "BSOD",
+			subtitle: "Simulate system crash",
+			icon: MonitorX,
+			keywords: "windows crash error blue screen ошибка",
+			danger: true,
+			action: triggerBSOD,
+		},
+		{
+			id: "egg-mirror",
+			title: "Mirror World",
+			icon: FlipHorizontal,
+			keywords: "mirror flip reverse зеркало",
+			action: triggerMirror,
+		},
+		{
+			id: "egg-rick",
+			title: "Never Gonna Give You Up",
+			icon: Music,
+			keywords: "rick roll never gonna music рикролл",
+			action: () => {
+				window.open("https://www.youtube.com/watch?v=dQw4w9WgXcQ", "_blank");
+			},
+		},
+
+		// === Reset ===
+		{
+			id: "reset",
+			title: "Reset Reality",
+			subtitle: "Fix everything",
+			icon: Zap,
+			keywords: "reset clear clean сброс вернуть",
+			action: resetReality,
+		},
+	];
+
+	// Динамическая пасхалка: Калькулятор 52+15
+	// Проверяем, содержит ли запрос "52+15" или "52 + 15"
+	if (query.value.replace(/\s/g, "") === "52+15") {
+		list.unshift({
+			id: "meme-math",
+			title: "67",
+			subtitle: "Wait, that's illegal...",
+			icon: Calculator,
+			tag: "Meme",
+			tagColor: "tag-purple",
+			keywords: "52 15 math",
+			action: triggerMemeMath,
+		});
+	}
+
+	return list;
+});
 
 const filtered = computed(() => {
 	const q = query.value.trim().toLowerCase();
 	if (!q) return commands.value;
+
+	// Если пользователь ввел точный математический пример, не фильтруем, а показываем наш unshift результат первым
+	if (q.replace(/\s/g, "") === "52+15") return commands.value;
+
 	return commands.value.filter(
 		(c) =>
 			c.title.toLowerCase().includes(q) ||
+			(c.subtitle && c.subtitle.toLowerCase().includes(q)) ||
 			(c.keywords && c.keywords.toLowerCase().includes(q))
 	);
 });
+
+// --- Lifecycle & Handlers ---
 
 function open() {
 	isOpen.value = true;
@@ -305,43 +441,19 @@ function open() {
 
 function close() {
 	isOpen.value = false;
-	query.value = "";
+	setTimeout(() => {
+		query.value = "";
+	}, 200);
 }
 
 function move(delta) {
 	if (!filtered.value.length) return;
-
-	const newIndex =
+	selectedIndex.value =
 		(selectedIndex.value + delta + filtered.value.length) %
 		filtered.value.length;
-	selectedIndex.value = newIndex;
-
-	// Автоматический скролл к выбранному элементу
-	nextTick(() => {
-		const selectedElement = document.querySelector(".cmd-item.selected");
-		const listContainer = document.querySelector(".cmd-list");
-
-		if (selectedElement && listContainer) {
-			// Проверяем, виден ли выбранный элемент
-			const containerRect = listContainer.getBoundingClientRect();
-			const elementRect = selectedElement.getBoundingClientRect();
-
-			// Если элемент выше контейнера
-			if (elementRect.top < containerRect.top) {
-				selectedElement.scrollIntoView({
-					block: "start",
-					behavior: "smooth",
-				});
-			}
-			// Если элемент ниже контейнера
-			else if (elementRect.bottom > containerRect.bottom) {
-				selectedElement.scrollIntoView({
-					block: "end",
-					behavior: "smooth",
-				});
-			}
-		}
-	});
+	// Авто-скролл
+	const el = document.querySelector(".cmd-item.selected");
+	el?.scrollIntoView({ block: "nearest" });
 }
 
 function run(cmd) {
@@ -350,386 +462,375 @@ function run(cmd) {
 }
 
 function runSelected() {
-	if (!filtered.value.length) return;
-	run(filtered.value[selectedIndex.value]);
-}
-
-function isTypingInInput(target) {
-	const el = target;
-	const tag = el.tagName;
-	if (tag === "INPUT" || tag === "TEXTAREA") return true;
-	if (el.isContentEditable) return true;
-	return false;
+	if (filtered.value.length > 0) run(filtered.value[selectedIndex.value]);
 }
 
 function onKeydown(e) {
-	// Проверяем, не печатает ли пользователь в input/textarea
-	if (isTypingInInput(e.target)) return;
+	if (
+		["INPUT", "TEXTAREA"].includes(e.target.tagName) ||
+		e.target.isContentEditable
+	)
+		return;
 
-	// Комбинация Ctrl/Cmd + K (работает при любой раскладке)
-	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "k") {
+	if (
+		((e.ctrlKey || e.metaKey) &&
+			["k", "j", "/"].includes(e.key.toLowerCase())) ||
+		e.key === "F1"
+	) {
 		e.preventDefault();
 		open();
-		return;
-	}
-
-	// Комбинация Ctrl/Cmd + Shift + P (альтернатива)
-	if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === "p") {
-		e.preventDefault();
-		open();
-		return;
-	}
-
-	// Комбинация Ctrl/Cmd + J (еще одна альтернатива)
-	if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "j") {
-		e.preventDefault();
-		open();
-		return;
-	}
-
-	// Символ "/" (работает при любой раскладке)
-	if (e.key === "/" || e.key === "?" || e.key === "\\") {
-		e.preventDefault();
-		open();
-		return;
-	}
-
-	// Комбинация Alt + / (для пользователей с AltGr)
-	if (e.altKey && (e.key === "/" || e.key === "?")) {
-		e.preventDefault();
-		open();
-		return;
-	}
-
-	// Комбинация F1 (классическая клавиша помощи)
-	if (e.key === "F1") {
-		e.preventDefault();
-		open();
-		return;
-	}
-
-	// Комбинация Ctrl/Cmd + / (еще одна альтернатива)
-	if ((e.ctrlKey || e.metaKey) && e.key === "/") {
-		e.preventDefault();
-		open();
-		return;
 	}
 }
-
-// Функция для проверки, активен ли CommandPalette
-function isCommandPaletteActive() {
-	return isOpen.value;
-}
-
-// Экспортируем функции для использования в других компонентах
-defineExpose({
-	open,
-	close,
-	isOpen: readonly(isOpen),
-	isCommandPaletteActive,
-});
 
 onMounted(() => {
 	document.addEventListener("keydown", onKeydown);
-	checkMobile(); // Инициализируем проверку мобильного устройства
-
-	// Добавляем обработчик изменения размера окна
 	window.addEventListener("resize", checkMobile);
-
-	// Слушаем глобальные события для открытия CommandPalette
-	document.addEventListener("command-palette:open", () => {
-		if (!isOpen.value) {
-			open();
-		}
-	});
+	checkMobile();
 });
 
 onUnmounted(() => {
 	document.removeEventListener("keydown", onKeydown);
-	document.removeEventListener("command-palette:open", () => {});
 	window.removeEventListener("resize", checkMobile);
+	resetReality(); // Очистка при размонтировании
 });
+
+defineExpose({ open, close });
 </script>
 
+<style>
+/* --- Глобальные эффекты --- */
+
+/* Barrel Roll */
+@keyframes barrelRoll {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
+}
+.barrel-roll-active {
+	animation: barrelRoll 1s ease-in-out;
+}
+
+/* Matrix */
+.matrix-mode {
+	filter: invert(1) hue-rotate(120deg) contrast(1.5);
+	background: black !important;
+	font-family: "Courier New", monospace !important;
+}
+
+/* Gravity (Элементы падают) */
+.gravity-mode body > *:not(.cmd-modal):not(.cmd-backdrop) {
+	transition: transform 1s ease-in;
+	transform: translateY(100vh) rotate(20deg);
+}
+
+/* Mirror */
+.mirror-mode {
+	transform: scaleX(-1);
+}
+
+/* Toast */
+.toast-notification {
+	position: fixed;
+	bottom: 30px;
+	left: 50%;
+	transform: translateX(-50%) translateY(20px);
+	background: rgba(15, 23, 42, 0.9);
+	color: white;
+	padding: 10px 24px;
+	border-radius: 50px;
+	display: flex;
+	gap: 12px;
+	align-items: center;
+	font-weight: 500;
+	opacity: 0;
+	transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+	z-index: 10000;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.toast-notification.show {
+	opacity: 1;
+	transform: translateX(-50%) translateY(0);
+}
+</style>
+
 <style scoped>
-.cmd-overlay {
+/* Переменные */
+:root {
+	--cmd-bg: rgba(255, 255, 255, 0.7);
+	--cmd-border: rgba(0, 0, 0, 0.08);
+	--cmd-text: #1a1a1a;
+	--cmd-sub: #666;
+	--cmd-select: rgba(0, 0, 0, 0.05);
+}
+
+.dark .cmd-modal {
+	--cmd-bg: rgba(10, 10, 10, 0.7);
+	--cmd-border: rgba(255, 255, 255, 0.1);
+	--cmd-text: #f0f0f0;
+	--cmd-sub: #888;
+	--cmd-select: rgba(255, 255, 255, 0.1);
+}
+
+/* BSOD Overlay */
+.bsod-overlay {
 	position: fixed;
 	inset: 0;
-	background: rgba(0, 0, 0, 0.4);
-	backdrop-filter: blur(2px);
+	background: #0078d7;
+	color: white;
+	z-index: 99999;
+	display: flex;
+	align-items: center;
+	padding: 10%;
+	font-family: "Segoe UI", sans-serif;
+	cursor: pointer;
+}
+.bsod-face {
+	font-size: 8rem;
+	margin-bottom: 2rem;
+}
+.bsod-text {
+	font-size: 1.5rem;
+	line-height: 1.5;
+}
+
+/* Backdrop */
+.cmd-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.2);
+	backdrop-filter: blur(4px);
 	z-index: 3000;
 }
 
-.cmd-container {
+/* Modal */
+.cmd-modal {
 	position: fixed;
-	top: 10vh;
+	top: 15vh;
 	left: 50%;
 	transform: translateX(-50%);
-	width: min(720px, 92vw);
-	background: var(--bg-secondary);
-	color: var(--text);
-	border: 1px solid var(--border);
-	border-radius: 12px;
-	box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+	width: 90%;
+	max-width: 600px;
+	background: var(--cmd-bg);
+	backdrop-filter: blur(24px) saturate(180%);
+	-webkit-backdrop-filter: blur(24px) saturate(180%);
+	border: 1px solid var(--cmd-border);
+	border-radius: 16px;
+	box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+	color: var(--cmd-text);
 	z-index: 3001;
 	overflow: hidden;
-	animation: fadeIn 0.12s ease-out;
+	display: flex;
+	flex-direction: column;
 }
 
-.cmd-header {
-	padding: 0.75rem;
-	border-bottom: 1px solid var(--border);
+/* Input */
+.cmd-search-wrapper {
+	display: flex;
+	align-items: center;
+	padding: 16px;
+	border-bottom: 1px solid var(--cmd-border);
+}
+.cmd-search-icon {
+	width: 20px;
+	color: var(--cmd-sub);
+	margin-right: 12px;
 }
 .cmd-input {
-	width: 100%;
-	padding: 0.75rem 1rem;
-	border-radius: 8px;
-	border: 1px solid var(--border);
-	background: var(--bg);
-	color: var(--text);
+	flex: 1;
+	background: transparent;
+	border: none;
+	font-size: 1.1rem;
+	color: var(--cmd-text);
 	outline: none;
 }
-
-.cmd-list {
-	max-height: 50vh;
-	overflow: auto;
-}
-.cmd-item {
-	padding: 0.75rem 1rem;
+.cmd-clear {
 	cursor: pointer;
+	color: var(--cmd-sub);
+	padding: 4px;
+}
+
+/* List */
+.cmd-list {
+	max-height: 350px;
+	overflow-y: auto;
+	padding: 8px;
+}
+.cmd-list::-webkit-scrollbar {
+	width: 4px;
+}
+.cmd-list::-webkit-scrollbar-thumb {
+	background: var(--cmd-border);
+	border-radius: 4px;
+}
+
+/* Item */
+.cmd-item {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	padding: 12px;
+	border-radius: 8px;
+	cursor: pointer;
+	transition: all 0.1s;
 }
 .cmd-item.selected {
-	background: var(--bg-tertiary);
+	background: var(--cmd-select);
 }
-.cmd-title {
-	font-weight: 600;
+.cmd-item.danger-item:hover .cmd-item-title {
+	color: #ef4444;
 }
-.cmd-subtitle {
-	font-size: 0.85rem;
-	color: var(--text-secondary);
+
+.cmd-item-icon {
+	color: var(--cmd-sub);
+	display: flex;
+	align-items: center;
+}
+.cmd-item.selected .cmd-item-icon {
+	color: var(--cmd-text);
+}
+.spin-hover:hover {
+	animation: spin 1s linear infinite;
+}
+@keyframes spin {
+	100% {
+		transform: rotate(360deg);
+	}
+}
+
+.cmd-item-content {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+}
+.cmd-item-title {
+	font-weight: 500;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.cmd-item-subtitle {
+	font-size: 0.8rem;
+	color: var(--cmd-sub);
+}
+
+.cmd-tag {
+	font-size: 0.65rem;
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+.tag-orange {
+	background: rgba(249, 115, 22, 0.15);
+	color: #f97316;
+}
+.tag-green {
+	background: rgba(34, 197, 94, 0.15);
+	color: #22c55e;
+}
+.tag-red {
+	background: rgba(239, 68, 68, 0.15);
+	color: #ef4444;
+}
+.tag-blue {
+	background: rgba(59, 130, 246, 0.15);
+	color: #3b82f6;
+}
+.tag-purple {
+	background: rgba(168, 85, 247, 0.15);
+	color: #a855f7;
+}
+
+.cmd-item-shortcut {
+	font-size: 0.75rem;
+	color: var(--cmd-sub);
+	background: var(--cmd-border);
+	padding: 2px 6px;
+	border-radius: 4px;
+	font-family: monospace;
 }
 .cmd-empty {
-	padding: 1rem;
-	color: var(--text-secondary);
+	padding: 40px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	color: var(--cmd-sub);
 }
 
+/* Footer */
 .cmd-footer {
+	padding: 8px 16px;
+	background: var(--cmd-select);
+	border-top: 1px solid var(--cmd-border);
 	display: flex;
-	gap: 0.5rem;
+	justify-content: space-between;
 	align-items: center;
-	justify-content: flex-end;
-	padding: 0.5rem 0.75rem;
-	border-top: 1px solid var(--border);
-	font-size: 0.85rem;
-	color: var(--text-secondary);
-}
-
-.shortcuts-info {
-	display: flex;
-	gap: 0.5rem;
-	align-items: center;
-	font-size: 0.85rem;
-	color: var(--text-secondary);
-}
-
-.shortcut {
-	display: inline-flex;
-	align-items: center;
-	padding: 0.25rem 0.5rem;
-	border: 1px solid var(--border);
-	border-radius: 6px;
-	background: var(--bg-tertiary);
-	color: var(--text);
-	font-family:
-		"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
 	font-size: 0.75rem;
-	font-weight: 600;
-	white-space: nowrap;
 }
-
-.footer-hints {
+.active-effects {
+	color: #ef4444;
+	font-weight: 600;
+	font-family: monospace;
+}
+.cmd-key-group {
 	display: flex;
-	gap: 0.5rem;
 	align-items: center;
-	font-size: 0.85rem;
-	color: var(--text-secondary);
+	gap: 6px;
+	color: var(--cmd-sub);
+}
+.cmd-key {
+	background: var(--cmd-bg);
+	border: 1px solid var(--cmd-border);
+	border-radius: 4px;
+	padding: 2px 6px;
+	min-width: 20px;
+	text-align: center;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Стили для клавиш */
-kbd {
-	display: inline-block;
-	padding: 0.2rem 0.4rem;
-	margin: 0 0.1rem;
-	font-family:
-		"SFMono-Regular", Consolas, "Liberation Mono", Menlo, Courier, monospace;
-	font-size: 0.75rem;
-	font-weight: 600;
-	line-height: 1;
-	color: var(--text);
-	background-color: var(--bg);
-	border: 1px solid var(--border);
-	border-radius: 3px;
-	box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+/* Animations */
+.fade-enter-active,
+.fade-leave-active {
+	transition: opacity 0.2s;
+}
+.fade-enter-from,
+.fade-leave-to {
+	opacity: 0;
+}
+.slide-up-enter-active {
+	transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.slide-up-leave-active {
+	transition: all 0.2s ease-in;
+}
+.slide-up-enter-from {
+	opacity: 0;
+	transform: translateX(-50%) scale(0.95) translateY(10px);
+}
+.slide-up-leave-to {
+	opacity: 0;
+	transform: translateX(-50%) scale(0.95) translateY(10px);
 }
 
-/* Адаптивность для footer */
-@media (max-width: 768px) {
-	.cmd-footer {
-		flex-direction: column;
-		gap: 0.75rem;
-		align-items: stretch;
-	}
-
-	.shortcuts-info {
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	.footer-hints {
-		justify-content: center;
-	}
-}
-
-/* Мобильная кнопка CommandPalette */
-.mobile-cmd-button {
+.mobile-fab {
 	position: fixed;
-	bottom: 20px;
-	right: 20px;
-	width: 56px;
-	height: 56px;
-	background: var(--bg-secondary);
-	color: var(--text);
-	border: none;
+	bottom: 24px;
+	right: 24px;
+	width: 50px;
+	height: 50px;
 	border-radius: 50%;
-	box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-	cursor: pointer;
+	background: var(--cmd-text);
+	color: var(--cmd-bg);
+	border: none;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	transition: all 0.3s ease;
-	animation: mobile-button-float 3s ease-in-out infinite;
-}
-
-.mobile-cmd-button:hover {
-	background: var(--bg-tertiary);
-	transform: scale(1.1);
-	box-shadow: 0 6px 25px rgba(0, 0, 0, 0.4);
-}
-
-.mobile-cmd-button:active {
-	transform: scale(0.95);
-}
-
-@keyframes mobile-button-float {
-	0%,
-	100% {
-		transform: translateY(0);
-	}
-	50% {
-		transform: translateY(-5px);
-	}
-}
-
-/* Скрываем мобильную кнопку на десктопе */
-@media (min-width: 769px) {
-	.mobile-cmd-button {
-		display: none;
-	}
-}
-
-@keyframes fadeIn {
-	from {
-		opacity: 0;
-		transform: translateX(-50%) translateY(-8px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(-50%) translateY(0);
-	}
-}
-
-/* Стили для уведомлений */
-.notification {
-	position: fixed;
-	top: 20px;
-	right: 20px;
-	padding: 12px 20px;
-	border-radius: 8px;
-	color: white;
-	font-weight: 500;
-	z-index: 10000;
-	transform: translateX(100%);
-	transition: transform 0.3s ease;
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-.notification-success {
-	background-color: #10b981;
-}
-
-.notification-info {
-	background-color: #3b82f6;
-}
-
-.notification-warning {
-	background-color: #f59e0b;
-}
-
-.notification-error {
-	background-color: #ef4444;
-}
-
-/* Улучшенные стили для скролла */
-.cmd-list {
-	max-height: 50vh;
-	overflow-y: auto;
-	scrollbar-width: thin;
-	scrollbar-color: var(--border) transparent;
-}
-
-.cmd-list::-webkit-scrollbar {
-	width: 6px;
-}
-
-.cmd-list::-webkit-scrollbar-track {
-	background: transparent;
-}
-
-.cmd-list::-webkit-scrollbar-thumb {
-	background-color: var(--border);
-	border-radius: 3px;
-}
-
-.cmd-list::-webkit-scrollbar-thumb:hover {
-	background-color: var(--text-secondary);
-}
-
-/* Анимация для выбранного элемента */
-.cmd-item {
-	padding: 0.75rem 1rem;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	border-left: 3px solid transparent;
-}
-
-.cmd-item:hover {
-	background: var(--bg-tertiary);
-	border-left-color: var(--accent);
-}
-
-.cmd-item.selected {
-	background: var(--bg-tertiary);
-	border-left-color: var(--accent);
-	box-shadow: 0 0 0 1px var(--accent);
-}
-
-@media (prefers-reduced-motion: reduce) {
-	.cmd-container {
-		animation: none;
-	}
-
-	.cmd-item {
-		transition: none;
-	}
+	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+	z-index: 2000;
 }
 </style>

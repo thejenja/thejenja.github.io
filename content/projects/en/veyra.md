@@ -11,86 +11,27 @@ stage: "in-progress"
 type: "tool"
 ---
 
-# Veyra
+# Veyra: Your Ideal Start Page
 
-Modern browser start page with modular architecture and customizable widgets.
+Every time we open a new browser tab, we see either emptiness or forced content. **Veyra** returns control to the user. It is a browser extension that turns the start page into a personal command center. The project was born from the desire to combine aesthetics and productivity, creating a space that inspires work but does not overload with information.
 
-## Project Description
+## Modular Architecture and WXT
 
-Veyra is a browser extension that replaces the standard new tab with a personalized page containing a set of useful widgets. The project is created using modern web technologies and follows the principles of modular architecture, allowing users to customize the interface according to their needs.
+Developing browser extensions has its specifics. For Veyra, the **WXT** framework was chosen—a modern tool that significantly simplifies the creation of cross-browser extensions, providing a development experience similar to Nuxt. This allowed using the full power of **Vue.js 3** and Hot Module Replacement (HMR) directly in the browser context.
 
-## Key Features
+The application architecture is completely modular. Each widget (Weather, Clock, Notes, Links) is an isolated component that the user can turn on, off, or move. The state of widgets and settings is managed via **Pinia**, and data is securely stored in the browser's local storage, ensuring privacy—no personal data goes to external servers.
 
-- **Modular architecture** - widget system with enable/disable capability
-- **Customizable backgrounds** - gradients, solid colors with animation
-- **Multilingual** - internationalization support through Vue I18n
-- **Responsive design** - correct display at different resolutions
-- **Local storage** - settings saved in browser localStorage
+## Design and Customization
 
-## Technologies
+Veyra is about freedom of self-expression. The user is the main designer of their page.
 
-- **Vue.js 3** - modern framework with Composition API
-- **WXT** - tool for developing browser extensions
-- **Pinia** - application state management
-- **Vue I18n** - internationalization and localization
-- **CSS Custom Properties** - dynamic styles and animations
-- **Vue Draggable** - drag & drop functionality
+- **Dynamic Backgrounds**: Support for complex CSS gradients with customizable colors, angles, and even animation speed. Solid colors, smooth transitions—everything is configured in a couple of clicks.
+- **Drag & Drop**: Using the `vue-draggable` library, the user can arrange widgets however fits them best, creating their ideal layout.
 
-## Architecture
+## Internationalization
 
-The project is built on component architecture principles:
+Veyra speaks your language. Thanks to **Vue I18n**, the interface is fully localized. This applies not only to the settings menu but also to date and time formats in widgets. The project was designed from the start with global audience scaling in mind.
 
-- **Entrypoints** - entry points for different parts of the extension
-- **Components** - reusable Vue components
-- **Store** - centralized state management through Pinia
-- **Locales** - localization files for different languages
+## Outcome
 
-### Widget Structure:
-
-- TimeDisplay - time and date display
-- WeatherWidget - weather forecast through OpenWeather API
-- LinksDisplay - quick links and bookmarks
-- NotesWidget - notes and memos
-- Background - customizable background with animation
-
-## Functionality
-
-### Interface Settings:
-
-- Background type selection (solid/gradient)
-- Color and gradient angle configuration
-- Background animation with configurable speed
-- Active widget management
-
-### Widgets:
-
-- **Time and date** - current time with real-time updates
-- **Weather** - weather forecast for selected city
-- **Quick links** - personalized bookmarks
-- **Notes** - simple notepad for notes
-
-### Personalization:
-
-- Saving settings in localStorage
-- Settings migration between versions
-- Configuration data validation
-- Support for Russian and English languages
-
-## Results
-
-- **Performance** - fast loading and interface response
-- **Flexibility** - easy to add new widgets and features
-- **User experience** - intuitively understandable settings
-- **Cross-platform** - support for Chrome, Firefox and other browsers
-- **Extensibility** - modular architecture for future improvements
-
-## Technical Details
-
-### Settings System:
-
-- Reactive state through Vue 3 Composition API
-- Automatic saving of changes
-- Data validation and migration
-- Support for complex configuration objects
-
-### Animations:
+Veyra demonstrates how web technologies can improve the daily browser experience. It is a project where technical complexity (WXT, State Management, Chrome API) is hidden behind an intuitive and beautiful interface. It’s not just "another new tab," it’s a tool for focus and aesthetic pleasure.

@@ -11,88 +11,44 @@ slug: "apollon"
 technologies: ["nuxt", "vue", "webgl", "webworkers", "scss", "canvas"]
 demo: "https://apollon-it.ru"
 date: 2025-05-18
-gallery: ["/projects/apollon/main.png", "/projects/apollon/contacts.png", "/projects/apollon/services.png"]
+gallery:
+  [
+    "/projects/apollon/main.png",
+    "/projects/apollon/contacts.png",
+    "/projects/apollon/services.png",
+  ]
+linksTop:
+  [
+    {
+      "label": "Website",
+      "href": "https://apollon-it.ru",
+      "icon": "lucide:globe",
+    },
+  ]
 ---
 
-# Apollon Digital
+# Apollon Digital: Symphony of Code and Visual Art
 
-Modern digital agency landing page with interactive WebGL effects and responsive design.
+In the world of digital marketing, the first impression is the only thing that matters. The **Apollon Digital** project was created not just as an informational resource, but as a digital manifesto of a modern agency. It is an elegant, technologically rich landing page where high performance meets deep aesthetics. The main task was to develop an interface that immerses the user in an atmosphere of innovation from the first seconds, using the capabilities of modern browsers to the fullest.
 
-## Project Description
+## Visual Magic: WebGL and Perlin Noise
 
-"Apollon Digital" is an elegant and modern landing page for a digital agency, created using cutting-edge web technologies. The project demonstrates a professional approach to web development, combining beautiful design with high performance and interactivity.
+The heart of the visual concept became an interactive background living its own life. Instead of static images or heavy videos, I used procedural texture generation using the Perlin Noise algorithm via **WebGL**. This solution allowed creating a "living matter" effect—a smooth, smoky substance that reacts to time and space, creating a hypnotic but not distracting background.
 
-## Key Features
+However, beauty requires sacrifice, and complex mathematical calculations in real-time could "hang" the main interface. To avoid this, advanced architecture using **Web Workers** was implemented. All heavy frame generation logic and mathematical calculations were moved to a separate thread. Using `OffscreenCanvas` technology, rendering control is passed to the worker, leaving the main browser thread free for instant reaction to user actions. The result is stable 60 FPS even on mobile devices and absolute interface smoothness.
 
-- **Interactive background** - WebGL animation with Perlin noise in separate thread
-- **Responsive design** - full mobile device support
-- **Smooth transitions** - animated page transitions
-- **Optimized fonts** - custom fonts with preloading
-- **SEO optimization** - meta tags, Open Graph, Yandex Metrika
-- **Modular architecture** - component approach with reusability
+## Architecture and Technology Stack
 
-## Technologies
+The foundation of the project served as a combination of **Nuxt 3** and **Vue 3**. The choice in favor of Nuxt was dictated by the need for flawless SEO and high initial load speed (SSR). The project is built on principles of modularity: every interface element, be it a case card or complex navigation, is separated into an isolated component.
 
-### Frontend
+Special attention is paid to the style system. Instead of using heavy CSS frameworks, custom **SCSS** with a thoughtful system of variables and mixins was written. This allows creating a flexible design system where colors, spacing, and typography are managed centrally. Typography, by the way, is also optimized: custom fonts are preloaded, eliminating the unpleasant "flash of unstyled text" effect when loading the page.
 
-- **Nuxt.js 3** - modern framework for Vue.js
-- **Vue 3** - progressive JavaScript framework
-- **SCSS** - extended CSS with variables and mixins
-- **Tabler Icons** - beautiful vector icons
+## User Experience (UX) and Adaptability
 
-### WebGL and Animation
+Apollon Digital is a story about attention to detail. Transition animations between pages are tuned to create a feeling of a continuous journey, rather than a simple URL change. When hovering over elements (Hover effects), the interface responds with barely noticeable but pleasant micro-interactions, increasing engagement.
 
-- **Canvas API** - for rendering interactive background
-- **Web Workers** - multithreading for animation
-- **Perlin Noise** - algorithm for generating natural textures
-- **OffscreenCanvas** - transferring canvas control to worker
+Adaptability here is not just a checkbox in the technical specifications. The interface rebuilds itself for any device: from wide-format designer monitors to smartphone screens. Navigation transforms into a convenient burger menu, and the WebGL background automatically lowers detail on weak devices, preserving the general style without damaging the user's battery.
 
-### Optimization
+## Conclusion
 
-- **Font preloading** - accelerating text display
-- **Responsive images** - automatic optimization for different screens
-- **Lazy loading** - performance optimization
-
-## Architecture
-
-The project is built on component architecture principles:
-
-### Component Structure
-
-- **Header** - navigation and logo
-- **Hero** - main section with call to action
-- **PerlinNoise** - interactive WebGL background
-- **CaseCard/ServiceCard** - project and service cards
-- **CaseGrid/ServiceGrid** - grids for content display
-
-### Styling System
-
-- **SCSS variables** - centralized management of colors and sizes
-- **Mixins** - reusable style blocks
-- **Responsive breakpoints** - responsive design for all devices
-- **CSS Grid and Flexbox** - modern layout methods
-
-### Routing and Pages
-
-- **Home** - hero section with main offer
-- **Cases** - agency project portfolio
-- **Services** - description of provided services
-- **Contacts** - contact form and contact information
-
-## Functionality
-
-### Interactive Elements
-
-- **WebGL background animation** - smoothly changing Perlin noise
-- **Smooth transitions** - animated page changes
-- **Hover effects** - interactive element states
-- **Responsive navigation** - mobile burger menu
-
-### User Experience
-
-- **Fast loading** - optimized resources
-- **Responsive interface** - instant response to actions
-- **Accessibility** - semantic markup and ARIA attributes
-- **Cross-browser compatibility** - support for modern browsers
-
-### Analytics and SEO
+This project became an excellent demonstration of how hardcore engineering solutions (multithreading, Canvas API, procedural generation) can be packaged in a graceful, minimalist shell. Apollon Digital is a balance between creativity and technology, creating the image of an agency that truly understands Digital.

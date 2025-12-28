@@ -1,108 +1,175 @@
 <template>
-	<div class="timeline-projects" :class="{ compact }">
-		<div class="timeline-container">
-			<!-- Timeline с годами и месяцами (только в обычном режиме) -->
-			<div v-if="!compact" class="timeline-header">
+	<div
+		class="projects-wrapper"
+		:class="[`mode-${viewMode}`, { 'is-compact': compact }]"
+		role="region"
+		aria-labelledby="projects-title"
+	>
+		<!-- TIMELINE MODE -->
+		<div v-if="viewMode === 'timeline'" class="timeline-container">
+			<div class="timeline-header">
 				<div class="timeline-years">
-					<!-- Вкладка "Все" -->
 					<div
 						class="timeline-year"
 						:class="{ active: activeYear === 'all' }"
-						@click="setActiveYear('all')"
+						@click="setYear('all')"
 					>
 						{{ $t("timeline.all") }}
 					</div>
-					<!-- Годы -->
 					<div
 						v-for="year in timelineYears"
 						:key="year"
 						class="timeline-year"
 						:class="{ active: activeYear === year }"
-						@click="setActiveYear(year)"
+						@click="setYear(year)"
 					>
 						{{ year }}
 					</div>
 				</div>
 			</div>
 
-			<!-- Проекты в обычном режиме (с timeline) -->
-			<div v-if="!compact" class="timeline-content">
-				<div
-					v-for="(monthGroup, monthKey) in groupedProjects"
-					:key="monthKey"
-					class="month-group"
-				>
-					<!-- Заголовок месяца -->
-					<div class="month-header">
-						<h3 class="month-title">{{ formatMonth(String(monthKey)) }}</h3>
-					</div>
-
-					<!-- Проекты месяца -->
-					<div class="month-projects">
-						<ProjectCard
-							v-for="project in monthGroup"
-							:key="project._path"
-							:project="project"
-							:compact="true"
-							:show-logo="true"
-							:show-description="false"
-							:show-tags="true"
-							:max-tags="5"
-						/>
+			<!-- Анимация смены контента при переключении года -->
+			<!-- mode="out-in" обеспечивает плавную смену без наложения -->
+			<Transition :name="yearTransitionName" mode="out-in">
+				<div :key="activeYear" class="timeline-content-wrapper">
+					<div class="timeline-content">
+						<!-- TransitionGroup для анимации фильтрации/появления карточек внутри групп -->
+						<div
+							v-for="(monthGroup, monthKey) in groupedProjects"
+							:key="monthKey"
+							class="month-group"
+						>
+							<div class="month-header">
+								<h3 class="month-title">
+									{{ formatMonth(String(monthKey)) }}
+								</h3>
+							</div>
+							<TransitionGroup
+								name="project-list"
+								tag="div"
+								class="projects-grid"
+							>
+								<ProjectCard
+									v-for="project in monthGroup"
+									:key="project._path"
+									:project="project"
+									:compact="true"
+								/>
+							</TransitionGroup>
+						</div>
 					</div>
 				</div>
-			</div>
+			</Transition>
+		</div>
 
-			<!-- Компактный режим - только проекты без timeline -->
-			<div v-else class="compact-projects">
-				<div class="projects-grid">
+		<!-- MARQUEE MODE -->
+		<div v-else-if="viewMode === 'marquee'" class="marquee-container">
+			<div class="fade-mask left" />
+			<div class="fade-mask right" />
+
+			<div class="marquee-track">
+				<div class="marquee-group">
 					<ProjectCard
-						v-for="project in limitedProjects"
+						v-for="project in targetProjects"
 						:key="project._path"
 						:project="project"
 						:compact="true"
-						:show-logo="true"
-						:show-description="false"
-						:show-tags="true"
-						:max-tags="3"
+						class="marquee-card"
+					/>
+				</div>
+
+				<div aria-hidden="true" class="marquee-group">
+					<ProjectCard
+						v-for="project in targetProjects"
+						:key="`${project._path}-duplicate`"
+						:project="project"
+						:compact="true"
+						class="marquee-card"
 					/>
 				</div>
 			</div>
+		</div>
+
+		<!-- SCROLL MODE -->
+		<div
+			v-else-if="viewMode === 'scroll'"
+			class="scroll-wrapper"
+			:style="scrollMaskStyle"
+		>
+			<div
+				class="scroll-container"
+				ref="scrollContainer"
+				@scroll="handleScroll"
+			>
+				<div class="scroll-track">
+					<ProjectCard
+						v-for="project in targetProjects"
+						:key="project._path"
+						:project="project"
+						:compact="true"
+						:showDescription="false"
+						class="scroll-card"
+					/>
+
+					<NuxtLinkLocale to="/projects" class="see-more-card">
+						<div class="see-more-content">
+							<span class="arrow">→</span>
+							<span>Все проекты</span>
+						</div>
+					</NuxtLinkLocale>
+				</div>
+			</div>
+		</div>
+
+		<!-- GRID MODE -->
+		<div v-else class="compact-grid-container">
+			<TransitionGroup name="project-list" tag="div" class="projects-grid">
+				<ProjectCard
+					v-for="project in targetProjects"
+					:key="project._path"
+					:project="project"
+					:compact="true"
+				/>
+			</TransitionGroup>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch, onMounted, nextTick } from "vue";
+import { useI18n } from "vue-i18n";
 import ProjectCard from "./ProjectCard.vue";
+
+// Типы
+interface ProjectMeta {
+	slug?: string;
+	color?: string;
+	background?: string;
+	technologies?: string[];
+	type?:
+		| "web-app"
+		| "mobile-app"
+		| "website"
+		| "library"
+		| "tool"
+		| "game"
+		| "design";
+	stage?: "planning" | "in-progress" | "completed" | "on-hold" | "archived";
+	featured?: boolean;
+	icon?: string;
+	date?: string;
+	behance?: string;
+	dribbble?: string;
+	demo?: string;
+	github?: string;
+}
 
 interface Project {
 	title?: string;
 	description?: string;
 	date?: string;
 	body?: unknown;
-	meta?: {
-		slug?: string;
-		color?: string;
-		background?: string;
-		technologies?: string[];
-		type?:
-			| "web-app"
-			| "mobile-app"
-			| "website"
-			| "library"
-			| "tool"
-			| "game"
-			| "design";
-		stage?: "planning" | "in-progress" | "completed" | "on-hold" | "archived";
-		featured?: boolean;
-		icon?: string;
-		date?: string;
-		behance?: string;
-		dribbble?: string;
-		demo?: string;
-		github?: string;
-	};
+	meta?: ProjectMeta;
 	_path?: string;
 }
 
@@ -110,95 +177,109 @@ interface Props {
 	projects: Project[];
 	compact?: boolean;
 	limit?: number;
+	viewMode?: "timeline" | "grid" | "marquee" | "scroll";
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	compact: false,
 	limit: undefined,
+	viewMode: "timeline",
 });
 
-// Удаляем неиспользуемый emit, так как теперь используем navigateTo
-
-// Активный год для timeline
+const { locale } = useI18n();
 const activeYear = ref<number | "all">("all");
+const yearTransitionName = ref("slide-next"); // Направление анимации по умолчанию
 
-// Получаем проекты с лимитом для компактного режима
-const limitedProjects = computed(() => {
-	if (props.compact && props.limit) {
-		return props.projects.slice(0, props.limit);
+// --- Logic for Animations ---
+
+// Сеттер для года с определением направления анимации
+const setYear = (year: number | "all") => {
+	// Определяем направление
+	const yearsList = ["all", ...timelineYears.value];
+	const oldIndex = yearsList.indexOf(activeYear.value);
+	const newIndex = yearsList.indexOf(year);
+
+	// Если новый индекс больше (правее), контент должен приехать справа (next)
+	// Если меньше (левее), контент должен приехать слева (prev)
+	yearTransitionName.value = newIndex > oldIndex ? "slide-next" : "slide-prev";
+
+	activeYear.value = year;
+};
+
+// --- Logic for Scroll Mask ---
+const scrollContainer = ref<HTMLElement | null>(null);
+const maskLeft = ref(0);
+const maskRight = ref(1);
+
+// Вычисляемые стили для маски
+const scrollMaskStyle = computed(() => ({
+	"--mask-left": maskLeft.value,
+	"--mask-right": maskRight.value,
+}));
+
+const handleScroll = () => {
+	const el = scrollContainer.value;
+	if (!el) return;
+
+	const maxScroll = el.scrollWidth - el.clientWidth;
+	const currentScroll = el.scrollLeft;
+
+	// Плавное изменение прозрачности маски (0 или 1)
+	// Порог срабатывания 10px
+	maskLeft.value = currentScroll > 10 ? 1 : 0;
+	maskRight.value = currentScroll < maxScroll - 10 ? 1 : 0;
+};
+
+// Инициализация скролла
+onMounted(() => {
+	if (props.viewMode === "scroll") {
+		nextTick(handleScroll);
 	}
-	return props.projects;
 });
 
-// Получаем уникальные годы из проектов
+// --- Existing Logic ---
+
+const targetProjects = computed(() => {
+	let list = props.projects;
+	if (props.compact && props.limit && props.viewMode === "grid") {
+		list = list.slice(0, props.limit);
+	}
+	if (props.viewMode === "marquee" && list.length < 5) {
+		return [...list, ...list];
+	}
+	return list;
+});
+
 const timelineYears = computed(() => {
 	const years = new Set<number>();
 	props.projects.forEach((project) => {
 		const date = new Date(project.date || project.meta?.date || "");
-		if (!isNaN(date.getTime())) {
-			years.add(date.getFullYear());
-		}
+		if (!isNaN(date.getTime())) years.add(date.getFullYear());
 	});
 	return Array.from(years).sort((a, b) => b - a);
 });
 
-// Группируем проекты по месяцам с учетом активного года
 const groupedProjects = computed(() => {
 	const groups: Record<string, Project[]> = {};
-	let processedCount = 0;
-
 	props.projects.forEach((project) => {
-		// Проверяем лимит для компактного режима
-		if (props.compact && props.limit && processedCount >= props.limit) {
-			return;
-		}
-
 		const date = new Date(project.date || project.meta?.date || "");
 		if (isNaN(date.getTime())) return;
-
-		// Фильтруем по активному году
-		if (activeYear.value !== "all" && date.getFullYear() !== activeYear.value) {
+		if (activeYear.value !== "all" && date.getFullYear() !== activeYear.value)
 			return;
-		}
-
 		const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
-
-		if (!groups[monthKey]) {
-			groups[monthKey] = [];
-		}
+		if (!groups[monthKey]) groups[monthKey] = [];
 		groups[monthKey].push(project);
-		processedCount++;
 	});
-
-	// Сортируем месяцы по убыванию
 	return Object.fromEntries(
 		Object.entries(groups).sort(([a], [b]) => b.localeCompare(a))
 	);
 });
 
-// Устанавливаем активный год
-const setActiveYear = (year: number | "all") => {
-	activeYear.value = year;
-	const header = document.querySelector(".timeline-header") as HTMLElement;
-	window.scrollTo({
-		top: header?.offsetTop || 0,
-		behavior: "smooth",
-	});
-};
-
-// Форматируем месяц для отображения
-const { locale } = useI18n();
-
 const formatMonth = (monthKey: string) => {
 	const [year, month] = monthKey.split("-");
 	if (!year || !month) return monthKey;
-
 	const date = new Date(parseInt(year), parseInt(month) - 1);
-
-	// Используем текущую локаль для форматирования даты
-	const localeCode = locale.value === "ru" ? "ru-RU" : "en-US";
-
-	return date.toLocaleDateString(localeCode, {
+	return date.toLocaleDateString(locale.value === "ru" ? "ru-RU" : "en-US", {
 		month: "long",
 		year: "numeric",
 	});
@@ -206,6 +287,67 @@ const formatMonth = (monthKey: string) => {
 </script>
 
 <style scoped>
+/* =========================================
+   ANIMATIONS
+   ========================================= */
+
+/* 1. Анимация фильтрации (TransitionGroup) */
+/* Элементы двигаются, освобождая место */
+.project-list-move,
+.project-list-enter-active,
+.project-list-leave-active {
+	transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
+}
+
+/* Состояние входа */
+.project-list-enter-from,
+.project-list-leave-to {
+	opacity: 0;
+	transform: scale(0.9) translateY(20px);
+}
+
+/* Абсолютное позиционирование для уходящих элементов, 
+   чтобы остальные плавно схлопнулись (magic grid effect) */
+.project-list-leave-active {
+	position: absolute;
+	width: 100%; /* Важно, чтобы верстка не ломалась внутри grid */
+	z-index: -1;
+}
+
+/* 2. Анимация смены года (Слайд) */
+.slide-next-enter-active,
+.slide-next-leave-active,
+.slide-prev-enter-active,
+.slide-prev-leave-active {
+	transition:
+		opacity 0.4s ease,
+		transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Слайд ВЛЕВО (Next) */
+.slide-next-enter-from {
+	opacity: 0;
+	transform: translateX(30px);
+}
+.slide-next-leave-to {
+	opacity: 0;
+	transform: translateX(-30px);
+}
+
+/* Слайд ВПРАВО (Prev) */
+.slide-prev-enter-from {
+	opacity: 0;
+	transform: translateX(-30px);
+}
+.slide-prev-leave-to {
+	opacity: 0;
+	transform: translateX(30px);
+}
+
+/* =========================================
+   BASE STYLES
+   ========================================= */
+
 .timeline-projects {
 	position: relative;
 }
@@ -215,7 +357,6 @@ const formatMonth = (monthKey: string) => {
 	margin: 0 auto;
 }
 
-/* Timeline header с годами */
 .timeline-header {
 	background: var(--bg);
 	border-bottom: 1px solid var(--border);
@@ -229,19 +370,6 @@ const formatMonth = (monthKey: string) => {
 	overflow-x: auto;
 	scrollbar-width: thin;
 	scrollbar-color: var(--border) transparent;
-}
-
-.timeline-years::-webkit-scrollbar {
-	height: 4px;
-}
-
-.timeline-years::-webkit-scrollbar-track {
-	background: transparent;
-}
-
-.timeline-years::-webkit-scrollbar-thumb {
-	background: var(--border);
-	border-radius: 2px;
 }
 
 .timeline-year {
@@ -265,70 +393,51 @@ const formatMonth = (monthKey: string) => {
 	background: var(--bg-tertiary);
 }
 
-/* Группы месяцев */
 .month-group {
 	margin-bottom: 3rem;
+	/* Для корректной работы TransitionGroup внутри */
+	position: relative;
 }
 
 .month-header {
 	position: sticky;
 	top: 0;
 	z-index: 10;
-	background: var(--bg);
+	background: var(--bg); /* Важно иметь фон, чтобы контент не просвечивал */
 	border-bottom: 1px solid var(--border);
 	padding-bottom: 1rem;
 	padding-top: 1rem;
-
 	margin-bottom: 1.5rem;
+	transition: background-color 0.3s ease; /* Плавность при смене темы */
+}
+
+/* Небольшая тень при прилипании (опционально, для красоты) */
+.month-header::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -10px;
+	height: 10px;
+	background: linear-gradient(to bottom, rgba(0, 0, 0, 0.05), transparent);
+	opacity: 0;
+	transition: opacity 0.3s;
+	pointer-events: none;
 }
 
 .month-title {
-	font-size: 1.25rem;
-	font-weight: 600;
+	font-size: 1.75rem;
+	font-weight: 500;
 	color: var(--text-secondary);
 	margin: 0;
 	text-transform: capitalize;
 }
 
-/* Сетка проектов */
-.month-projects {
-	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-	gap: 1.5rem;
-}
-
-/* Компактный режим */
-.timeline-projects.compact .month-projects {
-	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-	gap: 1rem;
-}
-
-.timeline-projects.compact .timeline-project-card {
-	aspect-ratio: 1/1;
-}
-
-.timeline-projects.compact .project-icon {
-	width: 48px;
-	height: 48px;
-}
-
-.timeline-projects.compact .project-icon-emoji {
-	font-size: 1.5rem;
-}
-
-.timeline-projects.compact .month-title {
-	font-size: 1rem;
-	margin-bottom: 1rem;
-}
-
-.timeline-projects.compact .month-group {
-	margin-bottom: 2rem;
-}
-
 .projects-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 	gap: 1.5rem;
+	position: relative; /* Для позиционирования карточек при анимации */
 }
 
 @media (max-width: 768px) {
@@ -342,181 +451,136 @@ const formatMonth = (monthKey: string) => {
 	}
 }
 
-@media (max-width: 480px) {
-	.projects-grid {
-		grid-template-columns: 1fr;
-	}
+/* =========================================
+   SCROLL MODE STYLES
+   ========================================= */
+
+.scroll-wrapper {
+	width: 100%;
+	position: relative;
+	/* Динамическая маска на основе CSS переменных, которые меняет JS */
+	--mask-width: 60px; /* Ширина градиента затухания */
+	mask-image: linear-gradient(
+		to right,
+		transparent 0%,
+		black calc(var(--mask-width) * var(--mask-left)),
+		black calc(100% - (var(--mask-width) * var(--mask-right))),
+		transparent 100%
+	);
+	-webkit-mask-image: linear-gradient(
+		to right,
+		transparent 0%,
+		black calc(var(--mask-width) * var(--mask-left)),
+		black calc(100% - (var(--mask-width) * var(--mask-right))),
+		transparent 100%
+	);
+	/* Плавный переход самой маски при изменении 0/1 */
+	transition:
+		mask-image 0.3s ease,
+		-webkit-mask-image 0.3s ease;
 }
 
-/* Карточка проекта */
-.timeline-project-card {
-	position: relative;
+.scroll-container {
+	width: 100%;
+	overflow-x: auto;
+	scrollbar-width: none;
+	-webkit-overflow-scrolling: touch;
+	/* Основные свойства для Scroll Snap */
+	scroll-snap-type: x mandatory; /* Обязательное прилипание */
+	scroll-behavior: smooth;
+}
+
+.scroll-container::-webkit-scrollbar {
+	display: none;
+}
+
+.scroll-track {
+	display: flex;
+	gap: 1.5rem;
+	width: max-content;
+}
+
+.scroll-card {
+	width: 300px;
+	flex-shrink: 0;
+	/* Точка прилипания */
+	scroll-snap-align: start;
+	scroll-margin-left: 1rem; /* Отступ при прилипании */
+}
+
+.see-more-card {
+	width: 150px;
+	flex-shrink: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
 	background: var(--bg-secondary);
 	border-radius: 16px;
-	overflow: hidden;
-	cursor: pointer;
-	transition: all 0.3s ease;
-	aspect-ratio: 4/3;
+	text-decoration: none;
+	color: var(--text);
+	border: 1px dashed var(--border);
+	transition: 0.3s;
+	scroll-snap-align: start;
+	scroll-margin-left: 1rem;
 }
 
-.timeline-project-card:hover {
-	transform: translateY(-4px);
-	box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
-}
-
-/* Избранная звезда */
-.featured-star {
-	position: absolute;
-	top: -8px;
-	left: -8px;
-	z-index: 20;
-	transform: rotate(-25deg);
-	color: var(--star-color, #fbbf24);
-	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
-}
-
-/* Фон проекта */
-.project-background {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-size: cover;
-	background-position: center;
-}
-
-/* Иконка проекта */
-.project-icon {
-	width: 64px;
-	height: 64px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: rgba(255, 255, 255, 0.1);
-	border-radius: 16px;
-	backdrop-filter: blur(10px);
-}
-
-.project-icon-image {
+/* Остальные стили (Marquee и т.д.) остались без изменений или адаптированы */
+.marquee-container {
+	position: relative;
 	width: 100%;
-	height: 100%;
-	object-fit: contain;
+	overflow: hidden;
+	padding: 1rem 0;
+	mask-image: linear-gradient(
+		to right,
+		transparent,
+		black 10%,
+		black 90%,
+		transparent
+	);
+	-webkit-mask-image: linear-gradient(
+		to right,
+		transparent,
+		black 10%,
+		black 90%,
+		transparent
+	);
 }
 
-.project-icon-emoji {
-	font-size: 2rem;
-}
-
-/* Мета-информация (правый верхний угол) */
-.project-meta-overlay {
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
+.marquee-track {
 	display: flex;
-	flex-direction: column;
-	gap: 0.5rem;
-	z-index: 15;
+	gap: 1.5rem;
+	width: max-content;
+	animation: marquee-scroll 40s linear infinite;
 }
 
-.meta-badge {
-	width: 32px;
-	height: 32px;
-	background: rgba(0, 0, 0, 0.7);
-	border-radius: 8px;
+.marquee-track:hover {
+	animation-play-state: paused;
+}
+
+.marquee-group {
 	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	transition: all 0.3s ease;
-	backdrop-filter: blur(10px);
+	gap: 1.5rem;
+	padding-right: 1.5rem;
 }
 
-.meta-badge:hover {
-	background: rgba(0, 0, 0, 0.9);
-	transform: scale(1.1);
+.marquee-card {
+	width: 320px;
+	flex-shrink: 0;
 }
 
-/* Технологии */
-.project-technologies {
-	position: absolute;
-	bottom: 1rem;
-	left: 1rem;
-	right: 1rem;
-	display: flex;
-	gap: 0.5rem;
-	opacity: 0;
-	transition: opacity 0.3s ease;
+@keyframes marquee-scroll {
+	0% {
+		transform: translateX(0);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
 }
 
-.timeline-project-card:hover .project-technologies {
-	opacity: 1;
-}
-
-.tech-tag-compact {
-	transform: scale(0.8);
-	transform-origin: bottom left;
-}
-
-/* Название проекта */
-.project-title {
-	position: absolute;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
-	padding: 2rem 1rem 1rem;
-	color: white;
-}
-
-.project-title h4 {
-	margin: 0;
-	font-size: 1rem;
-	font-weight: 600;
-	line-height: 1.3;
-}
-
-/* Tooltip */
-.meta-tooltip {
-	position: fixed;
-	z-index: 1000;
-	background: rgba(0, 0, 0, 0.9);
-	color: white;
-	padding: 0.5rem 0.75rem;
-	border-radius: 6px;
-	font-size: 0.875rem;
-	pointer-events: none;
-	backdrop-filter: blur(10px);
-	white-space: nowrap;
-}
-
-/* Адаптивность */
 @media (max-width: 768px) {
-	.month-projects {
-		grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-		gap: 1rem;
-	}
-
-	.timeline-year {
-		font-size: 1.25rem;
-		padding: 0.375rem 0.75rem;
-	}
-
-	.month-title {
-		font-size: 1.125rem;
-	}
-}
-
-@media (max-width: 480px) {
-	.month-projects {
-		grid-template-columns: 1fr;
-	}
-
-	.timeline-years {
-		gap: 1rem;
+	.marquee-card,
+	.scroll-card {
+		width: 260px;
 	}
 }
 </style>

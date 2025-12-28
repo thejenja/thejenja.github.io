@@ -1,11 +1,11 @@
 <template>
 	<div class="preloader">
-		<div class="spinner" role="status" aria-label="Loading"></div>
+		<div class="loader" role="status" aria-label="Loading" />
 	</div>
 </template>
 
 <script setup>
-// Оставляем пропсы для совместимости, но не используем их внутри компонента
+// Пропсы оставил — мало ли, где-то используются
 defineProps({
 	progress: { type: Number, default: 0 },
 	loadingText: { type: String, default: "" },
@@ -23,28 +23,46 @@ defineProps({
 	z-index: 9999;
 }
 
-.spinner {
-	width: 56px;
-	height: 56px;
-	border-radius: 50%;
-	border: 3px solid var(--bg-tertiary);
-	border-top-color: var(--accent);
-	animation: spin 0.9s linear infinite;
+/* Прогресс-бар */
+.loader {
+	--height-of-loader: 4px;
+	--loader-color: var(--text);
+	width: 130px;
+	height: var(--height-of-loader);
+	border-radius: 30px;
+	background-color: var(--bg-secondary);
+	position: relative;
 }
 
-@keyframes spin {
-	from {
-		transform: rotate(0deg);
+.loader::before {
+	content: "";
+	position: absolute;
+	background: var(--text);
+	top: 0;
+	left: 0;
+	width: 0%;
+	height: 100%;
+	border-radius: 30px;
+	animation: moving 1s ease-in-out infinite;
+}
+
+/* Анимация */
+@keyframes moving {
+	50% {
+		width: 100%;
 	}
-	to {
-		transform: rotate(360deg);
+	100% {
+		width: 0;
+		right: 0;
+		left: unset;
 	}
 }
 
-/* Уважение к настройкам пользователя */
+/* Respect-режим для accessibility */
 @media (prefers-reduced-motion: reduce) {
-	.spinner {
+	.loader::before {
 		animation: none;
+		width: 60%;
 	}
 }
 </style>

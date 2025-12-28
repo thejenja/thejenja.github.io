@@ -6,7 +6,6 @@ export const useSEO = () => {
 	// Получаем базовый URL сайта из Site Config (fallback при отсутствии)
 	let siteUrl = "https://thejenja.github.io";
 	try {
-		// @ts-ignore - доступно при SEO модулях
 		const cfg = typeof useSiteConfig === "function" ? useSiteConfig() : null;
 		if (cfg?.url) siteUrl = cfg.url as string;
 	} catch {}

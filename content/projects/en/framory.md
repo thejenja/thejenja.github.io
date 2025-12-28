@@ -3,7 +3,7 @@ title: "Framory"
 description: "Telegram bot for quick post creation"
 color: "#0F0F0F"
 icon: "🎭"
-featured: true
+featured: false
 slug: "framory"
 type: "web-app"
 stage: "in-progress"
@@ -24,87 +24,30 @@ linksTop:
   ]
 ---
 
-# Framory
+# Framory: Creative Studio Inside a Messenger
 
-Modern Telegram WebApp for creating beautiful covers and posters using the latest Web APIs and Telegram capabilities.
+In an era where content is created and consumed on the go, complex graphic editors often prove excessive. **Framory** is an ambitious project designed to solve this problem by bringing powerful visual creation functionality directly into the familiar Telegram interface. It is not just a bot, but a full-fledged WebApp (TWA) that blurs the line between native mobile software and web technologies.
 
-## Project Description
+## Concept and Solution
 
-"Framory" is an innovative Telegram WebApp that allows users to create professional covers, posters and graphic materials directly in the messenger. The project demonstrates how to combine the power of modern web technologies with the convenience of the Telegram platform, creating a unique user experience.
+The idea of Framory is simple: give the user the ability to create a beautiful post cover, quote, or announcement in 30 seconds without leaving the chat. To realize this task, a modern stack based on **Vue.js 3** and **TypeScript** was chosen, ensuring code reliability and typing.
 
-## Key Features
+The key technical challenge was working with graphics. At the core of the editor lies the **Fabric.js 6.0** library, managing the HTML5 Canvas. This allowed implementing functionality comparable to desktop editors: layers, object movement, working with transparency, and vector shapes. But the magic lies not only in drawing but in optimization. Using `OffscreenCanvas` and `ResizeObserver` guarantees that even when working with complex templates, the interface remains responsive and smooth.
 
-- **Telegram WebApp integration** - full integration with Telegram Bot API
-- **Canvas editor** - powerful tool for creating graphics
-- **Templates and AI** - ready-made solutions and content generation
-- **Cross-platform** - works on all devices
-- **Inline mode** - quick generation directly in chat
+## Deep Integration with Telegram
 
-## Technologies
+Framory is an example of what a modern Mini App should look like. The application doesn't feel like an alien site inside the messenger.
 
-### Frontend
+- **Haptic Feedback**: Every user action—pressing a button, moving an element—is accompanied by light tactile feedback, which significantly improves UX.
+- **Theme Adaptation**: The application automatically reads the user's current theme (dark or light) and adjusts its palette, becoming a natural extension of the Telegram interface.
+- **Inline Mode**: One of the "killer features" became the ability to generate content directly in the message input line using quick commands and templates.
 
-- **Vue.js 3** with Composition API for modern architecture
-- **TypeScript** for type safety and better DX
-- **Vite** for fast building and development
-- **Pinia** for application state management
+## Intelligent Capabilities and AI
 
-### Canvas and Graphics
+The project is not limited to simple image dragging. Automation elements are embedded in Framory. A smart template system recognizes context: just type keywords like `@news` or `@quote`, and the app will suggest the most suitable layout itself. Plans include further expansion of AI functionality to generate unique backgrounds and stylistic solutions on the fly.
 
-- **Fabric.js 6.0** for HTML5 Canvas work
-- **OffscreenCanvas** for improved performance
-- **HTML2Canvas** for image export
+## Architecture and Future
 
-### Telegram Integration
+Under the hood, Framory hides a modular architecture with a clear separation of responsibility. **Pinia** manages the complex canvas state, and components are broken into logical blocks (toolbar, export layer, editor), which allows easy scaling of the project.
 
-- **@telegram-apps/sdk** for WebApp API
-- **Haptic feedback** for tactile feedback
-- **Viewport management** for adaptive interface
-
-### Modern Web APIs
-
-- **View Transitions API** for smooth animations
-- **Popover API** for native popup elements
-- **Scroll-driven Animations** for interactive effects
-- **ResizeObserver** for performance optimization
-
-## Architecture
-
-The project is built on modular architecture principles with clear separation of responsibilities:
-
-### Application Structure
-
-```
-src/
-├── components/          # Vue components
-│   ├── EditorCanvas.vue    # Main editor
-│   ├── InlineEditor.vue    # Quick creation
-│   ├── ModernToolbar.vue   # Toolbar
-│   └── ExportPanel.vue     # Image export
-├── composables/        # Reusable logic
-│   └── useTelegram.js      # Telegram WebApp API
-├── stores/             # State management
-│   └── canvas.js           # Canvas state
-├── views/              # Application pages
-│   └── EditorPage.vue      # Main page
-└── types/              # TypeScript types
-```
-
-### Vue 3 Composition API
-
-Using modern approach with `<script setup>` and Composition API:
-
-```javascript
-<script setup>
-	import {(ref, computed, onMounted)} from 'vue' import {useTelegram} from
-	'@/composables/useTelegram' const {(isReady, themeColors, hapticFeedback)} =
-	useTelegram() const canvas = ref(null)
-</script>
-```
-
-### Reactivity and Performance
-
-- Automatic state synchronization
-- Rendering optimization with ResizeObserver
-- Lazy loading of components
-- Caching of templates and resources
+At the moment, Framory is in active development but already demonstrates huge potential. It is a tool that proves: you don't necessarily need a powerful computer and Photoshop to create professional content. A smartphone and a properly designed web application are enough.

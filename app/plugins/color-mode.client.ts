@@ -1,5 +1,5 @@
 export default defineNuxtPlugin(() => {
-	if (process.client) {
+	if (import.meta.client) {
 		// Функция для определения системной темы
 		const getSystemTheme = () => {
 			return window.matchMedia("(prefers-color-scheme: dark)").matches

@@ -22,7 +22,6 @@ export default defineNuxtPlugin(() => {
 		// Initialize Google Analytics
 		// @ts-expect-error - dataLayer is defined by Google Analytics
 		window.dataLayer = window.dataLayer || [];
-		// @ts-expect-error - gtag function is defined by Google Analytics
 		function gtag() {
 			// @ts-expect-error - dataLayer is defined by Google Analytics and arguments is used by design
 			dataLayer.push(arguments);

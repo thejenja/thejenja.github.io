@@ -1,56 +1,33 @@
 <template>
-	<div class="filter-sidebar">
-		<!-- Кнопка открытия фильтров -->
-		<button
-			class="filter-toggle-btn"
-			@click="toggleSidebar"
-			:aria-expanded="isOpen"
-			:aria-label="
-				isOpen ? $t('filters.closeFilters') : $t('filters.openFilters')
-			"
-		>
-			<Filter :size="20" />
-			<span class="filter-toggle-text">{{ $t("filters.title") }}</span>
-			<ChevronRight :class="{ rotated: isOpen }" :size="16" />
-		</button>
-
-		<!-- Боковое меню -->
-		<div
-			class="filter-sidebar__overlay"
-			:class="{ active: isOpen }"
-			@click="closeSidebar"
-		></div>
-
-		<aside class="filter-sidebar__menu" :class="{ active: isOpen }">
-			<div class="filter-sidebar__header">
-				<h3>{{ $t("filters.title") }}</h3>
+	<div class="dropdown-filters" :class="{ active: isOpen }">
+		<div class="filter-chips-container">
+			<div v-if="allTypes.length > 0" class="filter-chip-group">
 				<button
-					class="close-btn"
-					@click="closeSidebar"
-					:aria-label="$t('filters.closeFilters')"
+					v-for="type in allTypes"
+					:key="type"
+					class="filter-chip"
+					:class="{ active: selectedTypes.includes(type) }"
+					@click="toggleType(type)"
 				>
-					<X :size="20" />
+					{{ getTypeLabel(type) }}
+				</button>
+
+				<button
+					class="more-filters-btn"
+					:aria-expanded="isOpen"
+					:aria-label="
+						isOpen ? $t('filters.closeFilters') : $t('filters.openFilters')
+					"
+					@click="toggleDropdown"
+				>
+					<Filter :size="16" />
+					<ChevronDown :class="{ rotated: isOpen }" :size="14" />
 				</button>
 			</div>
+		</div>
 
-			<div class="filter-sidebar__content">
-				<!-- Типы проектов -->
-				<div class="filter-section">
-					<label class="filter-label">{{ $t("filters.projectType") }}</label>
-					<div class="filter-chips">
-						<button
-							v-for="type in allTypes"
-							:key="type"
-							class="filter-chip"
-							:class="{ active: selectedTypes.includes(type) }"
-							@click="toggleType(type)"
-						>
-							{{ getTypeLabel(type) }}
-						</button>
-					</div>
-				</div>
-
-				<!-- Стадии проектов -->
+		<div v-show="isOpen" class="dropdown-menu">
+			<div class="dropdown-content">
 				<div class="filter-section">
 					<label class="filter-label">{{ $t("filters.stage") }}</label>
 					<div class="filter-chips">
@@ -66,7 +43,6 @@
 					</div>
 				</div>
 
-				<!-- Цвета проектов -->
 				<div class="filter-section">
 					<label class="filter-label">{{ $t("filters.projectColor") }}</label>
 					<div class="color-filters">
@@ -76,15 +52,14 @@
 							class="color-filter-btn"
 							:class="{ active: selectedProjectColors.includes(color) }"
 							:style="{ '--color': getColorValue(color) }"
-							@click="toggleProjectColor(color)"
 							:title="getColorLabel(color)"
+							@click="toggleProjectColor(color)"
 						>
-							<div class="color-circle"></div>
+							<div class="color-circle" />
 						</button>
 					</div>
 				</div>
 
-				<!-- Технологии -->
 				<div class="filter-section">
 					<label class="filter-label">{{ $t("filters.technologies") }}</label>
 					<div class="filter-chips">
@@ -100,7 +75,6 @@
 					</div>
 				</div>
 
-				<!-- Кнопки действий -->
 				<div class="filter-actions">
 					<button class="clear-filters-btn" @click="clearFilters">
 						{{ $t("filters.clearFilters") }}
@@ -110,13 +84,13 @@
 					</button>
 				</div>
 			</div>
-		</aside>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { Filter, ChevronRight, X } from "lucide-vue-next";
+import { Filter, ChevronDown } from "lucide-vue-next";
 
 interface Props {
 	selectedTechs: string[];
@@ -130,10 +104,14 @@ interface Props {
 }
 
 interface Emits {
-	(e: "update:selectedTechs", value: string[]): void;
-	(e: "update:selectedTypes", value: string[]): void;
-	(e: "update:selectedStages", value: string[]): void;
-	(e: "update:selectedProjectColors", value: string[]): void;
+	(
+		e:
+			| "update:selectedTechs"
+			| "update:selectedTypes"
+			| "update:selectedStages"
+			| "update:selectedProjectColors",
+		value: string[]
+	): void;
 	(e: "apply"): void;
 }
 
@@ -142,12 +120,8 @@ const emit = defineEmits<Emits>();
 
 const isOpen = ref(false);
 
-const toggleSidebar = () => {
+const toggleDropdown = () => {
 	isOpen.value = !isOpen.value;
-};
-
-const closeSidebar = () => {
-	isOpen.value = false;
 };
 
 const toggleType = (type: string) => {
@@ -187,7 +161,7 @@ const clearFilters = () => {
 
 const applyFilters = () => {
 	emit("apply");
-	closeSidebar();
+	isOpen.value = false;
 };
 
 // Вспомогательные функции
@@ -249,150 +223,32 @@ const getColorLabel = (color: string) => {
 </script>
 
 <style scoped>
-.filter-sidebar {
+.dropdown-filters {
 	position: relative;
-}
-
-.filter-toggle-btn {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	padding: 0.5rem 1rem;
-	background: var(--bg-secondary);
-	border: 1px solid var(--border);
-	border-radius: 8px;
-	color: var(--text);
-	font-size: 0.875rem;
-	font-weight: 500;
-	cursor: pointer;
-	transition: all 0.2s ease;
-}
-
-.filter-toggle-btn:hover {
-	background: var(--bg-tertiary);
-	border-color: var(--accent);
-}
-
-.filter-toggle-btn:active {
-	transform: translateY(1px);
-}
-
-.filter-toggle-text {
-	display: none;
-}
-
-@media (min-width: 640px) {
-	.filter-toggle-text {
-		display: inline;
-	}
-}
-
-.filter-sidebar__overlay {
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: rgba(0, 0, 0, 0.5);
-	z-index: 998;
-	opacity: 0;
-	visibility: hidden;
-	transition: all 0.3s ease;
-}
-
-.filter-sidebar__overlay.active {
-	opacity: 1;
-	visibility: visible;
-}
-
-.filter-sidebar__menu {
-	position: fixed;
-	top: 0;
-	right: -100%;
 	width: 100%;
-	max-width: 400px;
-	height: 100vh;
-	background: var(--bg);
-	border-left: 1px solid var(--border);
-	z-index: 999;
-	transition: right 0.3s ease;
-	overflow-y: auto;
+	text-align: center;
 }
 
-.filter-sidebar__menu.active {
-	right: 0;
-}
-
-.filter-sidebar__header {
-	display: flex;
-	align-items: center;
-	justify-content: space-between;
-	padding: 1.5rem;
-	border-bottom: 1px solid var(--border);
-}
-
-.filter-sidebar__header h3 {
-	margin: 0;
-	font-size: 1.25rem;
-	font-weight: 600;
-	color: var(--text);
-}
-
-.close-btn {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	width: 32px;
-	height: 32px;
-	background: none;
-	border: none;
-	border-radius: 6px;
-	color: var(--text-secondary);
-	cursor: pointer;
-	transition: all 0.2s ease;
-}
-
-.close-btn:hover {
-	background: var(--bg-secondary);
-	color: var(--text);
-}
-
-.filter-sidebar__content {
-	padding: 1.5rem;
-}
-
-.filter-section {
-	margin-bottom: 2rem;
-}
-
-.filter-label {
-	display: block;
-	margin-bottom: 0.75rem;
-	font-size: 0.875rem;
-	font-weight: 600;
-	color: var(--text);
-}
-
-.search-input {
-	width: 100%;
-	padding: 0.75rem;
-	background: var(--bg-secondary);
-	border: 1px solid var(--border);
-	border-radius: 6px;
-	color: var(--text);
-	font-size: 0.875rem;
-	transition: border-color 0.2s ease;
-}
-
-.search-input:focus {
-	outline: none;
-	border-color: var(--accent);
-}
-
-.filter-chips {
+.filter-chips-container {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 0.5rem;
+	justify-content: center;
+	align-items: center;
+	padding: 0.5rem;
+}
+
+.filter-chip-group {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	align-items: center;
+}
+
+.filter-group-label {
+	font-weight: 500;
+	color: var(--text-secondary);
+	white-space: nowrap;
 }
 
 .filter-chip {
@@ -401,7 +257,6 @@ const getColorLabel = (color: string) => {
 	border: 1px solid var(--border);
 	border-radius: 9999px;
 	color: var(--text-secondary);
-	font-size: 0.75rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -416,6 +271,92 @@ const getColorLabel = (color: string) => {
 	background: var(--accent);
 	border-color: var(--accent);
 	color: white;
+}
+
+.color-filter-chip {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 32px;
+	height: 32px;
+	border: 2px solid transparent;
+	border-radius: 50%;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+	background: none;
+}
+
+.color-filter-chip:hover {
+	transform: scale(1.1);
+}
+
+.color-filter-chip.active {
+	border-color: var(--text);
+	box-shadow: 0 0 0 2px var(--bg);
+}
+
+.color-indicator {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+	background: var(--color);
+	border: 2px solid color-mix(in srgb, var(--color) 50%, var(--bg) 20%);
+}
+
+.more-filters-btn {
+	display: flex;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.5rem 0.75rem;
+	background: var(--bg-secondary);
+	border: 1px solid var(--border);
+	border-radius: 999px;
+	color: var(--text-secondary);
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.more-filters-btn:hover {
+	background: var(--bg-tertiary);
+	border-color: var(--accent);
+	color: var(--text);
+}
+
+.more-filters-btn.active {
+	background: var(--accent);
+	border-color: var(--accent);
+	color: white;
+}
+
+.dropdown-menu {
+	position: relative;
+	z-index: 1000;
+	margin-top: 0.5rem;
+	overflow: hidden;
+	display: inline-block;
+}
+
+.dropdown-content {
+	padding: 1.5rem;
+}
+
+.filter-section {
+	margin-bottom: 1.5rem;
+}
+
+.filter-label {
+	display: block;
+	margin-bottom: 0.75rem;
+	font-weight: 600;
+	color: var(--text);
+}
+
+.filter-chips {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
 }
 
 .color-filters {
@@ -456,26 +397,12 @@ const getColorLabel = (color: string) => {
 	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.sort-select {
-	width: 100%;
-	padding: 0.75rem;
-	background: var(--bg-secondary);
-	border: 1px solid var(--border);
-	border-radius: 6px;
-	color: var(--text);
-	font-size: 0.875rem;
-	cursor: pointer;
-}
-
-.sort-select:focus {
-	outline: none;
-	border-color: var(--accent);
-}
-
 .filter-actions {
 	display: flex;
 	gap: 1rem;
-	margin-top: 2rem;
+	margin-top: 1.5rem;
+	padding-top: 1.5rem;
+	border-top: 1px solid var(--border);
 }
 
 .clear-filters-btn,
@@ -484,7 +411,6 @@ const getColorLabel = (color: string) => {
 	padding: 0.75rem;
 	border: none;
 	border-radius: 6px;
-	font-size: 0.875rem;
 	font-weight: 500;
 	cursor: pointer;
 	transition: all 0.2s ease;
@@ -511,13 +437,14 @@ const getColorLabel = (color: string) => {
 }
 
 .rotated {
-	transform: rotate(90deg);
+	transform: rotate(180deg);
 }
 
-@media (max-width: 640px) {
-	.filter-sidebar__menu {
+/* Адаптивность для мобильных устройств */
+@media (max-width: 768px) {
+	.dropdown-menu {
 		width: 100%;
-		max-width: none;
+		min-width: 300px;
 	}
 }
 </style>

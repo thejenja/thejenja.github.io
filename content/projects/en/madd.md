@@ -1,6 +1,6 @@
 ---
 title: "madd label"
-description: "landing page and CRM development"
+description: "Development of landing page and CRM"
 color: "#ff0f3e"
 icon: "I"
 featured: true
@@ -13,88 +13,31 @@ date: 2025-06-30
 gallery: ["/projects/madd/dashboard.png"]
 ---
 
-# MADD Label
+# MADD Label: Digital Ecosystem of Music Business
 
-Modern web platform for managing music releases, artists and analytics in the music industry.
+The music industry is a chaos of releases, rights, statistics, and endless files. **MADD Label** was created to organize this chaos. It is not just a website, but a powerful corporate-level CRM platform developed specifically for music labels and artists. The project covers the full life cycle of a musical work: from demo upload to streaming analytics and royalty distribution.
 
-## Project Description
+## Monolithic Power: Laravel and Vue
 
-MADD Label is a comprehensive platform developed for music labels and artists that provides tools for managing music releases, tracks, artists and analytics. The project demonstrates a modern approach to web application development using Laravel and Vue.js, creating a seamless user experience.
+To implement such a large-scale system, a proven and reliable stack was chosen. The backend is based on **Laravel 12**—a framework that is the de facto standard for complex web applications. This provided the project with a strict MVC structure, a powerful Eloquent ORM for working with complex data relationships (Artist → Album → Track → Link), and a high level of security.
 
-## Key Features
+The frontend part is implemented on **Vue.js 3** in conjunction with **Inertia.js**. This technology allowed creating the feel of a Single Page Application (SPA) without the need to build a separate API, while keeping all the benefits of classic server-side rendering. The user gets instant page transitions and a reactive interface, and the developer gets the convenience of maintaining a single monolith.
 
-- **Release management** - complete cycle of creating and publishing music albums
-- **Artist system** - artist profiles with detailed information
-- **MADD Links** - unique link system for content distribution
-- **Analytics** - detailed statistics on releases and tracks
-- **Audio streaming** - Range requests support for efficient loading
-- **OAuth integration** - authorization through social networks
-- **Real-time notifications** - instant alerts about events
+## Functional Core
 
-## Technologies
+The platform solves several key tasks:
 
-### Backend
+1.  **Release Management**: Artists and managers can upload tracks and high-quality covers, input metadata, and schedule release dates.
+2.  **MADD Links**: A proprietary smart-link system (analogous to Linktree, but tailored for music). A beautiful promo page with links to all streaming platforms is automatically generated for each release.
+3.  **Audio Streaming**: _Range requests_ support is implemented, allowing tracks to be listened to directly in the browser with seeking capability, without downloading the entire file.
+4.  **Analytics**: Interactive dashboards based on **Chart.js** visualize data on streams, clicks, and audience geography.
 
-- **Laravel 12** - modern PHP framework
-- **MySQL/PostgreSQL** - relational database
-- **Laravel Sanctum** - API authentication
-- **Laravel Jetstream** - ready-made authentication components
-- **Laravel Socialite** - OAuth integration
-- **Laravel Echo + Pusher** - real-time functionality
+## Security and Real-time
 
-### Frontend
+In a system storing intellectual property, security comes first. A Role-Based Access Control (RBAC) model is implemented, distinguishing rights of administrators, managers, and artists. Authentication is strengthened via **Laravel Sanctum** and OAuth integration (Socialite), allowing login via social networks.
 
-- **Vue.js 3** - progressive JavaScript framework
-- **Inertia.js** - bridge between Laravel and Vue
-- **Tailwind CSS** - utility-first CSS framework
-- **Vite** - modern module bundler
-- **Pinia** - state management for Vue
-- **Chart.js** - interactive charts and diagrams
+To provide instant feedback, Real-time technologies are introduced. The combination of **Laravel Echo + Pusher** allows sending notifications to users without reloading the page—whether it's a message about successful track moderation or new release statistics.
 
-### Additional Tools
+## Outcome
 
-- **SASS** - extended CSS
-- **Axios** - HTTP client
-- **Laravel Pail** - CLI tools
-- **Pest** - modern testing
-
-## Architecture
-
-The project is built on the principle of separation of responsibilities using modern patterns:
-
-### Backend Architecture
-
-- **MVC pattern** - clear separation of logic, presentation and data
-- **Eloquent ORM** - powerful database management system
-- **Resource Controllers** - RESTful API for all entities
-- **Middleware** - access control and validation
-- **Events & Listeners** - asynchronous event processing
-- **Jobs & Queues** - background tasks and queues
-
-### Frontend Architecture
-
-- **Component-based** - reusable Vue components
-- **Composables** - logic extracted into separate functions
-- **Stores (Pinia)** - centralized state management
-- **Layouts** - page templates
-- **Middleware** - client-side validation and navigation
-
-### Database
-
-- **Normalized structure** - optimal data organization
-- **Table relationships** - artist → release → track → madd_link
-- **JSON fields** - flexible metadata storage
-- **Migrations** - database schema versioning
-
-## Functionality
-
-### Artist Management
-
-- Creating and editing artist profiles
-- Uploading avatars and biographies
-- Managing social networks
-- Application system for new artists
-
-### Release Management
-
-- Creating music albums and singles
+MADD Label is an example of how a complex domain can be packaged into a clear and user-friendly interface. The project demonstrates the maturity of architectural decisions: from a normalized database to a component-based frontend. It is a tool that turns creativity into business, taking on all the routine and allowing musicians to focus on the main thing—music.

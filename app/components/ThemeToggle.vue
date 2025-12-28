@@ -1,9 +1,9 @@
 <template>
 	<button
-		@click="toggleTheme"
 		class="nav-link"
-		:title="$t('theme.' + colorMode.preference)"
 		aria-label="Toggle theme"
+		:title="$t('theme.' + colorMode.preference)"
+		@click="toggleTheme"
 	>
 		<Moon v-if="currentTheme === 'dark'" class="theme-icon" />
 		<Sun v-else class="theme-icon" />

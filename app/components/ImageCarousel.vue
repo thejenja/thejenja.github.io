@@ -1,17 +1,23 @@
 <template>
 	<div class="carousel">
-		<div class="track" ref="trackEl">
-			<div v-for="(img, idx) in normalizedImages" :key="idx" class="slide">
-				<img
+		<div ref="trackEl" class="track">
+			<div
+				v-for="(img, idx) in normalizedImages"
+				:key="idx"
+				class="slide"
+				@click="openLightbox(idx)"
+			>
+				<NuxtImg
 					:src="img.src"
 					:alt="img.alt || `image-${idx}`"
 					loading="lazy"
 					width="400"
 					height="320"
+					sizes="xs:100vw sm:10vw md:50vw lg:400px"
 				/>
 			</div>
 		</div>
-		<div class="dots" v-if="normalizedImages.length > 1">
+		<div v-if="normalizedImages.length > 1" class="dots">
 			<button
 				v-for="(_, i) in normalizedImages"
 				:key="i"
@@ -20,11 +26,19 @@
 				@click="scrollTo(i)"
 			/>
 		</div>
+
+		<Lightbox
+			v-model="lightboxOpen"
+			:images="images"
+			:start-index="lightboxIndex"
+			@close="lightboxOpen = false"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
+import Lightbox from "./Lightbox.vue";
 
 interface ImageItem {
 	src: string;
@@ -54,6 +68,15 @@ const scrollTo = (index: number) => {
 	const el = trackEl.value;
 	if (!el) return;
 	el.scrollTo({ left: el.clientWidth * index, behavior: "smooth" });
+};
+
+// Добавляем состояния и методы для Lightbox
+const lightboxOpen = ref(false);
+const lightboxIndex = ref(0);
+
+const openLightbox = (index: number) => {
+	lightboxIndex.value = index;
+	lightboxOpen.value = true;
 };
 
 onMounted(() => {
@@ -86,6 +109,7 @@ onUnmounted(() => {
 	border-radius: 10px;
 	border: 1px solid var(--border);
 	background: var(--bg-tertiary);
+	cursor: pointer;
 }
 
 .slide {
@@ -98,6 +122,11 @@ onUnmounted(() => {
 	height: 100%;
 	object-fit: cover;
 	display: block;
+	transition: transform 0.3s ease;
+}
+
+.slide:hover img {
+	transform: scale(1.02);
 }
 
 .dots {

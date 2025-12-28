@@ -1,6 +1,12 @@
 <template>
-	<div class="app" :class="{ dark: colorMode.value === 'dark' }">
-		<!-- Прелоадер -->
+	<!-- Добавляем класс 'full-width-page' если мы на странице проекта -->
+	<div
+		class="app"
+		:class="{
+			dark: colorMode.value === 'dark',
+			'full-width-app': isProjectPage,
+		}"
+	>
 		<Transition name="fade" appear>
 			<Preloader
 				v-if="isLoading"
@@ -10,27 +16,39 @@
 		</Transition>
 
 		<Navigation class="sidebar" />
-		<!-- Плавная анимация между страницами -->
-		<div class="container">
+
+		<!-- Также добавляем класс контейнеру, чтобы снять max-width -->
+		<div
+			class="container"
+			:class="{ 'full-width-container': isProjectPage }"
+			role="main"
+		>
 			<NuxtPage />
 		</div>
 
+		<!-- Footer можно скрыть или стилизовать иначе на этой странице, если нужно -->
 		<Footer />
 
-		<!-- Command Palette -->
 		<CommandPalette />
 	</div>
 </template>
 
 <script setup>
+import { computed } from "vue";
 const { t } = useI18n();
 const colorMode = useColorMode();
+const route = useRoute(); // Получаем текущий маршрут
 const { isLoading, loadingProgress, loadingText, simulateLoading } =
 	usePreloader();
 const { showPreloader: settingShowPreloader } = useAppSettings();
 const { transitionName, getTransitionForRoute } = usePageTransitions();
 
-// i18n SEO: canonical/hreflang + lang атрибут
+// Проверяем, находится ли пользователь на странице проекта
+// Обычно имя маршрута для [slug].vue это 'projects-slug' (или 'projects-slug___en' для i18n)
+const isProjectPage = computed(() => {
+	return route.name && route.name.toString().includes("projects-slug");
+});
+
 const i18nHead = useLocaleHead({
 	addDirAttribute: true,
 	identifierAttribute: "id",
@@ -48,7 +66,6 @@ useHead(() => ({
 	meta: [...(i18nHead.value.meta || [])],
 }));
 
-// Отслеживаем изменения маршрута для выбора подходящей анимации
 const router = useRouter();
 
 router.beforeEach((to, from) => {
@@ -56,7 +73,6 @@ router.beforeEach((to, from) => {
 	transitionName.value = `page-${transitionType}`;
 });
 
-// Симулируем загрузку приложения
 onMounted(() => {
 	if (settingShowPreloader.value) {
 		simulateLoading([
@@ -67,8 +83,7 @@ onMounted(() => {
 		]);
 	}
 
-	// Принудительный показ прелоадера
-	if (typeof document !== 'undefined') {
+	if (typeof document !== "undefined") {
 		document.addEventListener("app:show-preloader", () => {
 			simulateLoading([
 				{ text: t("preloader.steps.init"), duration: 200 },
@@ -81,7 +96,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-/* ===== Fade для прелоадера ===== */
 .fade-enter-active,
 .fade-leave-active {
 	transition: opacity 0.4s ease;

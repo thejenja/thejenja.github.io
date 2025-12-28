@@ -8,76 +8,108 @@
 			}"
 			@click="handleProjectClick"
 		>
-			<!-- Фон на всю ширину -->
-			<div class="project-background" :style="backgroundStyle">
-				<!-- Фоновое изображение (если есть) -->
+			<div
+				class="project-background"
+				:style="{
+					...backgroundStyle,
+					viewTransitionName: transitionName('bg'),
+				}"
+				:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
+			>
 				<div v-if="hasBackground" class="background-image-container">
-					<img
+					<NuxtImg
 						:src="backgroundImageUrl"
 						:alt="`${project.title} background`"
 						class="background-image"
+						:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
 						width="400"
 						height="300"
+						sizes="xs:100vw sm:100vw md:100vw lg:50vw xl:33vw"
+						loading="lazy"
 					/>
-					<div class="background-overlay"></div>
+					<div
+						class="background-overlay"
+						:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
+					/>
 				</div>
 
-				<!-- Градиентный фон (если нет изображения) -->
-				<div v-else class="gradient-background"></div>
+				<div v-else class="gradient-background" />
 
-				<!-- Контент проекта -->
 				<div class="project-content">
-					<!-- Логотип или иконка -->
-					<div class="project-logo">
-						<img
-							v-if="showLogo && hasLogo"
-							:src="projectAssets.logo || undefined"
+					<!-- Логотип / Иконка / Название -->
+					<div
+						class="project-logo"
+						:style="{ viewTransitionName: transitionName('logo') }"
+					>
+						<!-- 1. Пытаемся показать картинку (если включено, есть путь и не было ошибки) -->
+						<NuxtImg
+							v-if="showLogo && finalLogoPath && !logoLoadFailed"
+							:src="finalLogoPath"
 							:alt="`${project.title} logo`"
 							class="project-logo-image"
 							width="200"
 							height="120"
+							sizes="xs:50vw sm:40vw md:30vw lg:20vw xl:15vw"
+							loading="lazy"
+							@error="handleLogoError"
 						/>
-						<div v-else class="project-icon">
-							{{ project.meta?.icon || "📁" }}
+
+						<!-- 2. Fallback: Иконка или Текст (Название) -->
+						<div v-else class="project-fallback">
+							<!-- Если есть иконка в мета -->
+							<div v-if="project.meta?.icon" class="project-icon">
+								{{ project.meta.icon }}
+							</div>
+							<!-- Иначе показываем название как текстовый логотип -->
+							<div v-else class="project-title-fallback">
+								{{ project.title }}
+							</div>
 						</div>
 					</div>
 
-					<!-- Значки состояния и типа проекта (только при !compact) -->
+					<!-- Бейджи -->
 					<div class="project-meta-overlay">
-						<!-- Тип проекта -->
-						<div
-							v-if="project.meta?.type"
-							class="meta-badge meta-type"
-							@mouseenter="showMetaTooltip('type', project.meta.type!, $event)"
-							@mouseleave="hideMetaTooltip('type')"
-						>
-							<DynamicIcon :icon="getTypeIcon(project.meta.type!)" size="16" />
+						<div v-if="project.meta?.type" class="meta-badge">
+							<div class="meta-badge__icon">
+								<DynamicIcon
+									:icon="getTypeIcon(project.meta.type!)"
+									size="16"
+								/>
+							</div>
+							<div class="meta-badge__text-wrapper">
+								<span class="meta-badge__text">
+									{{ t(`projectTypes.${project.meta.type}`) }}
+								</span>
+							</div>
 						</div>
 
-						<!-- Статус проекта -->
-						<div
-							v-if="project.meta?.stage"
-							class="meta-badge meta-stage"
-							@mouseenter="
-								showMetaTooltip('stage', project.meta.stage!, $event)
-							"
-							@mouseleave="hideMetaTooltip('stage')"
-						>
-							<DynamicIcon
-								:icon="getStageIcon(project.meta.stage!)"
-								size="16"
-							/>
+						<div v-if="project.meta?.stage" class="meta-badge">
+							<div class="meta-badge__icon">
+								<DynamicIcon
+									:icon="getStageIcon(project.meta.stage!)"
+									size="16"
+								/>
+							</div>
+							<div class="meta-badge__text-wrapper">
+								<span class="meta-badge__text">
+									{{ t(`projectStages.${project.meta.stage}`) }}
+								</span>
+							</div>
 						</div>
 					</div>
 
-					<!-- Информация о проекте -->
+					<!-- Информация (Текст и теги) -->
 					<div class="project-info">
-						<h3 class="project-title">{{ project.title }}</h3>
+						<h3
+							class="project-title"
+							:style="{ viewTransitionName: transitionName('title') }"
+						>
+							{{ project.title }}
+						</h3>
 						<p v-if="showDescription" class="project-description">
 							{{ project.description }}
 						</p>
 
-						<!-- Теги проекта -->
 						<div
 							v-if="showTags && project.meta?.technologies"
 							class="project-tags"
@@ -99,21 +131,12 @@
 				</div>
 			</div>
 		</NuxtLinkLocale>
-
-		<!-- ProjectPopover больше не используется, так как открываем отдельную страницу -->
-		<!-- DEBUG: shouldShowPopover = {{ shouldShowPopover }} -->
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted } from "vue";
-import type { Instance } from "tippy.js";
-import tippy, { createSingleton } from "tippy.js";
-import "tippy.js/dist/tippy.css";
-import "tippy.js/themes/light.css";
-import "tippy.js/themes/light-border.css";
+import { computed, ref } from "vue";
 import TechTag from "./TechTag.vue";
-// ProjectPopover больше не используется, так как открываем отдельную страницу
 import DynamicIcon from "./DynamicIcon.vue";
 
 interface ProjectMeta {
@@ -121,6 +144,7 @@ interface ProjectMeta {
 	color?: string;
 	background?: string;
 	backgroundImage?: string;
+	logo?: string; // Разрешаем явное указание пути к лого в frontmatter
 	technologies?: string[];
 	tags?: Array<{
 		name: string;
@@ -143,6 +167,7 @@ interface ProjectMeta {
 	icon?: string;
 	behance?: string;
 	dribbble?: string;
+	backgroundOpacity?: "default" | "opaque";
 }
 
 interface ProjectContent {
@@ -180,62 +205,30 @@ const emit = defineEmits<{
 	"project-click": [project: ProjectContent];
 }>();
 
-// Тип ассетов проекта
-interface ProjectAssets {
-	logo?: string;
-	background?: string;
-	preview?: string;
-	gallery: string[];
-}
+// --- LOGO LOGIC ---
+const logoLoadFailed = ref(false);
 
-// Получаем ресурсы проекта
-const getProjectAssets = (slug: string): ProjectAssets => {
-	if (!slug) {
-		return {
-			logo: undefined,
-			background: undefined,
-			preview: undefined,
-			gallery: [],
-		};
-	}
-
-	return {
-		logo: `/projects/${slug}/logo.svg`,
-		background: `/projects/${slug}/background.webp`,
-		preview: `/projects/${slug}/preview.webp`,
-		gallery: [],
-	};
+const handleLogoError = () => {
+	logoLoadFailed.value = true;
 };
 
-const projectAssets = computed<ProjectAssets>(() => {
-	const slug = props.project?.meta?.slug;
-	return slug
-		? getProjectAssets(slug)
-		: {
-				logo: undefined,
-				background: undefined,
-				preview: undefined,
-				gallery: [],
-			};
+// Вычисляем путь к лого: либо из meta.logo, либо стандартный
+const finalLogoPath = computed(() => {
+	const slug = props.project.meta?.slug;
+	if (props.project.meta?.logo) return props.project.meta.logo;
+	if (slug) return `/projects/${slug}/logo.svg`;
+	return undefined;
 });
 
-// Определяем, есть ли логотип
-const hasLogo = computed<boolean>(() => {
-	return Boolean(projectAssets.value.logo);
-});
-
-// URL фонового изображения из метаданных или ассетов
+// --- ASSETS & BG ---
 const backgroundImageUrl = computed(() => {
-	// Используем только явно указанный backgroundImage в метаданных
 	return props.project?.meta?.backgroundImage || undefined;
 });
 
-// Определяем, есть ли фон (изображение)
 const hasBackground = computed(() => {
 	return Boolean(backgroundImageUrl.value);
 });
 
-// CSS для фона: поддержка произвольного background (градиенты/мульти-слои)
 const backgroundStyle = computed(() => {
 	const meta = props.project?.meta || {};
 	const backgroundCss =
@@ -246,10 +239,6 @@ const backgroundStyle = computed(() => {
 	return { background: (meta.color as string) || "#4b5563" };
 });
 
-// Singleton для мета-информации
-let singletonInstance: Instance | null = null;
-
-// Получаем иконку типа проекта
 const getTypeIcon = (type: string) => {
 	const iconMap: Record<string, string> = {
 		"web-app": "lucide:globe",
@@ -263,7 +252,6 @@ const getTypeIcon = (type: string) => {
 	return iconMap[type] || "lucide:code";
 };
 
-// Получаем иконку статуса проекта
 const getStageIcon = (stage: string) => {
 	const iconMap: Record<string, string> = {
 		planning: "lucide:clock",
@@ -275,37 +263,30 @@ const getStageIcon = (stage: string) => {
 	return iconMap[stage] || "lucide:code";
 };
 
-
-// Получаем ссылку проекта
 const getProjectLink = () => {
-	// Определяем slug проекта
-	const slug = props.project.meta?.slug || (props.project._path ? props.project._path.split('/').pop() : '');
-	
-	// Если есть slug, возвращаем ссылку на страницу проекта
+	const slug =
+		props.project.meta?.slug ||
+		(props.project._path ? props.project._path.split("/").pop() : "");
+
 	if (slug) {
-	return `/projects/${slug}`;
+		return `/projects/${slug}`;
 	}
-	
-	// Если slug нет, возвращаем пустую строку или '#' для предотвращения перехода по ссылке
-	return '#';
+	return "#";
 };
 
-// Обработчик клика по проекту
 const handleProjectClick = (event: MouseEvent) => {
-	// Если standalone - эмитим событие для TimelineProjects
 	if (props.standalone) {
-	emit("project-click", props.project);
-	event.preventDefault(); // Предотвращаем переход по ссылке
-	return;
+		emit("project-click", props.project);
+		event.preventDefault();
+		return;
 	}
 
-	// Определяем slug проекта
-	const slug = props.project.meta?.slug || (props.project._path ? props.project._path.split('/').pop() : '');
-	
-	// Если slug нет, проверяем тип проекта и открываем соответствующую ссылку
+	const slug =
+		props.project.meta?.slug ||
+		(props.project._path ? props.project._path.split("/").pop() : "");
+
 	if (!slug) {
-	event.preventDefault(); // Предотвращаем переход по NuxtLink
-		
+		event.preventDefault();
 		if (props.project.meta?.type === "design") {
 			if (props.project.meta?.behance) {
 				window.open(props.project.meta.behance, "_blank");
@@ -316,103 +297,26 @@ const handleProjectClick = (event: MouseEvent) => {
 				return;
 			}
 		}
-		
-		// Для остальных проектов без slug - открываем демо или GitHub, если доступно
 		if (props.project.meta?.demo) {
 			window.open(props.project.meta.demo, "_blank");
 		} else if (props.project.meta?.github) {
 			window.open(props.project.meta.github, "_blank");
 		}
 	}
-	// Если slug есть, то NuxtLink сам выполнит переход, и нам не нужно ничего делать
 };
 
-// Показываем tooltip для мета-информации
-const { t } = useNuxtApp().$i18n || { t: (key) => key };
-
-// Массив для хранения всех экземпляров tippy
-// eslint-disable-next-line prefer-const
-let tippyInstances: Instance[] = [];
-
-const showMetaTooltip = (
-	type: "type" | "stage",
-	value: string,
-	event: Event
-) => {
-	const target = event.target as HTMLElement;
-
-	// Определяем текст для tooltip
-	let text = value;
-	if (type === "type") {
-		text = t(`projectTypes.${value}`, value);
-	} else if (type === "stage") {
-		text = t(`projectStages.${value}`, value);
-	}
-
-	// Проверяем, не существует ли уже tippy для этого элемента
-	const existingInstance = tippyInstances.find(
-		(instance) => instance.reference === target
-	);
-	if (existingInstance) {
-		// Обновляем содержимое существующего tooltip
-		existingInstance.setContent(text);
-		return;
-	}
-
-	// Создаем новый экземпляр tippy
-	const tippyInstance = tippy(target, {
-		content: text,
-		theme: "light", // Используем светлую тему, которую можно кастомизировать
-		placement: "top",
-		arrow: true,
-		animation: "shift-away",
-		duration: [200, 200],
-		delay: [300, 0], // Задержка показа 300ms, скрытие без задержки
-		appendTo: () => document.body,
-		zIndex: 9999,
-		allowHTML: false,
-		maxWidth: 240,
-		offset: [0, 8], // 8px отступ от элемента
-		trigger: "mouseenter focus",
-		hideOnClick: false,
-		interactive: false,
-	});
-
-	// Добавляем экземпляр в массив
-	tippyInstances.push(tippyInstance);
-
-	// Обновляем singleton для плавных переходов между tooltip'ами
-	if (singletonInstance) {
-		singletonInstance.destroy();
-	}
-	singletonInstance = createSingleton(tippyInstances, {
-		delay: [300, 0],
-		moveTransition: "transform 0.2s ease-out", // для плавного перехода
-		overrides: ["placement", "offset", "theme"],
-	});
-};
-
-// Скрываем tooltip
-const hideMetaTooltip = (_type: "type" | "stage") => {
-	// При использовании singleton, скрытие происходит автоматически при уходе с элемента
-	// Можно оставить пустой функцией или реализовать по необходимости
-};
-
-// Lifecycle хуки для tooltip
-onMounted(() => {
-	// Ничего не нужно делать при монтировании
+const backgroundOpacity = computed(() => {
+	return props.project?.meta?.backgroundOpacity || "default";
 });
 
-onUnmounted(() => {
-	// Уничтожаем singleton и все экземпляры tippy при размонтировании компонента
-	if (singletonInstance) {
-		singletonInstance.destroy();
-	}
-	// Уничтожаем все экземпляры tippy
-	tippyInstances.forEach((instance) => instance.destroy());
-	// Очищаем массив
-	tippyInstances = [];
-});
+const { t } = useNuxtApp().$i18n || { t: (key: string) => key };
+
+const transitionName = (element: string) => {
+	const slug = props.project.meta?.slug;
+	if (!slug) return undefined;
+	const safeSlug = slug.replace(/[^a-z0-9-_]/gi, "");
+	return `project-${element}-${safeSlug}`;
+};
 </script>
 
 <style scoped>
@@ -433,11 +337,10 @@ onUnmounted(() => {
 	flex-direction: column;
 	position: relative;
 	aspect-ratio: 16/9;
-	text-decoration: none; /* Убираем подчеркивание ссылки */
+	text-decoration: none;
 }
 
 .project-card:hover {
-	transform: translateY(-4px);
 	box-shadow:
 		0 20px 40px rgba(0, 0, 0, 0.15),
 		0 8px 16px rgba(0, 0, 0, 0.1);
@@ -448,11 +351,10 @@ onUnmounted(() => {
 	transform: translateY(-2px);
 }
 
-/* Стили для состояния ссылки */
 .project-card:link,
 .project-card:visited,
 .project-card:active {
-	color: inherit; /* Наследуем цвет текста */
+	color: inherit;
 }
 
 .project-card:focus {
@@ -461,15 +363,16 @@ onUnmounted(() => {
 }
 
 .project-card--compact {
-	aspect-ratio: 4/3;
+	aspect-ratio: 3/2;
 }
 
-/* Фон на всю ширину */
+/* Фон */
 .project-background {
 	position: relative;
 	width: 100%;
 	height: 100%;
 	overflow: hidden;
+	contain: paint;
 }
 
 .background-image-container {
@@ -486,6 +389,11 @@ onUnmounted(() => {
 	height: 100%;
 	object-fit: cover;
 	opacity: 0.8;
+	transition: opacity 0.3s ease;
+}
+
+.background-image.background-opaque {
+	opacity: 1;
 }
 
 .background-overlay {
@@ -496,84 +404,133 @@ onUnmounted(() => {
 	bottom: 0;
 	background: rgba(0, 0, 0, 0.5);
 	z-index: 1;
+	transition: background 0.3s ease;
 }
 
-/* Контент проекта */
+.project-card:hover .background-overlay {
+	background: rgba(0, 0, 0, 0.7);
+}
+
+.background-overlay.background-opaque {
+	background: rgba(0, 0, 0, 0);
+}
+
+/* Контент */
 .project-content {
 	position: relative;
 	z-index: 2;
 	height: 100%;
 	display: flex;
 	flex-direction: column;
-	justify-content: space-between;
-	padding: 2rem;
 	color: white;
-}
-
-.project-card--compact .project-info {
-	position: absolute;
-	bottom: 1rem;
-	opacity: 0;
-	transition: all 0.3s ease;
-}
-
-.project-card--compact:hover .project-info {
-	height: auto;
-	opacity: 1;
+	padding: 2rem;
 }
 
 .project-card--compact .project-content {
 	padding: 1rem;
 }
 
-/* Логотип */
+/* --- ЛОГОТИП / FALLBACK --- */
 .project-logo {
 	display: flex;
 	align-items: center;
 	justify-content: center;
 	margin: auto 0;
-	transition: all 0.3s ease;
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	opacity: 1;
+	transform: translateY(0);
+	width: 100%; /* Гарантируем центрирование */
+}
+
+/* При наведении скрываем лого/иконку */
+.project-card:hover .project-logo {
+	opacity: 0;
+	transform: translateY(-20px) scale(0.95);
+	pointer-events: none;
 }
 
 .project-logo-image {
-	max-width: 200px;
-	max-height: 120px;
+	max-width: 240px;
+	min-height: 80px;
+	max-height: 140px;
 	width: auto;
 	height: auto;
 	transition: transform 0.3s ease;
-	margin: 0 auto;
+	object-fit: contain;
 }
 
-.project-logo-image:hover {
-	transform: scale(1.05);
+/* Стили для fallback контейнера */
+.project-fallback {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	text-align: center;
 }
 
 .project-icon {
-	font-size: 3rem;
-	color: white;
+	font-size: 4rem;
+	line-height: 1;
+	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.project-title-fallback {
+	font-size: 2.5rem;
+	font-weight: 800;
+	line-height: 1.1;
+	text-transform: uppercase;
+	letter-spacing: -0.02em;
+	text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+	max-width: 90%;
+	word-wrap: break-word;
 }
 
 .project-card--compact .project-icon {
-	font-size: 2rem;
+	font-size: 2.5rem;
 }
 
-/* Информация о проекте */
+.project-card--compact .project-title-fallback {
+	font-size: 1.5rem;
+}
+
+/* --- ИНФОРМАЦИЯ --- */
 .project-info {
 	display: flex;
 	flex-direction: column;
 	justify-content: flex-end;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	width: 100%;
+	padding: 2rem;
+	opacity: 0;
+	transform: translateY(30px);
+	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+	pointer-events: none;
+}
+
+.project-card:hover .project-info {
+	opacity: 1;
+	transform: translateY(0);
+	pointer-events: auto;
+}
+
+.project-card--compact .project-info {
+	padding: 1rem;
 }
 
 .project-title {
-	font-size: 1.5rem;
-	font-weight: 700;
+	font-size: 4rem;
+	font-weight: 500;
 	margin: 0 0 0.75rem 0;
 	color: white;
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
 	line-height: 1.3;
+	width: fit-content;
 }
 
 .project-card--compact .project-title {
-	font-size: 1.25rem;
+	font-size: 2.5rem;
 	margin-bottom: 0.5rem;
 }
 
@@ -582,16 +539,19 @@ onUnmounted(() => {
 	font-size: 0.875rem;
 	line-height: 1.5;
 	margin-bottom: 1rem;
-	flex: 1;
-	text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7);
+	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+	display: -webkit-box;
+	-webkit-line-clamp: 3;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .project-card--compact .project-description {
 	font-size: 0.8rem;
 	margin-bottom: 0.75rem;
+	-webkit-line-clamp: 2;
 }
 
-/* Теги */
 .project-tags {
 	display: flex;
 	flex-wrap: wrap;
@@ -619,44 +579,6 @@ onUnmounted(() => {
 	border-color: rgba(255, 255, 255, 0.2);
 }
 
-.project-tag:hover {
-	background: rgba(255, 255, 255, 0.3);
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-/* Адаптивность */
-@media (max-width: 768px) {
-	.project-card {
-		aspect-ratio: 4/3;
-	}
-
-	.project-content {
-		padding: 1.5rem;
-	}
-	.project-icon {
-		font-size: 2.5rem;
-	}
-
-	.project-title {
-		font-size: 1.25rem;
-	}
-}
-
-@media (max-width: 480px) {
-	.project-content {
-		padding: 1rem;
-	}
-	.project-icon {
-		font-size: 2rem;
-	}
-
-	.project-title {
-		font-size: 1.125rem;
-	}
-}
-
-/* Мета-информация (правый верхний угол) */
 .project-meta-overlay {
 	position: absolute;
 	top: 1rem;
@@ -665,34 +587,117 @@ onUnmounted(() => {
 	flex-direction: column;
 	gap: 0.5rem;
 	z-index: 15;
+	align-items: flex-end;
 }
 
 .meta-badge {
-	width: 32px;
-	height: 32px;
-	background: var(--bg);
-	border-radius: 16px;
 	display: flex;
 	align-items: center;
-	justify-content: center;
-	color: var(--text);
-	transition: all 0.3s ease;
+	background: rgba(0, 0, 0, 0.4);
+	backdrop-filter: blur(8px);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	border-radius: 99px;
+	padding: 4px;
+	color: white;
+	transition:
+		background 0.3s ease,
+		border-color 0.3s ease;
+	overflow: hidden;
+	max-width: 32px;
 }
 
 .meta-badge:hover {
-	background: var(--bg-tertiary);
-	transform: scale(1.1);
+	background: rgba(0, 0, 0, 0.7);
+	border-color: rgba(255, 255, 255, 0.3);
+	max-width: 200px;
 }
 
-/* Уважение к настройкам пользователя */
+.meta-badge__icon {
+	width: 24px;
+	height: 24px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	flex-shrink: 0;
+}
+
+.meta-badge__text-wrapper {
+	display: grid;
+	grid-template-columns: 0fr;
+	transition: grid-template-columns 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.meta-badge:hover .meta-badge__text-wrapper {
+	grid-template-columns: 1fr;
+}
+
+.meta-badge__text {
+	overflow: hidden;
+	white-space: nowrap;
+	font-size: 0.75rem;
+	font-weight: 500;
+	opacity: 0;
+	transform: translateX(10px);
+	transition:
+		opacity 0.3s ease,
+		transform 0.3s ease,
+		margin 0.3s ease;
+	min-height: 0;
+}
+
+.meta-badge:hover .meta-badge__text {
+	opacity: 1;
+	transform: translateX(0);
+	margin-left: 6px;
+	margin-right: 8px;
+}
+
+@media (max-width: 768px) {
+	.project-card {
+		aspect-ratio: 3/2;
+	}
+	.project-content {
+		padding: 1.5rem;
+	}
+	.project-info {
+		padding: 1.5rem;
+	}
+	.project-icon {
+		font-size: 3rem;
+	}
+	.project-title {
+		font-size: 1.5rem;
+	}
+}
+
+@media (max-width: 480px) {
+	.project-content {
+		padding: 1rem;
+	}
+	.project-info {
+		padding: 1rem;
+	}
+	.project-icon {
+		font-size: 2.5rem;
+	}
+	.project-title-fallback {
+		font-size: 1.25rem;
+	}
+	.project-title {
+		font-size: 1.25rem;
+	}
+}
+
 @media (prefers-reduced-motion: reduce) {
 	.project-card,
-	.project-logo-image {
+	.project-logo,
+	.project-info {
 		transition: none;
 	}
-
-	.project-card:hover {
+	.project-card:hover .project-logo,
+	.project-card:hover .project-info {
 		transform: none;
+		opacity: 1;
 	}
 }
 </style>

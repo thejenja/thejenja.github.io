@@ -6,13 +6,14 @@
 		:class="iconClass"
 		v-bind="$attrs"
 	/>
-	<img
-		v-else-if="isSvgIcon && props.icon"
+	<NuxtImg
+	v-else-if="isSvgIcon && props.icon"
 		:src="svgSrc"
 		:width="size"
-		:height="size"
+	:height="size"
 		:alt="fallbackText"
 		class="svg-icon"
+		loading="lazy"
 	/>
 	<div
 		v-else-if="!props.icon"
@@ -27,7 +28,7 @@
 import { ref, onMounted, watch, type Component, computed, markRaw } from "vue";
 
 interface Props {
-	icon: string; // 'simple-icons:icon-name', 'lucide:icon-name', '/path/to/icon.svg', или просто 'icon-name'
+	icon?: string; // 'simple-icons:icon-name', 'lucide:icon-name', '/path/to/icon.svg', или просто 'icon-name'
 	size?: number | string;
 	fallbackText?: string;
 }

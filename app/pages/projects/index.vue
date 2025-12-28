@@ -2,7 +2,7 @@
 import { computed, ref, onMounted, onUnmounted } from "vue";
 // navigateTo больше не используется, так как TimelineProjects сам переходит на страницу проекта
 import TimelineProjects from "~/components/TimelineProjects.vue";
-import FilterSidebar from "~/components/FilterSidebar.vue";
+import DropdownFilters from "~/components/DropdownFilters.vue";
 import { useI18n } from "vue-i18n";
 import AnimatedSection from "~/components/AnimatedSection.vue";
 import { useProjects, type ProjectContent } from "~/composables/useProjects";
@@ -172,11 +172,6 @@ const filtered = computed<ProjectContent[]>(() => {
 	return list;
 });
 
-const applyFilters = () => {
-	// Фильтры применяются автоматически через computed свойство
-	// console.log("Фильтры применены");
-};
-
 // SEO для страницы проектов
 const seo = useSEO();
 useHead(() => ({
@@ -194,37 +189,31 @@ useHead(() => ({
 
 <template>
 	<div class="projects-page">
-		<!-- Заголовок страницы -->
-
 		<div class="page-header">
 			<div class="header-content">
 				<h1 class="page-title">{{ $t("projects.title") }}</h1>
 				<p class="page-description">{{ $t("projects.description") }}</p>
 			</div>
-
-			<div class="controls">
-				<!-- Фильтры -->
-				<FilterSidebar
-					v-model:selected-techs="selectedTechs"
-					v-model:selected-types="selectedTypes"
-					v-model:selected-stages="selectedStages"
-					v-model:selected-project-colors="selectedProjectColors"
-					:all-techs="allTechs"
-					:all-types="allTypes"
-					:all-stages="allStages"
-					:all-project-colors="allProjectColors"
-					@apply="applyFilters"
-				/>
-			</div>
 		</div>
 
-		<AnimatedSection animation-type="fade" :delay="1">
-			<TimelineProjects :projects="filtered || []" />
+		<div class="filters-container">
+			<DropdownFilters
+				v-model:selected-techs="selectedTechs"
+				v-model:selected-types="selectedTypes"
+				v-model:selected-stages="selectedStages"
+				v-model:selected-project-colors="selectedProjectColors"
+				:all-techs="allTechs"
+				:all-types="allTypes"
+				:all-stages="allStages"
+				:all-project-colors="allProjectColors"
+				@apply="applyFilters"
+			/>
+		</div>
 
-			<!-- Сообщение о загрузке -->
-			<div v-if="pending" class="loading-message">
-				<p>{{ $t("projects.loading") }}</p>
-			</div>
+		<AnimatedSection animation-type="scale" :delay="600">
+			<AsyncWrapper :threshold="0.2" skeleton-variant="project">
+				<TimelineProjects :projects="filtered || []" />
+			</AsyncWrapper>
 		</AnimatedSection>
 	</div>
 </template>
@@ -238,6 +227,9 @@ useHead(() => ({
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 1rem;
+	max-width: 1200px;
+	margin-left: auto;
+	margin-right: auto;
 }
 
 .header-content {
@@ -294,6 +286,13 @@ useHead(() => ({
 	to {
 		transform: rotate(360deg);
 	}
+}
+
+.filters-container {
+	margin: 1rem auto;
+	display: flex;
+	justify-content: center;
+	width: 100%;
 }
 
 .controls {
@@ -392,5 +391,11 @@ useHead(() => ({
 .loading-message p {
 	font-size: 1.125rem;
 	margin: 0;
+}
+
+@media (max-width: 768px) {
+	.header-content {
+		text-align: center;
+	}
 }
 </style>

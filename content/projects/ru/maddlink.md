@@ -10,6 +10,5 @@ type: "design"
 dribbble: "https://dribbble.com/shots/26291979-madd-link-Minimal-Music-Link-Page-Concept"
 date: 2025-07-18
 stage: "completed"
-technologies:
-  ["figma", "simple-icons"]
+technologies: ["figma", "simple-icons"]
 ---

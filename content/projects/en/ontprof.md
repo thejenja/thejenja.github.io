@@ -18,87 +18,28 @@ gallery:
   ]
 ---
 
-# ONT.Prof
+# ONT.Prof: Career Navigator of the Future
 
-Modern career guidance platform combining testing, AI assistant and mentoring for professional development.
+Choosing a profession is one of the most difficult decisions in life. The project **"ONT.Prof"** aims to turn this stressful process into an exciting and conscious journey. It is a large-scale educational platform that combines classic career guidance methods with advanced artificial intelligence technologies and gamification. We created an ecosystem where the user doesn't just take tests but builds their development trajectory with the support of AI and real mentors.
 
-## Project Description
+## Intelligence and Technologies
 
-"ONT.Prof" is a comprehensive career guidance platform created to help people choose and develop their careers. The project combines modern web technologies, artificial intelligence and gamification, creating a unique experience for users of all ages.
+The core of the system became **Laravel 12** in conjunction with **Vue 3** and **Inertia.js**. This "gold standard" of modern development allowed building a reliable monolithic application. But the real magic happens in the integration with AI.
 
-The platform solves a key problem of our time - the complexity of choosing a professional path in a rapidly changing world. It offers not just tests, but an entire ecosystem for development: from primary diagnosis to gaining practical skills under the guidance of experienced mentors.
+We used the **OpenRouter API** to create a smart assistant. Unlike ordinary chatbots, our AI analyzes context: results of tests passed by the user, their interests, and previous answers. This allows giving personalized recommendations that are truly relevant to a specific person, rather than being a set of generic phrases.
 
-## Key Features
+To ensure performance under high loads (for example, during mass testing), **Redis** is used. It takes on caching and task queue management, guaranteeing that the interface remains responsive even when the server processes complex requests to neural networks.
 
-- **AI assistant** - intelligent chatbot for consultations
-- **Testing system** - adaptive tests in various areas
-- **Mentoring** - connection with experts in chosen field
-- **Gamification** - achievement system, levels and progress
-- **Personalization** - individual recommendations based on results
-- **Mobile responsiveness** - works on all devices
+## Gamification and UX
 
-## Technologies
+Learning and self-analysis can be boring. To hold user attention, we implemented a powerful gamification system. Progress is visualized through a system of levels and achievements. For completing stages, users receive rewards, which stimulates them to move further.
 
-### Backend
+The visual part of the interface is enlivened using **GSAP** (GreenSock Animation Platform). Smooth transitions, point scoring animation, interactive charts—all this makes working with the platform emotionally pleasant. We moved away from a dry academic style to a modern, bright design that speaks the same language as the young audience.
 
-- **Laravel 12** - modern PHP framework
-- **MySQL** - reliable relational database
-- **Redis** - caching and queues
-- **OpenRouter API** - integration with AI models
+## Mentorship Ecosystem
 
-### Frontend
+Technologies are good, but human experience is irreplaceable. The platform includes functionality for mentors. Experts can create profiles, manage session schedules, and communicate with students. A complex role model and administrative panel for content moderation and methodology effectiveness analysis are implemented.
 
-- **Vue 3** - progressive JavaScript framework
-- **Inertia.js** - bridge between Laravel and Vue
-- **GSAP** - advanced animations
-- **Vite** - fast module bundler
+## Outcome
 
-### Additional Technologies
-
-- **Laravel Breeze** - authentication and authorization
-- **Laravel Sanctum** - API tokens
-- **Pest** - modern testing
-- **Sass** - CSS preprocessor
-
-## Architecture
-
-The project is built on monolithic architecture principles with clear layer separation:
-
-### Application Structure
-
-```
-app/
-├── Http/Controllers/     # Controllers for request processing
-│   ├── Admin/           # Administrative panel
-│   ├── App/             # User area
-│   └── Landing/         # Landing and public pages
-├── Models/              # Eloquent models for database work
-├── Services/            # Business logic and external APIs
-├── Notifications/       # Notification system
-└── Policies/            # Access and authorization policies
-```
-
-### Database
-
-- **Normalized structure** with foreign keys
-- **Migrations** for schema versioning
-- **Seeders** for test data
-- **Factories** for generating test data
-
-### API and Integrations
-
-- **RESTful API** for external integrations
-- **OpenRouter API** for AI functions
-- **Email notifications** via SMTP
-- **Queues** for asynchronous tasks
-
-## Functionality
-
-### For Users
-
-- **Profile and progress** - development tracking
-- **Testing** - taking tests in various areas
-- **AI chat** - consultations with artificial intelligence
-- **Mentors** - finding and connecting with experts
-- **Achievements** - gamification and motivation system
-- **Reviews** - service quality assessment
+"ONT.Prof" is a project with a social mission, packaged in a modern technological shell. It demonstrates how complex backend processes, artificial intelligence, and thoughtful UX can work together, helping people find their calling. It is a platform that grows with the user, adapting to their needs and goals.

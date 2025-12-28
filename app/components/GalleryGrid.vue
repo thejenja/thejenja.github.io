@@ -1,19 +1,33 @@
 <template>
 	<div class="gallery-grid">
-		<div v-for="(img, idx) in normalizedImages" :key="idx" class="gallery-item">
-			<img
+		<div
+			v-for="(img, idx) in normalizedImages"
+			:key="idx"
+			class="gallery-item"
+			@click="openLightbox(idx)"
+		>
+			<NuxtImg
 				:src="img.src"
 				:alt="img.alt || `image-${idx}`"
 				loading="lazy"
 				width="140"
 				height="140"
+				sizes="xs:140px sm:140px md:140px lg:140px"
 			/>
 		</div>
+		
+		<Lightbox
+			v-model="lightboxOpen"
+			:images="images"
+			:start-index="lightboxIndex"
+			@close="lightboxOpen = false"
+		/>
 	</div>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import Lightbox from "./Lightbox.vue";
 
 interface ImageItem {
 	src: string;
@@ -28,6 +42,14 @@ const normalizedImages = computed<ImageItem[]>(() => {
 		return it as ImageItem;
 	});
 });
+
+const lightboxOpen = ref(false);
+const lightboxIndex = ref(0);
+
+const openLightbox = (index: number) => {
+	lightboxIndex.value = index;
+	lightboxOpen.value = true;
+};
 </script>
 
 <style scoped>
@@ -43,6 +65,7 @@ const normalizedImages = computed<ImageItem[]>(() => {
 	border-radius: 8px;
 	background: var(--bg-tertiary);
 	border: 1px solid var(--border);
+	cursor: pointer;
 }
 
 .gallery-item img {
@@ -55,5 +78,23 @@ const normalizedImages = computed<ImageItem[]>(() => {
 
 .gallery-item:hover img {
 	transform: scale(1.03);
+}
+
+/* Добавляем эффект при наведении для индикации кликабельности */
+.gallery-item::after {
+	content: "";
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	border-radius: 8px;
+	opacity: 0;
+	transition: opacity 0.3s ease;
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.gallery-item:hover::after {
+	opacity: 1;
 }
 </style>

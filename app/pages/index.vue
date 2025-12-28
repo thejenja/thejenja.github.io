@@ -14,7 +14,11 @@
 
 		<AnimatedSection animation-type="scale" :delay="600">
 			<AsyncWrapper :threshold="0.2" skeleton-variant="project">
-				<TimelineProjects :projects="projects" :compact="true" :limit="3" />
+				<TimelineProjects
+					:projects="projects"
+					:compact="true"
+					view-mode="scroll"
+				/>
 			</AsyncWrapper>
 		</AnimatedSection>
 

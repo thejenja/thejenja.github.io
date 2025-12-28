@@ -1,6 +1,6 @@
 export default defineNuxtPlugin(() => {
 	// Автоматическая анимация всех mark элементов при загрузке страницы
-	if (process.client) {
+	if (import.meta.client) {
 		// Ждём полной загрузки DOM
 		const animateMarks = () => {
 			// Небольшая задержка для полной загрузки контента

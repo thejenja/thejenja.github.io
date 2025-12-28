@@ -13,24 +13,14 @@ export default defineNuxtConfig({
 		"@nuxtjs/sitemap",
 		"@nuxtjs/robots",
 		"nuxt-og-image",
+		"nuxt-vitalizer",
 	],
 
 	fonts: {
-		families: [
-			{
-				name: 'Onest',
-				local: '~/assets/fonts/Onest[wght].woff2',
-			},
-		],
-		sources: {
-			// Отключаем все внешние источники шрифтов
-			google: { enabled: false },
-			fontshare: { enabled: false },
-			iconify: { enabled: false },
-		},
+		provider: "local",
 	},
 
-css: ["~/styles.css"],
+	css: ["~/styles.css"],
 
 	colorMode: {
 		preference: "system",
@@ -90,6 +80,7 @@ css: ["~/styles.css"],
 			charset: "utf-8",
 			viewport: "width=device-width, initial-scale=1",
 		},
+		pageTransition: { name: "page", mode: "out-in" },
 	},
 
 	// Производительность
@@ -111,5 +102,30 @@ css: ["~/styles.css"],
 
 	robots: {
 		blockNonSeoBots: true,
+	},
+
+	// Конфигурация Nuxt Image
+	image: {
+		// Установка ленивой загрузки по умолчанию
+		provider: "ipx",
+		quality: 80,
+		format: ["webp", "avif", "jpeg", "png"],
+		screens: {
+			xs: 320,
+			sm: 640,
+			md: 768,
+			lg: 1024,
+			xl: 1280,
+			xxl: 1536,
+			xxxl: 1920,
+		},
+		// Оптимизация для ленивой загрузки
+		densities: [1, 2],
+		// Параметры ленивой загрузки по умолчанию
+		providerOptions: {
+			ipx: {
+				// Параметры для IPX провайдера
+			},
+		},
 	},
 });

@@ -2,35 +2,43 @@
 	<div
 		class="tech-tag"
 		:class="[
-			`tech-tag--${tag.color || 'gray'}`,
-			{ 'tech-tag--clickable': clickable },
+		`tech-tag--${tag.color || 'gray'}`,
+			{
+				'tech-tag--clickable': clickable,
+				'tech-tag--expanded': expanded,
+				'is-light-bg': isLightBackground, // Класс-маркер для CSS
+			},
 		]"
 		:style="{ '--tag-color': tag.color }"
 		@click="handleClick"
 	>
 		<div class="tech-tag__icon" v-if="tag.icon">
-			<DynamicIcon :icon="tag.icon" size="24" />
+			<DynamicIcon :icon="tag.icon" size="20" />
 		</div>
-		<span class="tech-tag__name">{{ tag.name }}</span>
+
+		<div class="tech-tag__content-wrapper">
+			<span class="tech-tag__name">{{ tag.name }}</span>
+		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import DynamicIcon from "./DynamicIcon.vue";
 import { useTagIcons } from "~/composables/useTagIcons";
 
 interface Props {
 	tagSlug: string;
 	clickable?: boolean;
+	expanded?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	clickable: false,
+	expanded: false,
 });
 
 const { getFallbackTag } = useTagIcons();
-
-// Получаем тег по slug
 const tag = computed(() => getFallbackTag(props.tagSlug));
 
 const emit = defineEmits<{
@@ -38,26 +46,72 @@ const emit = defineEmits<{
 }>();
 
 const handleClick = () => {
-	if (props.clickable) {
-		emit("click", tag.value);
-	}
+	if (props.clickable) emit("click", tag.value);
 };
+
+// Вычисляем, является ли фон светлым
+const isLightBackground = computed(() => {
+	const color = tag.value.color;
+	if (!color || !color.startsWith("#")) return false; // По дефолту считаем темным
+
+	// Убираем #
+	const hex = color.replace("#", "");
+	const fullHex =
+		hex.length === 3
+			? hex
+					.split("")
+					.map((c) => c + c)
+					.join("")
+			: hex;
+
+	const r = parseInt(fullHex.substr(0, 2), 16);
+	const g = parseInt(fullHex.substr(2, 2), 16);
+	const b = parseInt(fullHex.substr(4, 2), 16);
+
+	// Формула яркости (YIQ)
+	const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+
+	// Если яркость > 140, значит фон светлый (нужен темный текст)
+	return yiq >= 140;
+});
 </script>
 
 <style scoped>
 .tech-tag {
 	display: inline-flex;
 	align-items: center;
-	padding: 0.5rem;
-	border-radius: 1rem;
-	corner-shape: superellipse(1.5);
-	font-size: 1rem;
-	font-weight: 700;
-	transition: all 1s ease;
+	padding: 0.4rem 0.6rem;
+	border-radius: 12px;
+	font-size: 0.95rem;
+	font-weight: 600;
 	cursor: default;
 	user-select: none;
+
+	/* Основной цвет фона */
 	background: var(--tag-color, #6b7280);
-	color: white;
+
+	/* 
+	   ПО УМОЛЧАНИЮ (для темных фонов):
+	   Смешиваем 90% белого и 10% цвета тега.
+	   Текст будет белым, но с легким оттенком фона (гармонично).
+	*/
+	color: color-mix(in srgb, white 90%, var(--tag-color));
+
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+	transition:
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+/* 
+   ДЛЯ СВЕТЛЫХ ФОНОВ (когда JS вернул true):
+   Смешиваем 85% черного и 15% цвета тега.
+   Текст будет темно-темно цветным, а не глухим черным.
+*/
+.tech-tag.is-light-bg {
+	color: color-mix(in srgb, black 80%, var(--tag-color));
+	/* Можно добавить тонкую обводку, если фон слишком белый */
+	border: 1px solid color-mix(in srgb, black 5%, transparent);
 }
 
 .tech-tag--clickable {
@@ -65,65 +119,81 @@ const handleClick = () => {
 }
 
 .tech-tag--clickable:hover {
-	transform: translateY(-1px);
-	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+	transform: translateY(-2px);
+	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .tech-tag__icon {
 	display: flex;
 	align-items: center;
 	justify-content: center;
+	flex-shrink: 0; /* Чтобы иконку не плющило */
+	z-index: 1;
+}
+
+/* --- МАГИЯ GRID АНИМАЦИИ --- */
+
+.tech-tag__content-wrapper {
+	display: grid;
+	grid-template-columns: 0fr; /* По умолчанию ширина контента 0 */
+	transition: grid-template-columns 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистый эффект */
+}
+
+.tech-tag:hover .tech-tag__content-wrapper {
+	grid-template-columns: 1fr; /* При наведении раскрываем */
+}
+
+.tech-tag--expanded .tech-tag__content-wrapper {
+	grid-template-columns: 1fr; /* Всегда раскрыт */
 }
 
 .tech-tag__name {
-	width: 0;
-	opacity: 0;
-	transform: translateX(-1%);
 	overflow: hidden;
-	line-height: 1;
 	white-space: nowrap;
-	transition: all 1s ease;
+	opacity: 0;
+	transform: translateX(-10px);
+	transition:
+		opacity 0.3s ease,
+		transform 0.3s ease,
+		margin-left 0.3s ease;
+	min-height: 0; /* Фикс для Grid */
 }
 
+/* Синхронизируем появление текста с раскрытием грида */
 .tech-tag:hover .tech-tag__name {
-	overflow: visible;
-	width: auto;
-	margin-left: 0.375rem;
-	transform: translateX(0);
 	opacity: 1;
+	transform: translateX(0);
+	margin-left: 0.5rem; /* Отступ появляется только при наведении */
 }
 
-/* Убираем старые цветовые схемы, теперь используем CSS переменные */
-.tech-tag__icon svg {
-	color: currentColor;
+.tech-tag--expanded .tech-tag__name {
+	opacity: 1;
+	transform: translateX(0);
+	margin-left: 0.5rem; /* Отступ всегда есть в раскрытом состоянии */
 }
 
-/* Анимация появления */
+/* Начальная анимация появления самого тега при загрузке страницы */
 .tech-tag {
-	animation: tag-appear 1s ease-out;
+	animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
 }
 
-@keyframes tag-appear {
+@keyframes pop-in {
 	from {
 		opacity: 0;
-		transform: scale(0.8) translateY(4px);
+		transform: scale(0.5);
 	}
 	to {
 		opacity: 1;
-		transform: scale(1) translateY(0);
+		transform: scale(1);
 	}
 }
 
-/* Уважение к настройкам пользователя */
 @media (prefers-reduced-motion: reduce) {
-	.tech-tag {
-		animation: none;
+	.tech-tag,
+	.tech-tag__content-wrapper,
+	.tech-tag__name {
 		transition: none;
-	}
-
-	.tech-tag--clickable:hover {
-		transform: none;
-		box-shadow: none;
+		animation: none;
 	}
 }
 </style>

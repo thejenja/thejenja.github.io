@@ -25,6 +25,7 @@ interface Props {
 	delay?: number;
 	duration?: number;
 	threshold?: number;
+	once?: boolean; // Добавил проп: если true, анимация сработает только один раз
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -32,121 +33,186 @@ const props = withDefaults(defineProps<Props>(), {
 	delay: 0,
 	duration: 600,
 	threshold: 0.1,
+	once: true,
 });
 
 const sectionRef = ref<HTMLElement>();
 const isVisible = ref(false);
+let observer: IntersectionObserver | null = null;
 
-onMounted(() => {
+// Обработчик события resize, который будем использовать как при добавлении, так и при удалении
+const handleResize = () => {
+	if (observer) {
+		observer.disconnect();
+		createObserver();
+	}
+};
+
+// Функция для создания Intersection Observer
+const createObserver = () => {
 	if (!sectionRef.value) return;
 
-	const { shouldAnimate } = useAnimationPreferences();
+	// Адаптивный rootMargin для мобильных и десктопа
+	const isMobile = window.innerWidth < 768;
+	// Уменьшаем отступы для более раннего срабатывания анимации
+	const rootMargin = isMobile ? "0px 0px -100px 0px" : "0px 0px -150px 0px";
 
-	if (!shouldAnimate("basic")) {
-		isVisible.value = true;
-		return;
-	}
-
-	const observer = new IntersectionObserver(
+	observer = new IntersectionObserver(
 		(entries) => {
 			entries.forEach((entry) => {
 				if (entry.isIntersecting) {
 					setTimeout(() => {
 						isVisible.value = true;
+						// Если нужно анимировать только один раз (экономит ресурсы)
+						if (props.once && sectionRef.value && observer) {
+							observer.unobserve(sectionRef.value);
+						}
 					}, props.delay);
+				}
+				// Опционально: скрывать обратно, если ушли с экрана (если once: false)
+				else if (!props.once) {
+					isVisible.value = false;
 				}
 			});
 		},
 		{
 			threshold: props.threshold,
-			rootMargin: "0px 0px -50px 0px",
+			rootMargin, // Используем вычисленный отступ
 		}
 	);
 
 	observer.observe(sectionRef.value);
+};
 
-	onUnmounted(() => {
-		observer.disconnect();
-	});
+onMounted(() => {
+	// Проверяем предпочтения пользователя по уменьшению движения
+	const prefersReducedMotion = window.matchMedia(
+		"(prefers-reduced-motion: reduce)"
+	).matches;
+	if (prefersReducedMotion) {
+		isVisible.value = true;
+		return;
+	}
+
+	createObserver();
+
+	// Добавляем обработчик изменения размера окна для пересоздания observer при смене ориентации
+	window.addEventListener('resize', handleResize);
+});
+
+onUnmounted(() => {
+	if (observer) observer.disconnect();
+	// Удаляем обработчик resize при размонтировании компонента
+	window.removeEventListener('resize', handleResize);
 });
 </script>
 
 <style scoped>
 .animated-section {
-	transition: all 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
-	will-change: transform, opacity;
+	/* ВАЖНО: Анимируем только нужные свойства, а не all */
+	transition:
+		opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+		transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+	/* Оптимизация рендеринга */
+	will-change: opacity, transform;
+
+	/* Чтобы блоки не перекрывали друг друга до появления */
+	position: relative;
+	z-index: 1;
 }
 
-/* Fade анимация */
+/* === Fade === */
 .animated-section--fade {
 	opacity: 0;
 }
-
 .animated-section--fade.animated-section--visible {
 	opacity: 1;
 }
 
-/* Slide up анимация */
+/* === Slide Up === */
 .animated-section--slide-up {
 	opacity: 0;
-	transform: translateY(40px) scale(0.95);
+	transform: translateY(40px) scale(0.96); /* Чуть уменьшил scale для плавности */
 }
-
 .animated-section--slide-up.animated-section--visible {
 	opacity: 1;
 	transform: translateY(0) scale(1);
 }
 
-/* Slide left анимация */
+/* === Slide Left / Right === */
+/* Используем меньшие значения, чтобы не ломать верстку */
 .animated-section--slide-left {
 	opacity: 0;
 	transform: translateX(-30px);
 }
-
-.animated-section--slide-left.animated-section--visible {
-	opacity: 1;
-	transform: translateX(0);
-}
-
-/* Slide right анимация */
 .animated-section--slide-right {
 	opacity: 0;
 	transform: translateX(30px);
 }
 
+.animated-section--slide-left.animated-section--visible,
 .animated-section--slide-right.animated-section--visible {
 	opacity: 1;
 	transform: translateX(0);
 }
 
-/* Scale анимация */
+/* === Scale === */
 .animated-section--scale {
 	opacity: 0;
-	transform: scale(0.8) rotateY(10deg);
+	transform: scale(0.9); /* 0.8 слишком мелко для текста */
 }
-
 .animated-section--scale.animated-section--visible {
 	opacity: 1;
-	transform: scale(1) rotateY(0deg);
+	transform: scale(1);
 }
 
-/* Rotate анимация */
+/* === Rotate === */
 .animated-section--rotate {
 	opacity: 0;
-	transform: rotate(-5deg) scale(0.95);
+	transform: rotate(-3deg) scale(0.95); /* -5deg бывает слишком криво для текста */
 }
-
 .animated-section--rotate.animated-section--visible {
 	opacity: 1;
 	transform: rotate(0deg) scale(1);
 }
 
-/* Уважение к настройкам пользователя */
+/* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
+@media (max-width: 768px) {
+	.animated-section {
+		/* Ускоряем анимацию на телефонах для отзывчивости */
+		transition-duration: 0.5s;
+	}
+
+	/* Уменьшаем амплитуду движений на маленьких экранах */
+	.animated-section--slide-up {
+		transform: translateY(20px);
+	}
+
+	.animated-section--slide-left {
+		transform: translateX(-15px);
+	}
+
+	.animated-section--slide-right {
+		transform: translateX(15px);
+	}
+
+	/* Состояния видимости (должны переопределять начальные состояния) */
+	.animated-section--slide-up.animated-section--visible,
+	.animated-section--slide-left.animated-section--visible,
+	.animated-section--slide-right.animated-section--visible {
+		transform: translate(0) scale(1);
+	}
+}
+
+/* Доступность */
 @media (prefers-reduced-motion: reduce) {
 	.animated-section {
-		transition: none;
+		transition: none !important;
 		opacity: 1 !important;
 		transform: none !important;
+		animation: none !important;
+		will-change: auto;
 	}
 }
 </style>
