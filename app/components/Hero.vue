@@ -66,7 +66,7 @@
 import { ref, onMounted, onUnmounted, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { gsap } from "gsap";
-import { Draggable } from "gsap/draggable";
+import { Draggable } from "gsap/Draggable";
 
 if (typeof gsap !== "undefined" && Draggable) {
 	gsap.registerPlugin(Draggable);

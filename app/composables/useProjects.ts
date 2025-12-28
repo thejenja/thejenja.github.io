@@ -128,17 +128,30 @@ export const useProjects = () => {
 				return projectsCache.value.get(cacheKey)!;
 			}
 
-			const result = await queryCollection(
-				currentLocale === "en" ? "projectsEn" : "projectsRu"
-			).all();
+			let result;
+			try {
+				result = await queryCollection(
+					currentLocale === "en" ? "projectsEn" : "projectsRu"
+				).all();
+			} catch (collectionError) {
+				console.warn(`Ошибка при загрузке коллекции для локали ${currentLocale}:`, collectionError);
+				// Пробуем загрузить общую коллекцию
+				try {
+					result = await queryCollection("projects").all();
+				} catch (generalError) {
+					console.warn("Ошибка при загрузке общей коллекции проектов:", generalError);
+					result = null;
+				}
+			}
+
 			const projects = result || fallbackProjects;
 
 			// Сохраняем в кэш
 			projectsCache.value.set(cacheKey, projects as ProjectContent[]);
 
 			return projects as ProjectContent[];
-		} catch {
-			// console.error("Ошибка загрузки проектов:", error);
+		} catch (error) {
+			console.error("Ошибка загрузки проектов:", error);
 			return fallbackProjects as ProjectContent[];
 		}
 	};
@@ -164,9 +177,26 @@ export const useProjects = () => {
 				return projectsCache.value.get(cacheKey)!;
 			}
 
-			const projects = await queryCollection(
-				currentLocale === "en" ? "projectsEn" : "projectsRu"
-			).all();
+			let projects;
+			try {
+				projects = await queryCollection(
+					currentLocale === "en" ? "projectsEn" : "projectsRu"
+				).all();
+			} catch (collectionError) {
+				console.warn(`Ошибка при загрузке коллекции для локали ${currentLocale}:`, collectionError);
+				// Пробуем загрузить общую коллекцию
+				try {
+					projects = await queryCollection("projects").all();
+				} catch (generalError) {
+					console.warn("Ошибка при загрузке общей коллекции проектов:", generalError);
+					projects = [];
+				}
+			}
+
+			if (!projects || !Array.isArray(projects)) {
+				projects = [];
+			}
+
 			const result = (projects as ProjectContent[]).filter(
 				(project) => project.meta?.featured === true
 			);
@@ -182,8 +212,8 @@ export const useProjects = () => {
 			projectsCache.value.set(cacheKey, finalResult);
 
 			return finalResult;
-		} catch {
-			// console.error("Ошибка загрузки избранных проектов:", error);
+		} catch (error) {
+			console.error("Ошибка загрузки избранных проектов:", error);
 			return fallbackProjects.filter(
 				(project) => project.meta?.featured === true
 			) as ProjectContent[];
@@ -208,9 +238,27 @@ export const useProjects = () => {
 			if (projectsCache.value.has(cacheKey)) {
 				return (projectsCache.value.get(cacheKey) as ProjectContent) || null;
 			}
-			const projects = await queryCollection(
-				currentLocale === "en" ? "projectsEn" : "projectsRu"
-			).all();
+
+			let projects;
+			try {
+				projects = await queryCollection(
+					currentLocale === "en" ? "projectsEn" : "projectsRu"
+				).all();
+			} catch (collectionError) {
+				console.warn(`Ошибка при загрузке коллекции для локали ${currentLocale}:`, collectionError);
+				// Пробуем загрузить общую коллекцию
+				try {
+					projects = await queryCollection("projects").all();
+				} catch (generalError) {
+					console.warn("Ошибка при загрузке общей коллекции проектов:", generalError);
+					projects = [];
+				}
+			}
+
+			if (!projects || !Array.isArray(projects)) {
+				projects = [];
+			}
+
 			const result = (projects as ProjectContent[]).find(
 				(project) => project.meta?.slug === slug
 			);
@@ -219,10 +267,10 @@ export const useProjects = () => {
 			projectsCache.value.set(cacheKey, [result] as ProjectContent[]);
 
 			return result || null;
-		} catch {
-			// console.error("Ошибка загрузки проекта:", error);
+		} catch (error) {
+			console.error("Ошибка загрузки проекта:", error);
 			return null;
-		}
+	}
 	};
 
 	return {
