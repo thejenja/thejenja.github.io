@@ -261,20 +261,13 @@ const route = useRoute();
 const slug = computed(() => route.params.slug as string);
 const { loadProjectBySlug } = useProjects();
 
+definePageMeta({
+	prerender: true,
+});
+
 const { data: project } = await useAsyncData(
-	`project-${slug.value}`,
-	async () => {
-		try {
-			const currentLocale = locale.value;
-			return (await loadProjectBySlug(
-				slug.value,
-				currentLocale
-			)) as ProjectContent;
-		} catch (error) {
-			console.error(`Error loading project ${slug.value}:`, error);
-			return null;
-		}
-	}
+	() => `project-${slug.value}-${locale.value}`,
+	() => loadProjectBySlug(slug.value, locale.value)
 );
 
 // --- LOGO FALLBACK LOGIC ---
@@ -421,15 +414,24 @@ const getStageIcon = (stage: string) => {
 };
 const getStageLabel = (stage: string) => t(`projectStages.${stage}`, stage);
 
-useHead(() => ({
-	title: `${project.value?.title || t("projects.title")} - ${t("seo.title")}`,
-	meta: [
-		{
-			property: "theme-color",
-			content: project.value?.meta?.color || "#4b5563",
-		},
-	],
-}));
+useHead(() => {
+	if (!project.value) {
+		return {
+			title: t("projects.title"),
+		};
+	}
+
+	return {
+		title: `${project.value.title} - ${t("seo.title")}`,
+		meta: [
+			{
+				property: "theme-color",
+				content: project.value.meta?.color || "#4b5563",
+			},
+		],
+	};
+});
+
 const transitionName = (element: string) => {
 	if (!slug.value) return undefined;
 	const safeSlug = slug.value.replace(/[^a-z0-9-_]/gi, "");

@@ -14,10 +14,29 @@ export default defineNuxtConfig({
 		"@nuxtjs/robots",
 		"nuxt-og-image",
 		"nuxt-vitalizer",
+		"~/modules/prerender-projects",
 	],
 
+	vitalizer: {
+		// Remove the render-blocking entry CSS
+		disableStylesheets: "entry",
+		disablePrefetchLinks: true,
+	},
+
 	fonts: {
-		provider: "local",
+		families: [
+			{
+				name: "Onest",
+				provider: "local",
+				src: "/fonts/Onest-variable.woff2", // Путь относительно папки public (рекомендуется)
+				weight: "100 900", // Для вариативного шрифта указываем диапазон
+				style: "normal",
+			},
+		],
+		// Оптимизация:
+		defaults: {
+			preload: true,
+		},
 	},
 
 	css: ["~/styles.css"],
@@ -86,10 +105,47 @@ export default defineNuxtConfig({
 	// Производительность
 	nitro: {
 		compressPublicAssets: true,
+		prerender: {
+			crawlLinks: false,
+			failOnError: false,
+		},
+	},
+
+	hooks: {
+	"nitro:config": (config) => {
+			if (!config.prerender) {
+				config.prerender = { routes: [] };
+			}
+			
+			const routes = new Set(config.prerender.routes);
+			
+			// Добавляем основные маршруты
+			routes.add('/');
+			routes.add('/projects');
+			
+			// Добавляем часто используемые иконки для прегенерации
+			routes.add('/icons/Figma-logo.svg');
+			routes.add('/icons/gemini.svg');
+			routes.add('/icons/lucide.svg');
+			routes.add('/icons/openai.svg');
+			routes.add('/icons/telegram-logo.svg');
+			routes.add('/icons/linkedin.svg');
+			routes.add('/icons/boosty.svg');
+			routes.add('/icons/da.svg');
+			routes.add('/icons/dprofile-logo.svg');
+			routes.add('/icons/dsgners-logo.svg');
+			routes.add('/icons/liberapay.svg');
+			routes.add('/icons/tenchat.svg');
+			routes.add('/icons/ton.svg');
+			routes.add('/icons/userstyles-logo.svg');
+			routes.add('/icons/yoomoney.svg');
+			
+			config.prerender.routes = Array.from(routes);
+		}
 	},
 
 	experimental: {
-		payloadExtraction: true,
+	payloadExtraction: true,
 	},
 
 	site: {
