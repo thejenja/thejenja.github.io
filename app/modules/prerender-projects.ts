@@ -5,14 +5,22 @@ import { join, basename } from "path";
 // Функция для генерации различных размеров изображений
 function generateImageSizes(imagePath: string) {
 	const sizes = [
-		"40x40",
+	"40x40",
 		"200x120",
 		"384x230",
 		"400x200",
 		"400x300",
+		"410x246",
+		"460x276",
+		"512x308",
+		"640x480",
+		"768x576",
 		"800x600",
+		"844x634",
+		"1024x768",
 		"1200x900",
-		"768x576"
+		"1280x960",
+		"1536x1152"
 	];
 	
 	return sizes.map(size => `/_ipx/q_80&s_${size}${imagePath}`);

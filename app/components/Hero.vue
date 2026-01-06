@@ -85,23 +85,40 @@ const allActivities = computed(() => [
 
 const visibleItems = ref([]);
 const currentIndex = ref(0);
+const itemsToShow = ref(3); // Дефолтное значение
 const cycleTimeout = ref(null);
 const isAnimating = ref(false);
 const isAnyDragging = ref(false);
 
 const preciseAge = computed(() => getPreciseAge(new Date("2006-08-31")));
 
+// --- Адаптивность количества элементов ---
+
+const checkResponsiveCount = () => {
+	const w = window.innerWidth;
+	let newCount = 3;
+
+	if (w < 640) {
+		newCount = 1; // Мобильные
+	} else if (w < 1024) {
+		newCount = 2; // Планшеты
+	} else {
+		newCount = 3; // Десктоп
+	}
+
+	// Если количество изменилось, обновляем переменную.
+	// Изменение применится при следующем цикле обновления (updateActivities),
+	// чтобы не ломать текущую анимацию.
+	itemsToShow.value = newCount;
+};
+
 // --- Анимация (Motion Blur + Slide) ---
 
 const onBeforeEnter = (el) => {
-	// Критически важно: скрываем элемент CSS-ом до начала JS анимации,
-	// чтобы избежать мелькания "сжатого" контента
 	el.style.opacity = 0;
 };
 
 const onEnter = (el, done) => {
-	// Начальное состояние:
-	// Сдвиг влево, прозрачность, сильное размытие (имитация скорости)
 	gsap.set(el, {
 		opacity: 0,
 		x: -40,
@@ -112,13 +129,13 @@ const onEnter = (el, done) => {
 	gsap.to(el, {
 		opacity: 1,
 		x: 0,
-		filter: "blur(0px)", // Убираем размытие к концу
+		filter: "blur(0px)",
 		scale: 1,
 		duration: 0.9,
+		// Задержка зависит от индекса, чтобы элементы вылетали "лесенкой"
 		delay: el.dataset.index * 0.12,
 		ease: "power3.out",
 		onComplete: () => {
-			// Очищаем inline-фильтр, чтобы не мылило текст после анимации
 			el.style.filter = "";
 			initDraggable(el);
 			done();
@@ -130,11 +147,10 @@ const onLeave = (el, done) => {
 	const draggableInstance = Draggable.get(el);
 	if (draggableInstance) draggableInstance.kill();
 
-	// Уход: Сдвиг вправо, исчезновение, появление размытия
 	gsap.to(el, {
 		opacity: 0,
 		x: 40,
-		filter: "blur(12px)", // Размываем в движении
+		filter: "blur(12px)",
 		scale: 0.95,
 		duration: 0.5,
 		delay: el.dataset.index * 0.05,
@@ -159,10 +175,15 @@ function updateActivities() {
 
 		const total = allActivities.value.length;
 		const nextSet = [];
-		for (let i = 0; i < 3; i++) {
+		const count = itemsToShow.value; // Берем актуальное кол-во
+
+		// Генерируем новый набор на основе itemsToShow
+		for (let i = 0; i < count; i++) {
 			nextSet.push(allActivities.value[(currentIndex.value + i) % total]);
 		}
-		currentIndex.value = (currentIndex.value + 3) % total;
+
+		// Сдвигаем индекс на количество показанных элементов
+		currentIndex.value = (currentIndex.value + count) % total;
 
 		visibleItems.value = nextSet;
 
@@ -170,7 +191,7 @@ function updateActivities() {
 			isAnimating.value = false;
 			scheduleNextCycle();
 		}, 4500);
-	}, 600); // Чуть увеличил паузу для чистоты
+	}, 600);
 }
 
 function scheduleNextCycle() {
@@ -233,14 +254,23 @@ function initDraggable(el) {
 }
 
 onMounted(() => {
+	// 1. Сначала определяем ширину экрана
+	checkResponsiveCount();
+
+	// 2. Вешаем слушатель ресайза
+	window.addEventListener("resize", checkResponsiveCount);
 	document.addEventListener("visibilitychange", handleVisibilityChange);
 
+	// 3. Формируем стартовый набор с учетом ширины
 	const startSet = [];
-	for (let i = 0; i < 3; i++) {
+	const count = itemsToShow.value;
+	for (let i = 0; i < count; i++) {
 		startSet.push(allActivities.value[i]);
 	}
 	visibleItems.value = startSet;
-	currentIndex.value = 3;
+
+	// Обновляем индекс, чтобы следующая пачка шла за стартовой
+	currentIndex.value = count;
 
 	setTimeout(() => {
 		scheduleNextCycle();
@@ -248,6 +278,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
+	window.removeEventListener("resize", checkResponsiveCount); // Чистим слушатель
 	document.removeEventListener("visibilitychange", handleVisibilityChange);
 	if (cycleTimeout.value) clearTimeout(cycleTimeout.value);
 	gsap.killTweensOf(".activity");
