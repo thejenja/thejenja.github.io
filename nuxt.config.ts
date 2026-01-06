@@ -18,8 +18,6 @@ export default defineNuxtConfig({
 	],
 
 	vitalizer: {
-		// Remove the render-blocking entry CSS
-		disableStylesheets: "entry",
 		disablePrefetchLinks: true,
 	},
 
@@ -112,40 +110,77 @@ export default defineNuxtConfig({
 	},
 
 	hooks: {
-	"nitro:config": (config) => {
+		"nitro:config": (config) => {
 			if (!config.prerender) {
 				config.prerender = { routes: [] };
 			}
-			
+
 			const routes = new Set(config.prerender.routes);
-			
+
 			// Добавляем основные маршруты
-			routes.add('/');
-			routes.add('/projects');
-			
+			routes.add("/");
+			routes.add("/projects");
+
 			// Добавляем часто используемые иконки для прегенерации
-			routes.add('/icons/Figma-logo.svg');
-			routes.add('/icons/gemini.svg');
-			routes.add('/icons/lucide.svg');
-			routes.add('/icons/openai.svg');
-			routes.add('/icons/telegram-logo.svg');
-			routes.add('/icons/linkedin.svg');
-			routes.add('/icons/boosty.svg');
-			routes.add('/icons/da.svg');
-			routes.add('/icons/dprofile-logo.svg');
-			routes.add('/icons/dsgners-logo.svg');
-			routes.add('/icons/liberapay.svg');
-			routes.add('/icons/tenchat.svg');
-			routes.add('/icons/ton.svg');
-			routes.add('/icons/userstyles-logo.svg');
-			routes.add('/icons/yoomoney.svg');
+			routes.add("/icons/Figma-logo.svg");
+			routes.add("/icons/gemini.svg");
+			routes.add("/icons/lucide.svg");
+			routes.add("/icons/openai.svg");
+			routes.add("/icons/telegram-logo.svg");
+			routes.add("/icons/linkedin.svg");
+			routes.add("/icons/boosty.svg");
+			routes.add("/icons/da.svg");
+			routes.add("/icons/dprofile-logo.svg");
+			routes.add("/icons/dsgners-logo.svg");
+			routes.add("/icons/liberapay.svg");
+			routes.add("/icons/tenchat.svg");
+			routes.add("/icons/ton.svg");
+			routes.add("/icons/userstyles-logo.svg");
+			routes.add("/icons/yoomoney.svg");
 			
+			// Добавляем IPX версии иконок, которые могут использоваться в ProjectCard
+			routes.add("/_ipx/q_80&s_400x300/icons/Figma-logo.svg");
+			routes.add("/_ipx/q_80&s_400x300/icons/gemini.svg");
+			routes.add("/_ipx/q_80&s_400x300/icons/lucide.svg");
+			routes.add("/_ipx/q_80&s_400x300/icons/openai.svg");
+			routes.add("/_ipx/q_80&s_384x230/icons/Figma-logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/icons/gemini.svg");
+			routes.add("/_ipx/q_80&s_384x230/icons/lucide.svg");
+			routes.add("/_ipx/q_80&s_384x230/icons/openai.svg");
+			routes.add("/_ipx/q_80&s_200x120/icons/Figma-logo.svg");
+			routes.add("/_ipx/q_80&s_200x120/icons/gemini.svg");
+			routes.add("/_ipx/q_80&s_200x120/icons/lucide.svg");
+			routes.add("/_ipx/q_80&s_200x120/icons/openai.svg");
+			// Добавляем размеры, которые появляются в ошибках
+			routes.add("/_ipx/q_80&s_40x40/icons/Figma-logo.svg");
+			routes.add("/_ipx/q_80&s_40x40/icons/gemini.svg");
+			routes.add("/_ipx/q_80&s_40x40/icons/lucide.svg");
+			routes.add("/_ipx/q_80&s_40x40/icons/openai.svg");
+			// Добавляем размеры для фоновых изображений
+			routes.add("/_ipx/q_80&s_768x576/projects/blast/background-en.webp");
+			routes.add("/_ipx/q_80&s_768x576/projects/marlowmc/background.webp");
+			routes.add("/_ipx/q_80&s_768x576/projects/aura/background.webp");
+			routes.add("/_ipx/q_80&s_768x576/projects/canvloop/background.webp");
+			routes.add("/_ipx/q_80&s_768x576/projects/rinpyu/background.webp");
+			routes.add("/_ipx/q_80&s_768x576/projects/maddlink/background.webp");
+			routes.add("/_ipx/q_80&s_768x576/projects/matreshna/background.webp");
+			// Добавляем размеры для логотипов проектов
+			routes.add("/_ipx/q_80&s_384x230/projects/kotle/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/ont-lekt/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/ont-prof/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/md3-theme/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/vkui-theme/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/fluent-ovk/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/mibinopener/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/toastgen/logo.svg");
+			routes.add("/_ipx/q_80&s_384x230/projects/ovktweaks/logo.svg");
+
 			config.prerender.routes = Array.from(routes);
-		}
+		},
 	},
 
 	experimental: {
-	payloadExtraction: true,
+		payloadExtraction: true,
 	},
 
 	site: {
