@@ -6,14 +6,14 @@
 		:class="iconClass"
 		v-bind="$attrs"
 	/>
-	<NuxtImg
+	<img
 	v-else-if="isSvgIcon && props.icon"
-		:src="svgSrc"
-		:width="size"
+	    :src="svgSrc"
+	    :width="size"
 	:height="size"
-		:alt="fallbackText"
-		class="svg-icon"
-		loading="lazy"
+	    :alt="fallbackText"
+	    class="svg-icon"
+	    loading="lazy"
 	/>
 	<div
 		v-else-if="!props.icon"

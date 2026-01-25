@@ -18,7 +18,7 @@
     --border: #e5e7eb;
 }
 
-/* Dark theme */
+
 .dark {
     --gradient-1: #45285d66;
     --gradient-2: #5c2d3a66;
@@ -95,7 +95,7 @@ section h2 svg {
     vertical-align: middle;
 }
 
-/* Базовые стили */
+
 .app {
     min-height: 100vh;
     padding: 2rem;
@@ -104,20 +104,21 @@ section h2 svg {
 
 .container {
     max-width: 900px;
-    min-height: 100dvh;
+    min-height: calc(100dvh - 4rem);
     margin: 0 auto;
     display: flex;
+    justify-content: center;
     flex-direction: column;
     gap: 1rem;
     transition: max-width 0.3s ease;
 }
 
-/* Убираем внешний паддинг у всего приложения */
+
 .app.full-width-app {
     padding: 0;
 }
 
-/* Снимаем ограничение ширины у контейнера */
+
 .container.full-width-container {
     max-width: 100%;
     margin: 0;
@@ -127,7 +128,7 @@ button svg {
     vertical-align: middle;
 }
 
-/* Адаптивность */
+
 @media (max-width: 1024px) {
     .container {
         flex-direction: column;
@@ -165,7 +166,7 @@ button svg {
     }
 }
 
-/* Ripple эффект для кнопок */
+
 @keyframes ripple-animation {
     from {
         transform: scale(0);
@@ -186,7 +187,7 @@ button svg {
     z-index: 1;
 }
 
-/* Единые слайд анимации для всех компонентов */
+
 .slide-enter-active {
     transition: all 0.4s ease-out;
 }
@@ -209,7 +210,7 @@ button svg {
     transition: transform 0.4s ease-out;
 }
 
-/* Уважение к настройкам пользователя по анимациям */
+
 @media (prefers-reduced-motion: reduce) {
 
     *,
@@ -232,7 +233,7 @@ select:focus {
     outline: none;
 }
 
-/* Глобальные стили для анимированного mark */
+
 mark {
     position: relative;
     background: transparent;
@@ -262,10 +263,10 @@ mark.animate::before {
     transform: rotate(-2deg) scaleX(1);
 }
 
-/* Пасхалки и специальные эффекты */
+
 [data-brainrot="true"],
 html[lang="brainrot"] {
-    /* Gen Z brainrot стили */
+
     --accent: #ff6b9d;
     --accent-hover: #ff4d7d;
     --text: #ff69b4;
@@ -291,7 +292,7 @@ html[lang="brainrot"] .cmd-input:focus {
     box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.3);
 }
 
-/* Анимации для пасхалок */
+
 @keyframes brainrot-pulse {
 
     0%,
@@ -309,7 +310,7 @@ html[lang="brainrot"] .cmd-container {
     animation: brainrot-pulse 2s ease-in-out infinite;
 }
 
-/* Фильтры для пасхалок */
+
 body[style*="grayscale"] {
     transition: filter 0.5s ease;
 }
@@ -322,7 +323,7 @@ body[style*="contrast"] {
     transition: filter 0.5s ease;
 }
 
-/* Специальные эффекты для brainrot режима */
+
 [data-brainrot="true"] .cmd-item,
 html[lang="brainrot"] .cmd-item {
     position: relative;
@@ -346,7 +347,7 @@ html[lang="brainrot"] .cmd-item:hover::before {
     left: 100%;
 }
 
-/* Дополнительные стили для brainrot локализации */
+
 html[lang="brainrot"] .nav-link {
     background: linear-gradient(45deg, #ff6b9d, #ff8fab);
     color: white;
@@ -362,12 +363,12 @@ html[lang="brainrot"] .brainrot-indicator {
     animation: brainrot-bounce 1s ease-in-out infinite;
 }
 
-/* Анимация для brainrot режима */
+
 html[lang="brainrot"] .nav-link {
     animation: brainrot-pulse 2s ease-in-out infinite;
 }
 
-/* Адаптивность для пасхалок */
+
 @media (max-width: 768px) {
     .notification {
         top: 10px;
@@ -388,16 +389,16 @@ h3 {
 }
 
 ::view-transition-group(root) {
-    /* Длительность всей анимации страницы */
+
     animation-duration: 0.5s;
 }
 
-/* Настраиваем кривые для наших кастомных элементов */
+
 ::view-transition-group(project-bg-*),
 ::view-transition-group(project-title-*),
 ::view-transition-group(project-logo-*) {
     animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
-    /* Apple-like ease-out */
+
     animation-duration: 0.6s;
 }
 
@@ -408,4 +409,41 @@ h3 {
 ::view-transition-old(project-title-*),
 ::view-transition-new(project-title-*) {
     width: 100%;
+}
+
+::view-transition-old(root) {
+    animation: 0.3s ease-out both fade-out;
+    z-index: 1;
+}
+
+::view-transition-new(root) {
+    animation: 0.5s ease-in both fade-in, 0.5s ease-in both ripple-effect;
+    z-index: 9999;
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes ripple-effect {
+    from {
+        clip-path: circle(0 at var(--ripple-x, 50%) var(--ripple-y, 50%));
+    }
+    to {
+        clip-path: circle(var(--ripple-radius, 100%) at var(--ripple-x, 50%) var(--ripple-y, 50%));
+    }
 }

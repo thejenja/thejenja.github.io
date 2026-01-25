@@ -6,16 +6,15 @@
 			class="gallery-item"
 			@click="openLightbox(idx)"
 		>
-			<NuxtImg
+			<img
 				:src="img.src"
 				:alt="img.alt || `image-${idx}`"
 				loading="lazy"
 				width="140"
 				height="140"
-				sizes="xs:140px sm:140px md:140px lg:140px"
 			/>
 		</div>
-		
+
 		<Lightbox
 			v-model="lightboxOpen"
 			:images="images"
@@ -80,7 +79,6 @@ const openLightbox = (index: number) => {
 	transform: scale(1.03);
 }
 
-/* Добавляем эффект при наведении для индикации кликабельности */
 .gallery-item::after {
 	content: "";
 	position: absolute;

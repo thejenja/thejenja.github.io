@@ -54,7 +54,7 @@ onMounted(() => {
 				}
 			});
 		},
-		{ threshold: props.threshold, rootMargin: "100px 0px" }
+		{ threshold: props.threshold, rootMargin: "100px 0px" },
 	);
 
 	observer.observe(elementRef.value);
@@ -85,7 +85,6 @@ onMounted(() => {
 	opacity: 0;
 }
 
-/* Уважение к настройкам пользователя */
 @media (prefers-reduced-motion: reduce) {
 	.lazy-fade-enter-active,
 	.lazy-fade-leave-active {

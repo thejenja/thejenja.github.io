@@ -6,7 +6,6 @@ export const useSEO = () => {
 	// Получаем базовый URL сайта из Site Config (падает в fallback при отсутствии)
 	let siteUrl = "https://thejenja.github.io";
 	try {
-		// @ts-ignore - доступно при установленных SEO модулях
 		const cfg = typeof useSiteConfig === "function" ? useSiteConfig() : null;
 		if (cfg?.url) siteUrl = cfg.url as string;
 	} catch {}
@@ -46,6 +45,22 @@ export const useSEO = () => {
 			},
 		],
 	});
+
+	// Функция для генерации title страницы
+	const getPageTitle = (pageTitleKey?: string) => {
+		if (pageTitleKey) {
+			return `${t(pageTitleKey)} - ${t("seo.title")}`;
+		}
+		return t("seo.title");
+	};
+
+	// Функция для генерации description страницы
+	const getPageDescription = (pageDescriptionKey?: string) => {
+		if (pageDescriptionKey) {
+			return t(pageDescriptionKey);
+		}
+		return t("seo.description");
+	};
 
 	// Open Graph мета-теги
 	const getOpenGraphMeta = () => ({
@@ -188,5 +203,7 @@ export const useSEO = () => {
 		updateLocaleSEO,
 		getFaviconLinks,
 		getThemeMeta,
+		getPageTitle,
+		getPageDescription,
 	};
 };

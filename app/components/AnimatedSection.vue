@@ -78,7 +78,7 @@ const createObserver = () => {
 		{
 			threshold: props.threshold,
 			rootMargin, // Используем вычисленный отступ
-		}
+		},
 	);
 
 	observer.observe(sectionRef.value);
@@ -87,7 +87,7 @@ const createObserver = () => {
 onMounted(() => {
 	// Проверяем предпочтения пользователя по уменьшению движения
 	const prefersReducedMotion = window.matchMedia(
-		"(prefers-reduced-motion: reduce)"
+		"(prefers-reduced-motion: reduce)",
 	).matches;
 	if (prefersReducedMotion) {
 		isVisible.value = true;
@@ -97,32 +97,28 @@ onMounted(() => {
 	createObserver();
 
 	// Добавляем обработчик изменения размера окна для пересоздания observer при смене ориентации
-	window.addEventListener('resize', handleResize);
+	window.addEventListener("resize", handleResize);
 });
 
 onUnmounted(() => {
 	if (observer) observer.disconnect();
 	// Удаляем обработчик resize при размонтировании компонента
-	window.removeEventListener('resize', handleResize);
+	window.removeEventListener("resize", handleResize);
 });
 </script>
 
 <style scoped>
 .animated-section {
-	/* ВАЖНО: Анимируем только нужные свойства, а не all */
 	transition:
 		opacity 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
 		transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
 
-	/* Оптимизация рендеринга */
 	will-change: opacity, transform;
 
-	/* Чтобы блоки не перекрывали друг друга до появления */
 	position: relative;
 	z-index: 1;
 }
 
-/* === Fade === */
 .animated-section--fade {
 	opacity: 0;
 }
@@ -130,18 +126,15 @@ onUnmounted(() => {
 	opacity: 1;
 }
 
-/* === Slide Up === */
 .animated-section--slide-up {
 	opacity: 0;
-	transform: translateY(40px) scale(0.96); /* Чуть уменьшил scale для плавности */
+	transform: translateY(40px) scale(0.96);
 }
 .animated-section--slide-up.animated-section--visible {
 	opacity: 1;
 	transform: translateY(0) scale(1);
 }
 
-/* === Slide Left / Right === */
-/* Используем меньшие значения, чтобы не ломать верстку */
 .animated-section--slide-left {
 	opacity: 0;
 	transform: translateX(-30px);
@@ -157,34 +150,29 @@ onUnmounted(() => {
 	transform: translateX(0);
 }
 
-/* === Scale === */
 .animated-section--scale {
 	opacity: 0;
-	transform: scale(0.9); /* 0.8 слишком мелко для текста */
+	transform: scale(0.9);
 }
 .animated-section--scale.animated-section--visible {
 	opacity: 1;
 	transform: scale(1);
 }
 
-/* === Rotate === */
 .animated-section--rotate {
 	opacity: 0;
-	transform: rotate(-3deg) scale(0.95); /* -5deg бывает слишком криво для текста */
+	transform: rotate(-3deg) scale(0.95);
 }
 .animated-section--rotate.animated-section--visible {
 	opacity: 1;
 	transform: rotate(0deg) scale(1);
 }
 
-/* === МОБИЛЬНАЯ АДАПТАЦИЯ === */
 @media (max-width: 768px) {
 	.animated-section {
-		/* Ускоряем анимацию на телефонах для отзывчивости */
 		transition-duration: 0.5s;
 	}
 
-	/* Уменьшаем амплитуду движений на маленьких экранах */
 	.animated-section--slide-up {
 		transform: translateY(20px);
 	}
@@ -197,7 +185,6 @@ onUnmounted(() => {
 		transform: translateX(15px);
 	}
 
-	/* Состояния видимости (должны переопределять начальные состояния) */
 	.animated-section--slide-up.animated-section--visible,
 	.animated-section--slide-left.animated-section--visible,
 	.animated-section--slide-right.animated-section--visible {
@@ -205,7 +192,6 @@ onUnmounted(() => {
 	}
 }
 
-/* Доступность */
 @media (prefers-reduced-motion: reduce) {
 	.animated-section {
 		transition: none !important;

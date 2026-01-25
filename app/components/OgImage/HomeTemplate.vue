@@ -12,6 +12,6 @@
 			align-content: center;
 		"
 	>
-		<NuxtImg src="/images/thejenja.svg" style="margin: auto" width="200" height="64" />
+		<img src="/images/thejenja.svg" style="margin: auto" />
 	</div>
 </template>

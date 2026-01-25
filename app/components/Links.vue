@@ -21,7 +21,6 @@
 
 		<div class="links-content">
 			<div class="links-grid-container">
-				<!-- Добавляем ref для управления высотой и класс для CSS transition высоты -->
 				<div ref="gridContainer" class="links-grid">
 					<transition
 						:name="transitionName"
@@ -38,7 +37,6 @@
 								class="link-item"
 								:style="getRowBasedAnimationStyle(index)"
 							>
-								<!-- Ссылка -->
 								<a
 									v-if="!link.popovertarget"
 									:href="link.url"
@@ -63,7 +61,6 @@
 									<span class="link-label">{{ link.label }}</span>
 								</a>
 
-								<!-- Кнопка Popover -->
 								<button
 									v-else
 									:popovertarget="link.popovertarget"
@@ -92,7 +89,6 @@
 			</div>
 		</div>
 
-		<!-- Popover (без изменений) -->
 		<div id="ton" popover class="ton-popover">
 			<div class="popover-content">
 				<button
@@ -131,7 +127,7 @@
 									class="ton-copy-btn"
 									@click="
 										copyToClipboard(
-											'UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-'
+											'UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-',
 										)
 									"
 									:title="$t('links.copyAddress')"
@@ -153,7 +149,6 @@ import {
 	DribbbleIcon,
 	GitHubIcon,
 	CodePenIcon,
-	XIcon,
 	YouTubeIcon,
 	VkIcon,
 	MastodonIcon,
@@ -164,7 +159,7 @@ import {
 	BlueskyIcon,
 	ThreadsIcon,
 } from "vue3-simple-icons";
-import { Star, Copy, X, Link } from "lucide-vue-next";
+import { Copy, X, Link } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
 
 // Компонент для отображения SVG иконок
@@ -219,10 +214,6 @@ const onBeforeLeave = (el) => {
 		// el.style.position = 'absolute'; // Опционально, для mode='in-out', но мы используем mode='out-in'
 		// el.style.width = '100%';
 	}
-};
-
-const onLeave = (el) => {
-	// Здесь можно добавить дополнительную логику при необходимости
 };
 
 // 2. Когда новый элемент вставлен, вычисляем его высоту и анимируем контейнер
@@ -447,7 +438,7 @@ const allLinksWithAll = computed(() => {
 const currentLinks = computed(() => {
 	if (activeTab.value === "favorites") {
 		return allLinksWithAll.value.all.filter((link) =>
-			favoriteLinks.includes(link.label)
+			favoriteLinks.includes(link.label),
 		);
 	}
 	return allLinksWithAll.value[activeTab.value] || [];
@@ -508,10 +499,9 @@ const copyToClipboard = async (text) => {
 	color: color-mix(in srgb, var(--tab-color), var(--bg) 65%);
 }
 
-/* === Контейнер для анимации высоты === */
 .links-grid {
 	position: relative;
-	/* Добавляем плавность для изменения высоты */
+
 	transition: height 0.3s ease;
 	min-height: 64px;
 	contain: layout style;
@@ -540,7 +530,6 @@ const copyToClipboard = async (text) => {
 	width: 100%;
 }
 
-/* === Стили кнопок ссылок === */
 .link-button {
 	width: 100%;
 	height: 64px;
@@ -559,7 +548,6 @@ const copyToClipboard = async (text) => {
 	overflow: hidden;
 }
 
-/* Смена иконки на текст */
 .icon-wrapper {
 	position: absolute;
 	top: 50%;
@@ -612,9 +600,6 @@ const copyToClipboard = async (text) => {
 	font-size: inherit;
 }
 
-/* === Анимации переходов Slide Next/Prev === */
-
-/* Общие стили для переходов */
 .slide-next-enter-active,
 .slide-next-leave-active,
 .slide-prev-enter-active,
@@ -622,31 +607,26 @@ const copyToClipboard = async (text) => {
 	transition: all 0.3s ease;
 }
 
-/* Slide Next (справа налево) */
-/* Старый уходит влево */
 .slide-next-leave-to {
 	opacity: 0;
 	transform: translateX(-30px);
 }
-/* Новый приходит справа */
+
 .slide-next-enter-from {
 	opacity: 0;
 	transform: translateX(30px);
 }
 
-/* Slide Prev (слева направо) */
-/* Старый уходит вправо */
 .slide-prev-leave-to {
 	opacity: 0;
 	transform: translateX(30px);
 }
-/* Новый приходит слева */
+
 .slide-prev-enter-from {
 	opacity: 0;
 	transform: translateX(-30px);
 }
 
-/* Reduced Motion */
 @media (prefers-reduced-motion: reduce) {
 	.link-button,
 	.link-button::before,
@@ -673,7 +653,6 @@ const copyToClipboard = async (text) => {
 	}
 }
 
-/* Popover стили */
 [popover] {
 	background: transparent;
 	border: none;

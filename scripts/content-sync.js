@@ -18,8 +18,8 @@ async function run() {
 
 	console.log(
 		chalk.blue(
-			`🔄 Syncing content: ${CONFIG.primaryLang} <-> ${CONFIG.targetLang}`
-		)
+			`🔄 Syncing content: ${CONFIG.primaryLang} <-> ${CONFIG.targetLang}`,
+		),
 	);
 
 	// Проверка существования папок
@@ -30,7 +30,7 @@ async function run() {
 	if (!fs.existsSync(targetDir)) {
 		// Можно создать папку, если её нет
 		console.log(
-			chalk.yellow(`⚠️ Directory not found: ${targetDir}. Creating...`)
+			chalk.yellow(`⚠️ Directory not found: ${targetDir}. Creating...`),
 		);
 		fs.ensureDirSync(targetDir);
 	}
@@ -39,7 +39,7 @@ async function run() {
 		fs
 			.readdirSync(dir)
 			.filter(
-				(f) => f.endsWith(".md") || f.endsWith(".json") || f.endsWith(".yml")
+				(f) => f.endsWith(".md") || f.endsWith(".json") || f.endsWith(".yml"),
 			);
 
 	const primaryFiles = getFiles(primaryDir);
@@ -53,7 +53,7 @@ async function run() {
 				primaryDir,
 				targetDir,
 				CONFIG.primaryLang,
-				CONFIG.targetLang
+				CONFIG.targetLang,
 			);
 		}
 	});
@@ -66,7 +66,7 @@ async function run() {
 				targetDir,
 				primaryDir,
 				CONFIG.targetLang,
-				CONFIG.primaryLang
+				CONFIG.primaryLang,
 			);
 		}
 	});
@@ -80,8 +80,8 @@ async function syncFile(filename, sourceDir, destDir, sourceLang, destLang) {
 
 	console.log(
 		chalk.yellow(
-			`➕ Missing in /${destLang}: ${filename}. Copying from /${sourceLang}...`
-		)
+			`➕ Missing in /${destLang}: ${filename}. Copying from /${sourceLang}...`,
+		),
 	);
 
 	const rawContent = await fs.readFile(srcPath, "utf8");
@@ -92,7 +92,7 @@ async function syncFile(filename, sourceDir, destDir, sourceLang, destLang) {
 		parsed.data.translationStatus = "pending";
 		parsed.data.originalLang = sourceLang;
 
-		const comment = `\n\n<!-- ${CONFIG.todoComment} -->\n\n`;
+		const comment = `\n\n\n\n`;
 
 		// В gray-matter stringify принимает (content, data), а не наоборот как иногда думают
 		const newContent = matter.stringify(comment + parsed.content, parsed.data);

@@ -1,0 +1,122 @@
+/* View Transition API Styles */
+
+/* Base styles for view transitions */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+
+/* Default fade animation for root */
+::view-transition-old(root),
+::view-transition-new(root) {
+  opacity: 0;
+  animation: 0.3s ease-in-out both fade-in;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Slide animation for root */
+::view-transition-old(root) {
+  animation: 0.3s ease-in-out both slide-out;
+}
+
+::view-transition-new(root) {
+  animation: 0.3s ease-in-out both slide-in;
+}
+
+@keyframes slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Custom transitions for project elements */
+::view-transition-old(project-bg),
+::view-transition-new(project-bg) {
+  animation: 0.5s ease-in-out both fade-scale;
+}
+
+@keyframes fade-scale {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+::view-transition-old(project-logo),
+::view-transition-new(project-logo) {
+  animation: 0.4s ease-in-out both slide-fade;
+}
+
+@keyframes slide-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+::view-transition-old(project-title),
+::view-transition-new(project-title) {
+  animation: 0.4s ease-in-out both slide-up-fade;
+}
+
+@keyframes slide-up-fade {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root),
+  ::view-transition-old(project-bg),
+  ::view-transition-new(project-bg),
+  ::view-transition-old(project-logo),
+  ::view-transition-new(project-logo),
+  ::view-transition-old(project-title),
+  ::view-transition-new(project-title),
+  ::view-transition-old(project-card),
+  ::view-transition-new(project-card),
+  ::view-transition-old(project-page),
+  ::view-transition-new(project-page) {
+    animation: none !important;
+  }
+}

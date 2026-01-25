@@ -125,6 +125,7 @@ import {
 	MonitorX,
 	Music,
 	FlipHorizontal,
+	GhostIcon,
 } from "lucide-vue-next";
 
 // Состояние
@@ -174,7 +175,7 @@ const resetReality = () => {
 		"matrix-mode",
 		"gravity-mode",
 		"mirror-mode",
-		"barrel-roll-active"
+		"barrel-roll-active",
 	);
 
 	// Восстанавливаем тексты для 31 августа
@@ -227,7 +228,7 @@ const triggerAug31 = () => {
 					? NodeFilter.FILTER_ACCEPT
 					: NodeFilter.FILTER_REJECT;
 			},
-		}
+		},
 	);
 
 	let node;
@@ -427,7 +428,7 @@ const filtered = computed(() => {
 		(c) =>
 			c.title.toLowerCase().includes(q) ||
 			(c.subtitle && c.subtitle.toLowerCase().includes(q)) ||
-			(c.keywords && c.keywords.toLowerCase().includes(q))
+			(c.keywords && c.keywords.toLowerCase().includes(q)),
 	);
 });
 
@@ -498,9 +499,6 @@ defineExpose({ open, close });
 </script>
 
 <style>
-/* --- Глобальные эффекты --- */
-
-/* Barrel Roll */
 @keyframes barrelRoll {
 	0% {
 		transform: rotate(0deg);
@@ -513,25 +511,21 @@ defineExpose({ open, close });
 	animation: barrelRoll 1s ease-in-out;
 }
 
-/* Matrix */
 .matrix-mode {
 	filter: invert(1) hue-rotate(120deg) contrast(1.5);
 	background: black !important;
 	font-family: "Courier New", monospace !important;
 }
 
-/* Gravity (Элементы падают) */
 .gravity-mode body > *:not(.cmd-modal):not(.cmd-backdrop) {
 	transition: transform 1s ease-in;
 	transform: translateY(100vh) rotate(20deg);
 }
 
-/* Mirror */
 .mirror-mode {
 	transform: scaleX(-1);
 }
 
-/* Toast */
 .toast-notification {
 	position: fixed;
 	bottom: 30px;
@@ -558,7 +552,6 @@ defineExpose({ open, close });
 </style>
 
 <style scoped>
-/* Переменные */
 :root {
 	--cmd-bg: rgba(255, 255, 255, 0.7);
 	--cmd-border: rgba(0, 0, 0, 0.08);
@@ -575,7 +568,6 @@ defineExpose({ open, close });
 	--cmd-select: rgba(255, 255, 255, 0.1);
 }
 
-/* BSOD Overlay */
 .bsod-overlay {
 	position: fixed;
 	inset: 0;
@@ -597,7 +589,6 @@ defineExpose({ open, close });
 	line-height: 1.5;
 }
 
-/* Backdrop */
 .cmd-backdrop {
 	position: fixed;
 	inset: 0;
@@ -606,7 +597,6 @@ defineExpose({ open, close });
 	z-index: 3000;
 }
 
-/* Modal */
 .cmd-modal {
 	position: fixed;
 	top: 15vh;
@@ -627,7 +617,6 @@ defineExpose({ open, close });
 	flex-direction: column;
 }
 
-/* Input */
 .cmd-search-wrapper {
 	display: flex;
 	align-items: center;
@@ -653,7 +642,6 @@ defineExpose({ open, close });
 	padding: 4px;
 }
 
-/* List */
 .cmd-list {
 	max-height: 350px;
 	overflow-y: auto;
@@ -667,7 +655,6 @@ defineExpose({ open, close });
 	border-radius: 4px;
 }
 
-/* Item */
 .cmd-item {
 	display: flex;
 	align-items: center;
@@ -762,7 +749,6 @@ defineExpose({ open, close });
 	color: var(--cmd-sub);
 }
 
-/* Footer */
 .cmd-footer {
 	padding: 8px 16px;
 	background: var(--cmd-select);
@@ -793,7 +779,6 @@ defineExpose({ open, close });
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
-/* Animations */
 .fade-enter-active,
 .fade-leave-active {
 	transition: opacity 0.2s;
@@ -824,13 +809,13 @@ defineExpose({ open, close });
 	width: 50px;
 	height: 50px;
 	border-radius: 50%;
-	background: var(--cmd-text);
-	color: var(--cmd-bg);
+	background: var(--bg-tertiary);
+	color: var(--text);
 	border: none;
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+	box-shadow: 0 2px 25px var(--bg-quaternary);
 	z-index: 2000;
 }
 </style>

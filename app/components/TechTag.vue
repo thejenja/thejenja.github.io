@@ -2,7 +2,7 @@
 	<div
 		class="tech-tag"
 		:class="[
-		`tech-tag--${tag.color || 'gray'}`,
+			`tech-tag--${tag.color || 'gray'}`,
 			{
 				'tech-tag--clickable': clickable,
 				'tech-tag--expanded': expanded,
@@ -87,7 +87,6 @@ const isLightBackground = computed(() => {
 	cursor: default;
 	user-select: none;
 
-	/* Основной цвет фона */
 	background: var(--tag-color, #6b7280);
 
 	/* 
@@ -110,7 +109,7 @@ const isLightBackground = computed(() => {
 */
 .tech-tag.is-light-bg {
 	color: color-mix(in srgb, black 80%, var(--tag-color));
-	/* Можно добавить тонкую обводку, если фон слишком белый */
+
 	border: 1px solid color-mix(in srgb, black 5%, transparent);
 }
 
@@ -127,24 +126,22 @@ const isLightBackground = computed(() => {
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	flex-shrink: 0; /* Чтобы иконку не плющило */
+	flex-shrink: 0;
 	z-index: 1;
 }
 
-/* --- МАГИЯ GRID АНИМАЦИИ --- */
-
 .tech-tag__content-wrapper {
 	display: grid;
-	grid-template-columns: 0fr; /* По умолчанию ширина контента 0 */
-	transition: grid-template-columns 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Пружинистый эффект */
+	grid-template-columns: 0fr;
+	transition: grid-template-columns 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .tech-tag:hover .tech-tag__content-wrapper {
-	grid-template-columns: 1fr; /* При наведении раскрываем */
+	grid-template-columns: 1fr;
 }
 
 .tech-tag--expanded .tech-tag__content-wrapper {
-	grid-template-columns: 1fr; /* Всегда раскрыт */
+	grid-template-columns: 1fr;
 }
 
 .tech-tag__name {
@@ -156,23 +153,21 @@ const isLightBackground = computed(() => {
 		opacity 0.3s ease,
 		transform 0.3s ease,
 		margin-left 0.3s ease;
-	min-height: 0; /* Фикс для Grid */
+	min-height: 0;
 }
 
-/* Синхронизируем появление текста с раскрытием грида */
 .tech-tag:hover .tech-tag__name {
 	opacity: 1;
 	transform: translateX(0);
-	margin-left: 0.5rem; /* Отступ появляется только при наведении */
+	margin-left: 0.5rem;
 }
 
 .tech-tag--expanded .tech-tag__name {
 	opacity: 1;
 	transform: translateX(0);
-	margin-left: 0.5rem; /* Отступ всегда есть в раскрытом состоянии */
+	margin-left: 0.5rem;
 }
 
-/* Начальная анимация появления самого тега при загрузке страницы */
 .tech-tag {
 	animation: pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) backwards;
 }

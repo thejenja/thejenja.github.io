@@ -1,5 +1,4 @@
 <template>
-	<!-- Добавляем класс 'full-width-page' если мы на странице проекта -->
 	<div
 		class="app"
 		:class="{
@@ -7,17 +6,8 @@
 			'full-width-app': isProjectPage,
 		}"
 	>
-		<Transition name="fade" appear>
-			<Preloader
-				v-if="isLoading"
-				:progress="loadingProgress"
-				:loading-text="loadingText"
-			/>
-		</Transition>
-
 		<Navigation class="sidebar" />
 
-		<!-- Также добавляем класс контейнеру, чтобы снять max-width -->
 		<div
 			class="container"
 			:class="{ 'full-width-container': isProjectPage }"
@@ -26,7 +16,6 @@
 			<NuxtPage />
 		</div>
 
-		<!-- Footer можно скрыть или стилизовать иначе на этой странице, если нужно -->
 		<Footer />
 
 		<CommandPalette />
@@ -35,12 +24,8 @@
 
 <script setup>
 import { computed } from "vue";
-const { t } = useI18n();
 const colorMode = useColorMode();
 const route = useRoute(); // Получаем текущий маршрут
-const { isLoading, loadingProgress, loadingText, simulateLoading } =
-	usePreloader();
-const { showPreloader: settingShowPreloader } = useAppSettings();
 const { transitionName, getTransitionForRoute } = usePageTransitions();
 
 // Проверяем, находится ли пользователь на странице проекта
@@ -71,27 +56,6 @@ const router = useRouter();
 router.beforeEach((to, from) => {
 	const transitionType = getTransitionForRoute(to.path, from.path);
 	transitionName.value = `page-${transitionType}`;
-});
-
-onMounted(() => {
-	if (settingShowPreloader.value) {
-		simulateLoading([
-			{ text: t("preloader.steps.initApp"), duration: 200 },
-			{ text: t("preloader.steps.loadComponents"), duration: 300 },
-			{ text: t("preloader.steps.prepareInterface"), duration: 200 },
-			{ text: t("preloader.steps.almostReady"), duration: 100 },
-		]);
-	}
-
-	if (typeof document !== "undefined") {
-		document.addEventListener("app:show-preloader", () => {
-			simulateLoading([
-				{ text: t("preloader.steps.init"), duration: 200 },
-				{ text: t("preloader.steps.load"), duration: 300 },
-				{ text: t("preloader.steps.ready"), duration: 150 },
-			]);
-		});
-	}
 });
 </script>
 

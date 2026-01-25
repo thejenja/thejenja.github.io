@@ -6,12 +6,29 @@
 		"contact": "Hit me up",
 		"sourceCode": "Source code",
 		"toggle": "Open/close navigation",
-		"backToProjects": "Back to projects"
+		"backToProjects": "Back to projects",
+		"uses": "Uses",
+		"resume": "Resume"
+	},
+	"uses": {
+		"title": "My Tech Stack",
+		"description": "Here's what I use for development and design.",
+		"techStack": "Tech Stack",
+		"setup": "Setup"
+	},
+	"resume": {
+		"title": "My Resume",
+		"description": "Check out my professional experience and skills.",
+		"download": "Download CV",
+		"downloadButton": "Download PDF",
+		"onlineProfiles": "Online Profiles",
+		"notReady": "Resume is not ready yet"
 	},
 	"hero": {
 		"greeting": "Yo, hey!",
 		"subtitle": "I’m {0}, {1} y.o, and I’m into",
-		"activity": "doing"
+		"activity": "doing",
+		"learnMore": "Learn more"
 	},
 	"activities": {
 		"frontend": "frontend",

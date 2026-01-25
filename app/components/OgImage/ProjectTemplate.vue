@@ -6,7 +6,7 @@
 	>
 		<div class="header">
 			<div class="logo-placeholder" style="margin: auto">
-				<NuxtImg
+				<img
 					v-if="computedProjectIcon"
 					:src="computedProjectIcon"
 					:alt="`${title} icon`"

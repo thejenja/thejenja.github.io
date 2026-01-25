@@ -5,7 +5,6 @@
 		role="region"
 		aria-labelledby="projects-title"
 	>
-		<!-- TIMELINE MODE -->
 		<div v-if="viewMode === 'timeline'" class="timeline-container">
 			<div class="timeline-header">
 				<div class="timeline-years">
@@ -28,12 +27,9 @@
 				</div>
 			</div>
 
-			<!-- Анимация смены контента при переключении года -->
-			<!-- mode="out-in" обеспечивает плавную смену без наложения -->
 			<Transition :name="yearTransitionName" mode="out-in">
 				<div :key="activeYear" class="timeline-content-wrapper">
 					<div class="timeline-content">
-						<!-- TransitionGroup для анимации фильтрации/появления карточек внутри групп -->
 						<div
 							v-for="(monthGroup, monthKey) in groupedProjects"
 							:key="monthKey"
@@ -62,7 +58,6 @@
 			</Transition>
 		</div>
 
-		<!-- MARQUEE MODE -->
 		<div v-else-if="viewMode === 'marquee'" class="marquee-container">
 			<div class="fade-mask left" />
 			<div class="fade-mask right" />
@@ -90,7 +85,6 @@
 			</div>
 		</div>
 
-		<!-- SCROLL MODE -->
 		<div
 			v-else-if="viewMode === 'scroll'"
 			class="scroll-wrapper"
@@ -121,7 +115,6 @@
 			</div>
 		</div>
 
-		<!-- GRID MODE -->
 		<div v-else class="compact-grid-container">
 			<TransitionGroup name="project-list" tag="div" class="projects-grid">
 				<ProjectCard
@@ -271,7 +264,7 @@ const groupedProjects = computed(() => {
 		groups[monthKey].push(project);
 	});
 	return Object.fromEntries(
-		Object.entries(groups).sort(([a], [b]) => b.localeCompare(a))
+		Object.entries(groups).sort(([a], [b]) => b.localeCompare(a)),
 	);
 });
 
@@ -291,15 +284,12 @@ const formatMonth = (monthKey: string) => {
    ANIMATIONS
    ========================================= */
 
-/* 1. Анимация фильтрации (TransitionGroup) */
-/* Элементы двигаются, освобождая место */
 .project-list-move,
 .project-list-enter-active,
 .project-list-leave-active {
 	transition: all 0.5s cubic-bezier(0.55, 0, 0.1, 1);
 }
 
-/* Состояние входа */
 .project-list-enter-from,
 .project-list-leave-to {
 	opacity: 0;
@@ -310,11 +300,10 @@ const formatMonth = (monthKey: string) => {
    чтобы остальные плавно схлопнулись (magic grid effect) */
 .project-list-leave-active {
 	position: absolute;
-	width: 100%; /* Важно, чтобы верстка не ломалась внутри grid */
+	width: 100%;
 	z-index: -1;
 }
 
-/* 2. Анимация смены года (Слайд) */
 .slide-next-enter-active,
 .slide-next-leave-active,
 .slide-prev-enter-active,
@@ -324,7 +313,6 @@ const formatMonth = (monthKey: string) => {
 		transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
-/* Слайд ВЛЕВО (Next) */
 .slide-next-enter-from {
 	opacity: 0;
 	transform: translateX(30px);
@@ -334,7 +322,6 @@ const formatMonth = (monthKey: string) => {
 	transform: translateX(-30px);
 }
 
-/* Слайд ВПРАВО (Prev) */
 .slide-prev-enter-from {
 	opacity: 0;
 	transform: translateX(-30px);
@@ -395,7 +382,7 @@ const formatMonth = (monthKey: string) => {
 
 .month-group {
 	margin-bottom: 3rem;
-	/* Для корректной работы TransitionGroup внутри */
+
 	position: relative;
 }
 
@@ -403,15 +390,14 @@ const formatMonth = (monthKey: string) => {
 	position: sticky;
 	top: 0;
 	z-index: 10;
-	background: var(--bg); /* Важно иметь фон, чтобы контент не просвечивал */
+	background: var(--bg);
 	border-bottom: 1px solid var(--border);
 	padding-bottom: 1rem;
 	padding-top: 1rem;
 	margin-bottom: 1.5rem;
-	transition: background-color 0.3s ease; /* Плавность при смене темы */
+	transition: background-color 0.3s ease;
 }
 
-/* Небольшая тень при прилипании (опционально, для красоты) */
 .month-header::after {
 	content: "";
 	position: absolute;
@@ -437,7 +423,7 @@ const formatMonth = (monthKey: string) => {
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
 	gap: 1.5rem;
-	position: relative; /* Для позиционирования карточек при анимации */
+	position: relative;
 }
 
 @media (max-width: 768px) {
@@ -458,8 +444,8 @@ const formatMonth = (monthKey: string) => {
 .scroll-wrapper {
 	width: 100%;
 	position: relative;
-	/* Динамическая маска на основе CSS переменных, которые меняет JS */
-	--mask-width: 60px; /* Ширина градиента затухания */
+
+	--mask-width: 60px;
 	mask-image: linear-gradient(
 		to right,
 		transparent 0%,
@@ -474,7 +460,7 @@ const formatMonth = (monthKey: string) => {
 		black calc(100% - (var(--mask-width) * var(--mask-right))),
 		transparent 100%
 	);
-	/* Плавный переход самой маски при изменении 0/1 */
+
 	transition:
 		mask-image 0.3s ease,
 		-webkit-mask-image 0.3s ease;
@@ -485,8 +471,8 @@ const formatMonth = (monthKey: string) => {
 	overflow-x: auto;
 	scrollbar-width: none;
 	-webkit-overflow-scrolling: touch;
-	/* Основные свойства для Scroll Snap */
-	scroll-snap-type: x mandatory; /* Обязательное прилипание */
+
+	scroll-snap-type: x mandatory;
 	scroll-behavior: smooth;
 }
 
@@ -503,9 +489,9 @@ const formatMonth = (monthKey: string) => {
 .scroll-card {
 	width: 300px;
 	flex-shrink: 0;
-	/* Точка прилипания */
+
 	scroll-snap-align: start;
-	scroll-margin-left: 1rem; /* Отступ при прилипании */
+	scroll-margin-left: 1rem;
 }
 
 .see-more-card {
@@ -524,7 +510,6 @@ const formatMonth = (monthKey: string) => {
 	scroll-margin-left: 1rem;
 }
 
-/* Остальные стили (Marquee и т.д.) остались без изменений или адаптированы */
 .marquee-container {
 	position: relative;
 	width: 100%;

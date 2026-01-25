@@ -8,14 +8,6 @@ import AnimatedSection from "~/components/AnimatedSection.vue";
 import { useProjects, type ProjectContent } from "~/composables/useProjects";
 import { useSEO } from "~/composables/useSEO";
 
-// OG Image для страницы списка проектов
-defineOgImage({
-	component: "ProjectsListTemplate",
-	props: {
-		title: $t("projects.title"),
-	},
-});
-
 const { t } = useI18n();
 
 const { loadAllProjects, refreshProjects } = useProjects();
@@ -38,7 +30,7 @@ const {
 			// console.error(t("projects.loadingError"), error);
 			return [];
 		}
-	}
+	},
 );
 
 // Следим за изменением локали и обновляем проекты
@@ -137,7 +129,7 @@ const filtered = computed<ProjectContent[]>(() => {
 	if (selectedTypes.value.length) {
 		list = list.filter(
 			(p: ProjectContent) =>
-				p.meta?.type && selectedTypes.value.includes(p.meta.type)
+				p.meta?.type && selectedTypes.value.includes(p.meta.type),
 		);
 	}
 
@@ -145,7 +137,7 @@ const filtered = computed<ProjectContent[]>(() => {
 	if (selectedStages.value.length) {
 		list = list.filter(
 			(p: ProjectContent) =>
-				p.meta?.stage && selectedStages.value.includes(p.meta.stage)
+				p.meta?.stage && selectedStages.value.includes(p.meta.stage),
 		);
 	}
 
@@ -157,7 +149,7 @@ const filtered = computed<ProjectContent[]>(() => {
 
 			// Проверяем, есть ли похожий цвет в выбранных
 			return selectedProjectColors.value.some((selectedColor) =>
-				isSimilarColor(projectColor, selectedColor)
+				isSimilarColor(projectColor, selectedColor),
 			);
 		});
 	}
@@ -166,7 +158,7 @@ const filtered = computed<ProjectContent[]>(() => {
 	list.sort(
 		(a: ProjectContent, b: ProjectContent) =>
 			new Date(b.date || b.meta?.date || 0).getTime() -
-			new Date(a.date || a.meta?.date || 0).getTime()
+			new Date(a.date || a.meta?.date || 0).getTime(),
 	);
 
 	return list;
@@ -176,15 +168,22 @@ const filtered = computed<ProjectContent[]>(() => {
 const seo = useSEO();
 useHead(() => ({
 	...seo.getPageSEO(),
-	title: `${seo.getPageSEO().title} - ${t("projects.title")}`,
+	title: seo.getPageTitle("projects.title"),
 	meta: [
 		...seo.getPageSEO().meta,
 		{
 			name: "description",
-			content: `Портфолио проектов ${t("seo.description")}`,
+			content: seo.getPageDescription("projects.description"),
 		},
 	],
 }));
+
+defineOgImage({
+	component: "ProjectsListTemplate",
+	props: {
+		title: t("projects.title"),
+	},
+});
 </script>
 
 <template>
@@ -381,7 +380,6 @@ useHead(() => ({
 	opacity: 0.3;
 }
 
-/* Сообщение о загрузке */
 .loading-message {
 	text-align: center;
 	padding: 2rem;

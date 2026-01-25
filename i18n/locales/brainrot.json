@@ -6,12 +6,29 @@
 		"contact": "Slide Into DMs",
 		"sourceCode": "The Sauce",
 		"toggle": "Toggle Hacks",
-		"backToProjects": "Respawn at Projects"
+		"backToProjects": "Respawn at Projects",
+		"uses": "The Loadout",
+		"resume": "Skill Tree"
+	},
+	"uses": {
+		"title": "My Meta",
+		"description": "The loot I use to cook and looksmax.",
+		"techStack": "Main Class",
+		"setup": "The Rig"
+	},
+	"resume": {
+		"title": "My Skill Tree",
+		"description": "Proof that I'm not an NPC.",
+		"download": "Grab the Lore",
+		"downloadButton": "PDF for Boomers",
+		"onlineProfiles": "Side Quests",
+		"notReady": "Still grinding (not ready yet)"
 	},
 	"hero": {
 		"greeting": "Yooo wsg chat",
 		"subtitle": "it's ya boi {0}, lvl {1} boss, and I am",
-		"activity": "min-maxing"
+		"activity": "min-maxing",
+		"learnMore": "Yap more"
 	},
 	"activities": {
 		"frontend": "pixel rizz",
@@ -43,6 +60,7 @@
 		"donateAddress": "Drop loot here:",
 		"copyAddress": "Yoink Address",
 		"supportProject": "Pay Fanum Tax via TON",
+		"tonDescription": "Glaze the project with TON crypto",
 		"tonCopyAddress": "Yoink TON"
 	},
 	"projects": {
@@ -56,8 +74,17 @@
 	},
 	"contact": {
 		"title": "Link Up",
-		"writeTelegram": "Yap on Telegram",
-		"writeEmail": "Send Owl"
+		"status": "Ready for quests",
+		"description": "Yap about quests or just chat about the simulation.",
+		"telegram": {
+			"label": "Blue App",
+			"subLabel": "Instant ping"
+		},
+		"email": {
+			"label": "Ancient Scroll",
+			"subLabel": "Formal Yap"
+		},
+		"copyEmail": "Yoink Email"
 	},
 	"footer": {
 		"madeWith": "Cooked with",
@@ -96,7 +123,10 @@
 		"library": "Nerd Stuff",
 		"tool": "OP Item",
 		"game": "Roblox Obby",
-		"design": "Drip"
+		"design": "Drip",
+		"desktop-app": "Fat EXE",
+		"userstyle": "Site Reshade",
+		"userscript": "Site Hacks"
 	},
 	"projectStages": {
 		"planning": "Manifesting",
@@ -158,7 +188,8 @@
 		"loading": "Buffering...",
 		"featured": "Based",
 		"gallery": "Cringe Compilation",
-		"carousel": "Spinny Boi"
+		"carousel": "Spinny Boi",
+		"tableOfContents": "TL;DR Map"
 	},
 	"preloader": {
 		"steps": {

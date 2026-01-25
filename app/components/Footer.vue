@@ -1,119 +1,81 @@
 <template>
 	<footer role="contentinfo">
 		<div class="footer-content">
-			<span class="copyright"
-				>© {{ currentYear }} thejenja | {{ $t("footer.madeWith") }} ❤️ &
-				CSS</span
-			>
-			<div class="info-wrapper">
-				<span class="motto-wrapper">
-					<span class="motto" :class="{ 'fade-out': isChanging }">{{
-						currentMotto
-					}}</span>
+			<div class="copyright">
+				© {{ currentYear }} thejenja
+				<span class="divider">|</span>
+				<span class="tech-stack">
+					{{ $t("footer.madeWith") }} <span class="heart">❤️</span> & CSS
 				</span>
+			</div>
+
+			<div class="motto-container">
+				<Transition name="slide-up" mode="out-in">
+					<span :key="currentIndex" class="motto">
+						{{ currentMottoText }}
+					</span>
+				</Transition>
 			</div>
 		</div>
 	</footer>
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onUnmounted, watch } from "vue";
-const { locale } = useI18n();
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t, locale } = useI18n();
 const currentYear = new Date().getFullYear();
 
-// Функция для генерации строки времени
-const generateTimeMotto = () => {
-	const now = new Date();
-	const timeString = now.toLocaleTimeString(locale.value === 'ru' ? 'ru-RU' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-	return useI18n().t("footer.mottos.5", { currentTime: timeString });
-};
+// Количество статических фраз в json (0..4) + 1 для времени
+const MOTTO_COUNT = 6;
+const TIME_INDEX = 5; // Индекс, под которым будет время
+const INTERVAL_MS = 5000;
 
-// Состояние для обновления времени
-const timeUpdateTrigger = ref(0);
+const currentIndex = ref(0);
+let intervalId = null;
 
-// Массив с различными вариантами motto для текущего языка, получаемый из i18n
-const mottos = computed(() => {
-	// Получаем массив motto для текущего языка
-	const localeValue = locale.value;
-	if (localeValue === 'ru') {
-		return [
-			useI18n().t("footer.mottos.0"),
-			useI18n().t("footer.mottos.1"),
-			useI18n().t("footer.mottos.2"),
-			useI18n().t("footer.mottos.3"),
-			useI18n().t("footer.mottos.4"),
-			// Добавляем строку с текущим временем как один из вариантов motto
-			generateTimeMotto()
-		];
-	} else {
-		return [
-			useI18n().t("footer.mottos.0"),
-			useI18n().t("footer.mottos.1"),
-			useI18n().t("footer.mottos.2"),
-			useI18n().t("footer.mottos.3"),
-			useI18n().t("footer.mottos.4"),
-			// Добавляем строку с текущим временем как один из вариантов motto
-			generateTimeMotto()
-		];
+// Вычисляем текущий текст
+const currentMottoText = computed(() => {
+	// Если сейчас очередь показывать время (индекс 5)
+	if (currentIndex.value === TIME_INDEX) {
+		const now = new Date();
+		const timeString = now.toLocaleTimeString(
+			locale.value === "ru" ? "ru-RU" : "en-US",
+			{ hour: "2-digit", minute: "2-digit" },
+		);
+		return t("footer.mottos.5", { currentTime: timeString });
 	}
+
+	// Иначе берем обычный перевод по индексу
+	return t(`footer.mottos.${currentIndex.value}`);
 });
 
-// Функция для обновления времени
-const updateTime = () => {
-	timeUpdateTrigger.value++;
+const startRotation = () => {
+	intervalId = setInterval(() => {
+		currentIndex.value = (currentIndex.value + 1) % MOTTO_COUNT;
+	}, INTERVAL_MS);
 };
 
-const currentMotto = ref("");
-const isChanging = ref(false);
-let currentIndex = 0;
-
-// Обновляем текущий motto при изменении языка
-const updateMotto = () => {
-	// Обновляем время перед обновлением motto, чтобы получить актуальное время
-	updateTime();
-	currentMotto.value = mottos.value[0];
-	currentIndex = 0;
-};
-
-// Функция для смены motto
-const changeMotto = () => {
-	isChanging.value = true;
-
-	setTimeout(() => {
-		currentIndex = (currentIndex + 1) % mottos.value.length;
-		currentMotto.value = mottos.value[currentIndex];
-		isChanging.value = false;
-	}, 500); // Время анимации исчезновения
-};
-
-// Устанавливаем интервал для смены motto каждые 5 секунд и обновления времени каждую минуту
 onMounted(() => {
-	// Устанавливаем начальное значение motto
-	updateMotto();
-	
-	const mottoInterval = setInterval(changeMotto, 5000);
-	const timeInterval = setInterval(updateTime, 60000); // Обновляем время каждую минуту
-	
-	// Очищаем интервалы при размонтировании компонента
-	onUnmounted(() => {
-		clearInterval(mottoInterval);
-		clearInterval(timeInterval);
-	});
+	startRotation();
 });
 
-// Отслеживаем изменение языка и обновляем motto при смене
-watch(locale, () => {
-	updateMotto();
+onUnmounted(() => {
+	if (intervalId) clearInterval(intervalId);
 });
 </script>
 
 <style scoped>
 footer {
-	background: var(--bg-tertiary);
+	background: var(--bg-secondary);
+	border: 1px solid var(--border-color, var(--bg-tertiary));
 	border-radius: 16px;
 	padding: 1.5rem 2rem;
 	color: var(--text);
-	margin-top: 2em;
+	margin-top: 3rem;
+
+	backdrop-filter: blur(10px);
 }
 
 .footer-content {
@@ -122,44 +84,93 @@ footer {
 	align-items: center;
 	flex-wrap: wrap;
 	gap: 1rem;
+	font-size: 0.95rem;
 }
 
-.info-wrapper {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-end;
-	gap: 0.5rem;
-}
-
-
-.motto-wrapper {
-	min-height: 1.2em;
+.copyright {
 	display: flex;
 	align-items: center;
+	gap: 0.5rem;
+	opacity: 0.7;
+	font-weight: 500;
+}
+
+.divider {
+	opacity: 0.3;
+}
+
+.heart {
+	display: inline-block;
+	color: #ef4444;
+	animation: heartbeat 1.5s ease-in-out infinite;
+}
+
+.motto-container {
+	min-height: 1.5em;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
 }
 
 .motto {
 	display: inline-block;
-	transition: opacity 0.5s ease-in-out;
+	color: var(--text-secondary);
 }
 
-.motto.fade-out {
+.slide-up-enter-active,
+.slide-up-leave-active {
+	transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.slide-up-enter-from {
 	opacity: 0;
+	transform: translateY(10px);
 }
 
-span {
-	opacity: 0.5;
+.slide-up-leave-to {
+	opacity: 0;
+	transform: translateY(-10px);
+}
+.slide-up-enter-to,
+.slide-up-leave-from {
+	opacity: 1;
+	transform: translateY(0);
 }
 
-@media (max-width: 768px) {
+@keyframes heartbeat {
+	0%,
+	100% {
+		transform: scale(1);
+	}
+	50% {
+		transform: scale(1.15);
+	}
+}
+
+@media (max-width: 640px) {
 	.footer-content {
 		flex-direction: column;
-		align-items: center;
+		justify-content: center;
 		text-align: center;
+		gap: 1.5rem;
 	}
 
-	.info-wrapper {
-		align-items: center;
+	.motto-container {
+		justify-content: center;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.heart {
+		animation: none;
+	}
+	.slide-up-enter-active,
+	.slide-up-leave-active {
+		transition: opacity 0.3s ease;
+	}
+	.slide-up-enter-from,
+	.slide-up-leave-to {
+		transform: none;
 	}
 }
 </style>

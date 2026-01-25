@@ -4,24 +4,6 @@
 			<Hero />
 		</AnimatedSection>
 
-		<AnimatedSection animation-type="slide-up" :delay="200">
-			<AboutMe />
-		</AnimatedSection>
-
-		<AnimatedSection animation-type="slide-left" :delay="400">
-			<Links />
-		</AnimatedSection>
-
-		<AnimatedSection animation-type="scale" :delay="600">
-			<AsyncWrapper :threshold="0.2" skeleton-variant="project">
-				<TimelineProjects
-					:projects="projects"
-					:compact="true"
-					view-mode="scroll"
-				/>
-			</AsyncWrapper>
-		</AnimatedSection>
-
 		<AnimatedSection animation-type="slide-up" :delay="800">
 			<ContactMe />
 		</AnimatedSection>
@@ -29,7 +11,9 @@
 </template>
 
 <script setup>
-import TimelineProjects from "~/components/TimelineProjects.vue";
+// SEO для главной страницы
+const { getPageSEO } = useSEO();
+useHead(getPageSEO());
 
 // OG Image для главной страницы
 defineOgImage({
@@ -41,32 +25,6 @@ defineOgImage({
 	},
 });
 
-// Получаем текущую локаль
-const { locale } = useI18n();
-
-// Загружаем проекты для главной страницы с учетом локали
-const { loadFeaturedProjects, refreshProjects } = useProjects();
-
-// Используем стабильный ключ для useAsyncData, чтобы избежать проблем с SSR
-const { data: projects, refresh } = await useAsyncData(
-	'featured-projects',
-	() => loadFeaturedProjects(locale.value),
-	{
-		default: () => [],
-		transform: (data) => data || []
-	}
-);
-
-// Следим за изменением локали и обновляем проекты
-watch(locale, async (newLocale) => {
-	await refreshProjects(newLocale);
-	await refresh();
-}, { immediate: false });
-
-// SEO для главной страницы
-const { getPageSEO } = useSEO();
-useHead(getPageSEO());
-
 // Компоненты будут автоматически анимироваться через AnimatedSection
 </script>
 
@@ -77,7 +35,6 @@ useHead(getPageSEO());
 	gap: 1.5rem;
 }
 
-/* Дополнительные стили для плавности анимаций */
 .home-page > * {
 	will-change: transform, opacity;
 }

@@ -110,7 +110,7 @@ interface Emits {
 			| "update:selectedTypes"
 			| "update:selectedStages"
 			| "update:selectedProjectColors",
-		value: string[]
+		value: string[],
 	): void;
 	(e: "apply"): void;
 }
@@ -440,7 +440,6 @@ const getColorLabel = (color: string) => {
 	transform: rotate(180deg);
 }
 
-/* Адаптивность для мобильных устройств */
 @media (max-width: 768px) {
 	.dropdown-menu {
 		width: 100%;

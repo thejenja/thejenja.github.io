@@ -7,7 +7,7 @@
 				radial-gradient(100% 100% at 0% 100%, #45285d66 0%, transparent 100%),
 				radial-gradient(100% 100% at 100% 0, #5c2d3a66 0%, transparent 100%),
 				linear-gradient(#111);
-			color: #fff;
+			color: #6b537e;
 			display: flex;
 			flex-direction: column;
 			align-content: center;

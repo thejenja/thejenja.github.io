@@ -75,7 +75,7 @@ export const defaultTagIcons: TagIcon[] = [
 	{
 		slug: "nodejs",
 		name: "Node.js",
-		icon: "simple-icons:Hashnode",
+		icon: "simple-icons:NodeDotjs",
 		color: "#339933",
 	}, // fallback
 	{
@@ -199,6 +199,12 @@ export const defaultTagIcons: TagIcon[] = [
 		icon: "simple-icons:Netlify",
 		color: "#00C7B7",
 	},
+	{
+		slug: "github",
+		name: "GitHub",
+		icon: "simple-icons:GitHub",
+		color: "#181717",
+	},
 
 	// Технологии браузера
 	{
@@ -286,7 +292,7 @@ export function useTagIcons() {
 		const normalizedSlug = slug.toLowerCase().replace(/[^a-z0-9]/g, "");
 		return (
 			defaultTagIcons.find(
-				(tag) => tag.slug === normalizedSlug || tag.slug === slug.toLowerCase()
+				(tag) => tag.slug === normalizedSlug || tag.slug === slug.toLowerCase(),
 			) || null
 		);
 	};

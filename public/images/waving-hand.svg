@@ -1,6 +1,6 @@
 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
   <style>
-    /* общие настройки анимаций */
+    
     :root{
       --hand-duration: 2400ms;
       --finger-duration: 1000ms;
@@ -8,7 +8,7 @@
     }
     svg { overflow: visible; }
 
-    /* легкое покачивание всей ладони */
+    
     .hand {
       transform-box: fill-box;
       transform-origin: 50% 72%;
@@ -21,7 +21,7 @@
       100% { transform: rotate(-10deg); }
     }
 
-    /* волны по краям — становятся тоньше/толще и немного подпрыгивают */
+    
     .waves { transform-box: fill-box; transform-origin: 50% 50%; will-change: transform; }
     .wave {
       animation: wave-thin var(--wave-duration) cubic-bezier(0.25, 0.1, 0.25, 1) infinite;
@@ -37,7 +37,7 @@
       100% { transform: scaleY(1) translateY(0); }
     }
 
-    /* немного дополнительного «жизни» — тонкое пульсирование центра ладони */
+    
     .palm-shadow {
       transform-box: fill-box;
       transform-origin: 50% 65%;

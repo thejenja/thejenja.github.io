@@ -19,12 +19,10 @@
 		"@nuxt/content": "^3.6.0",
 		"@nuxt/eslint": "^1.8.0",
 		"@nuxt/fonts": "^0.11.4",
-		"@nuxt/image": "^1.11.0",
 		"@nuxtjs/color-mode": "^3.5.2",
 		"@nuxtjs/i18n": "^10.0.4",
 		"@nuxtjs/robots": "^5.4.0",
 		"@nuxtjs/sitemap": "^7.4.3",
-		"@oddbird/css-anchor-positioning": "^0.0.4",
 		"@unhead/vue": "^2.0.17",
 		"better-sqlite3": "^12.2.0",
 		"eslint": "^9.33.0",
@@ -41,7 +39,6 @@
 	"devDependencies": {
 		"chalk": "^5.6.2",
 		"fs-extra": "^11.3.3",
-		"glob": "^13.0.0",
 		"gray-matter": "^4.0.3"
 	}
 }

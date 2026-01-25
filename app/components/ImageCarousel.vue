@@ -7,14 +7,13 @@
 				class="slide"
 				@click="openLightbox(idx)"
 			>
-				<NuxtImg
-					:src="img.src"
-					:alt="img.alt || `image-${idx}`"
-					loading="lazy"
-					width="400"
-					height="320"
-					sizes="xs:100vw sm:10vw md:50vw lg:400px"
-				/>
+			  <img
+			    :src="img.src"
+			    :alt="img.alt || `image-${idx}`"
+			    loading="lazy"
+			    width="400"
+			    height="320"
+			  />
 			</div>
 		</div>
 		<div v-if="normalizedImages.length > 1" class="dots">

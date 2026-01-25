@@ -1,6 +1,5 @@
 <template>
 	<section class="contact-card" role="region" aria-labelledby="contact-title">
-		<!-- Фоновый эффект -->
 		<div class="contact-glow" />
 
 		<div class="contact-content">
@@ -10,7 +9,6 @@
 					<Mail class="title-icon" :size="24" />
 				</h2>
 
-				<!-- Статус -->
 				<div class="status-badge">
 					<span class="status-dot"></span>
 					<span class="status-text">{{ $t("contact.status") }}</span>
@@ -22,7 +20,6 @@
 			</p>
 
 			<div class="actions-grid">
-				<!-- Telegram -->
 				<a
 					href="https://t.me/thejenja"
 					target="_blank"
@@ -30,7 +27,6 @@
 					class="main-btn telegram"
 				>
 					<div class="btn-content">
-						<!-- Используем SvgIcon для консистентности -->
 						<SvgIcon src="/icons/telegram-logo.svg" :size="28" />
 						<div class="btn-text">
 							<span class="label">{{ $t("contact.telegram.label") }}</span>
@@ -42,7 +38,6 @@
 					<ArrowUpRight class="arrow-icon" :size="20" />
 				</a>
 
-				<!-- Email -->
 				<div class="email-wrapper">
 					<a href="mailto:thejenjagamertjg@gmail.com" class="main-btn email">
 						<div class="btn-content">
@@ -67,7 +62,6 @@
 				</div>
 			</div>
 
-			<!-- Нижний ряд: Динамические иконки соцсетей -->
 			<div class="socials-row">
 				<a
 					v-for="social in socialLinks"
@@ -79,7 +73,6 @@
 					:aria-label="social.name"
 					:style="{ '--hover-color': social.color }"
 				>
-					<!-- Логика переключения между SVG и Компонентом -->
 					<SvgIcon
 						v-if="social.iconType === 'svg'"
 						:src="social.icon"
@@ -97,7 +90,9 @@ import { ref, h, defineComponent } from "vue";
 import { Mail, AtSign, ArrowUpRight, Copy, Check } from "lucide-vue-next";
 import { GitHubIcon, XIcon } from "vue3-simple-icons";
 
-// Компонент для отображения SVG (как в Links.vue)
+// === ИСПРАВЛЕННЫЙ КОМПОНЕНТ SVG ===
+// Вместо img используем div с mask-image.
+// Это позволяет управлять цветом через css свойство color (currentColor)
 const SvgIcon = defineComponent({
 	props: {
 		src: { type: String, required: true },
@@ -105,11 +100,24 @@ const SvgIcon = defineComponent({
 	},
 	setup(props) {
 		return () =>
-			h("img", {
-				src: props.src,
-				width: props.size,
-				height: props.size,
-				alt: "icon",
+			h("span", {
+				style: {
+					display: "inline-block",
+					width: `${props.size}px`,
+					height: `${props.size}px`,
+					backgroundColor: "currentColor", // Ключевой момент: берет цвет текста родителя
+					maskImage: `url(${props.src})`,
+					maskSize: "contain",
+					maskRepeat: "no-repeat",
+					maskPosition: "center",
+					// Webkit префиксы для Safari/Chrome
+					WebkitMaskImage: `url(${props.src})`,
+					WebkitMaskSize: "contain",
+					WebkitMaskRepeat: "no-repeat",
+					WebkitMaskPosition: "center",
+				},
+				// Добавляем role="img" для семантики, так как это больше не тег img
+				role: "img",
 			});
 	},
 });
@@ -127,9 +135,9 @@ const socialLinks = [
 	{
 		name: "LinkedIn",
 		url: "https://www.linkedin.com/in/thejenja/",
-		icon: "/icons/linkedin.svg", // Путь к SVG
+		icon: "/icons/linkedin.svg",
 		iconType: "svg",
-		color: "#0a66c2",
+		color: "#0077b5", // Оригинальный цвет LinkedIn
 	},
 	{
 		name: "X (Twitter)",
@@ -151,7 +159,6 @@ const copyEmail = async () => {
 </script>
 
 <style scoped>
-/* Стили остаются прежними, они корректны */
 .contact-card {
 	position: relative;
 	background: var(--bg-secondary);
@@ -205,7 +212,7 @@ const copyEmail = async () => {
 	display: inline-flex;
 	align-items: center;
 	gap: 0.5rem;
-	padding: 0.5rem 1rem;
+	padding: 0.35rem 1rem;
 	background: rgba(34, 197, 94, 0.1);
 	border: 1px solid rgba(34, 197, 94, 0.2);
 	border-radius: 99px;
@@ -349,6 +356,7 @@ const copyEmail = async () => {
 	width: 44px;
 	height: 44px;
 	border-radius: 12px;
+
 	color: var(--text-secondary);
 	transition: all 0.3s ease;
 	border: 1px solid transparent;
@@ -356,7 +364,7 @@ const copyEmail = async () => {
 
 .social-mini-btn:hover {
 	background: var(--bg-tertiary);
-	color: var(--text);
+
 	color: color-mix(in srgb, var(--hover-color), var(--text) 20%);
 	transform: translateY(-2px);
 }

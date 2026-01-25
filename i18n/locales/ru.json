@@ -6,12 +6,29 @@
 		"contact": "Контакты",
 		"sourceCode": "Исходный код",
 		"toggle": "Открыть/закрыть навигацию",
-		"backToProjects": "Вернуться к проектам"
+		"backToProjects": "Вернуться к проектам",
+		"uses": "Стек",
+		"resume": "Резюме"
+	},
+	"uses": {
+		"title": "Мой стек технологий",
+		"description": "Здесь описано, что я использую для разработки и дизайна.",
+		"techStack": "Технологии",
+		"setup": "Оборудование"
+	},
+	"resume": {
+		"title": "Моё резюме",
+		"description": "Ознакомьтесь с моим профессиональным опытом и навыками.",
+		"download": "Скачать резюме",
+		"downloadButton": "Скачать PDF",
+		"onlineProfiles": "Онлайн-профили",
+		"notReady": "Резюме ещё не готово"
 	},
 	"hero": {
 		"greeting": "Эй, привет",
 		"subtitle": "я {0}, мне {1} лет, и я",
-		"activity": "занимаюсь"
+		"activity": "занимаюсь",
+		"learnMore": "Узнать больше"
 	},
 	"activities": {
 		"frontend": "фронтендом",
@@ -43,6 +60,7 @@
 		"donateAddress": "Адрес для доната:",
 		"copyAddress": "Копировать адрес",
 		"supportProject": "Поддержите проект криптовалютой TON",
+		"tonDescription": "Поддержите проект криптовалютой TON",
 		"tonCopyAddress": "Копировать адрес"
 	},
 	"projects": {

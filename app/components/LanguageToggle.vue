@@ -1,6 +1,6 @@
 <template>
 	<button
-		class="nav-link"
+		class="nav-tile"
 		:class="{ 'brainrot-active': isBrainrotActive }"
 		:title="
 			currentLocaleName + (isBrainrotActive ? ' (Brainrot mode active)' : '')
@@ -8,16 +8,20 @@
 		aria-label="Toggle language"
 		@click="handleClick"
 	>
-		<Globe />
-		<span>{{ currentLocaleName }}</span>
-		<span class="language-code">{{ currentLocaleCode }}</span>
-		<span v-if="isBrainrotActive" class="brainrot-indicator">🤪</span>
+		<div class="tile-icon-wrapper">
+			<Globe />
+			<span v-if="isBrainrotActive" class="brainrot-indicator">🤪</span>
+		</div>
+		<div class="tile-content">
+			<span class="tile-label">{{ currentLocaleName }}</span>
+		</div>
 	</button>
 </template>
 
 <script setup lang="ts">
 import { Globe } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
+import { computed, ref } from "vue";
 
 const { locale, locales, setLocale } = useI18n();
 
@@ -27,8 +31,9 @@ const currentLocale = computed(() => {
 
 const currentLocaleName = computed(() => {
 	if (locale.value === "brainrot") {
-		return "Brainrot En 🤪";
+		return "Brainrot";
 	}
+	// Для плитки можно сократить имя, если нужно, или оставить как есть
 	return currentLocale.value?.name || "English";
 });
 
@@ -40,7 +45,6 @@ const currentLocaleCode = computed(() => {
 });
 
 const toggleLanguage = () => {
-	// Исключаем brainrot из обычного переключения
 	const availableLocales = locales.value
 		.filter((l) => l.code !== "brainrot")
 		.map((l) => l.code);
@@ -52,14 +56,16 @@ const toggleLanguage = () => {
 
 // Проверяем, активен ли brainrot режим
 const isBrainrotActive = computed(() => {
-	if (typeof document !== 'undefined') {
-	return document.documentElement.hasAttribute("data-brainrot");
+	if (typeof document !== "undefined") {
+		return document.documentElement.hasAttribute("data-brainrot");
 	}
 	return false;
 });
 
-// Функция для показа уведомления
-function showNotification(message: string, type: "success" | "info" | "warning" | "error" = "info") {
+function showNotification(
+	message: string,
+	type: "success" | "info" | "warning" | "error" = "info",
+) {
 	const notification = document.createElement("div");
 	notification.className = `notification notification-${type}`;
 	notification.textContent = message;
@@ -85,7 +91,8 @@ function showNotification(message: string, type: "success" | "info" | "warning" 
 		error: "#ef4444",
 	};
 
-	notification.style.backgroundColor = colors[type as keyof typeof colors] || colors.info;
+	notification.style.backgroundColor =
+		colors[type as keyof typeof colors] || colors.info;
 	document.body.appendChild(notification);
 
 	setTimeout(() => {
@@ -111,22 +118,18 @@ const handleClick = () => {
 
 	if (clickCount === 1) {
 		clickTimer = setTimeout(() => {
-			// Обычное переключение языка
 			toggleLanguage();
 			clickCount = 0;
 		}, 300);
 	} else if (clickCount === 2) {
-		// Двойной клик - активация brainrot режима
 		if (clickTimer) clearTimeout(clickTimer);
 		clickCount = 0;
 
 		if (locale.value === "brainrot") {
-			// Если уже в brainrot, возвращаемся к English
 			setLocale("en");
 			document.documentElement.removeAttribute("data-brainrot");
 			showNotification("Back to normal English! 😌", "success");
 		} else {
-			// Активируем brainrot режим
 			setLocale("brainrot");
 			document.documentElement.setAttribute("data-brainrot", "true");
 			showNotification("Brainrot mode activated! 🤪", "success");
@@ -136,33 +139,74 @@ const handleClick = () => {
 </script>
 
 <style scoped>
-.language-code {
-	background: var(--bg-tertiary);
-	padding: 0.25rem 0.5rem;
-	border-radius: 4px;
-	font-weight: 600;
-	font-size: 14px;
+/* Стили для плитки */
+.nav-tile {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 0.5rem;
+	padding: 0.75rem;
+	background: var(--bg-tertiary); /* Более выраженный фон для плитки */
+	color: var(--text);
+	border-radius: 12px;
+	border: 1px solid transparent;
+	cursor: pointer;
+	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+	width: 100%;
+	height: 100%;
+	min-height: 80px;
 }
 
-.nav-link svg {
-	width: 1.25rem;
-	height: 1.25rem;
+.nav-tile:hover {
+	background: var(--bg-secondary);
+	border-color: var(--bg-tertiary);
+	transform: translateY(-2px);
 }
 
+.nav-tile:active {
+	transform: scale(0.98);
+}
+
+.tile-icon-wrapper {
+	position: relative;
+	display: flex;
+}
+
+.tile-icon-wrapper svg {
+	width: 1.5rem;
+	height: 1.5rem;
+}
+
+.tile-content {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.25rem;
+}
+
+.tile-label {
+	font-size: 0.9rem;
+	font-weight: 500;
+}
+
+/* Brainrot стили */
 .brainrot-indicator {
-	margin-left: 0.5rem;
-	font-size: 1.2rem;
+	position: absolute;
+	top: -8px;
+	right: -8px;
+	font-size: 1rem;
 	animation: brainrot-bounce 1s ease-in-out infinite;
 }
 
 .brainrot-active {
-	background: linear-gradient(45deg, #ff6b9d, #ff8fab);
-	color: white;
-	box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
+	background: linear-gradient(135deg, #ff6b9d, #ff8fab) !important;
+	color: white !important;
+	border: none;
+	box-shadow: 0 4px 12px rgba(255, 107, 157, 0.3);
 }
 
 .brainrot-active .language-code {
-	background: rgba(255, 255, 255, 0.2);
+	background: rgba(255, 255, 255, 0.3);
 	color: white;
 }
 
@@ -176,8 +220,7 @@ const handleClick = () => {
 	}
 }
 
-/* Анимация для brainrot режима */
-.nav-link.brainrot-active {
+.brainrot-active {
 	animation: brainrot-pulse 2s ease-in-out infinite;
 }
 
@@ -187,7 +230,7 @@ const handleClick = () => {
 		transform: scale(1);
 	}
 	50% {
-		transform: scale(1.05);
+		transform: scale(1.02);
 	}
 }
 </style>

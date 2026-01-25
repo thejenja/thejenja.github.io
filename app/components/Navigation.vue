@@ -25,13 +25,12 @@
 		<div id="navigation" popover>
 			<div class="nav-content">
 				<div class="nav-header">
-					<NuxtImg
+					<img
 						src="/images/thejenja.svg"
 						alt="logo"
 						class="nav-logo"
 						width="120"
 						height="32"
-						sizes="xs:80px sm:100px md:120px"
 						loading="lazy"
 					/>
 				</div>
@@ -43,10 +42,16 @@
 				>
 					<X />
 				</button>
+
+				<!-- Основная навигация -->
 				<div class="nav-section">
 					<NuxtLinkLocale to="/" class="nav-link" @click="closeNavigation">
 						<Home />
 						{{ $t("navigation.home") }}
+					</NuxtLinkLocale>
+					<NuxtLinkLocale to="/about" class="nav-link" @click="closeNavigation">
+						<User />
+						{{ $t("navigation.about") }}
 					</NuxtLinkLocale>
 					<NuxtLinkLocale
 						to="/projects"
@@ -56,13 +61,33 @@
 						<Folder />
 						{{ $t("navigation.projects") }}
 					</NuxtLinkLocale>
+					<NuxtLinkLocale to="/uses" class="nav-link" @click="closeNavigation">
+						<Code />
+						{{ $t("navigation.uses") }}
+					</NuxtLinkLocale>
 				</div>
+
 				<hr />
-				<div class="nav-section">
+
+				<!-- Плитки настроек -->
+				<div class="nav-section nav-tiles">
 					<LanguageToggle />
 					<ThemeToggle />
+				</div>
 
-					<hr />
+				<hr />
+
+				<!-- Дополнительные ссылки (Резюме и Git) -->
+				<div class="nav-section">
+					<!-- Резюме перенесено сюда -->
+					<NuxtLinkLocale
+						to="/resume"
+						class="nav-link"
+						@click="closeNavigation"
+					>
+						<FileText />
+						{{ $t("navigation.resume") }}
+					</NuxtLinkLocale>
 
 					<a
 						href="https://github.com/thejenja/thejenja.github.io"
@@ -80,8 +105,19 @@
 </template>
 
 <script setup>
-import { Folder, Github, Home, Menu, X, ArrowLeft } from "lucide-vue-next";
-import { watch } from "vue";
+import {
+	Folder,
+	Github,
+	Home,
+	Menu,
+	X,
+	ArrowLeft,
+	User,
+	Code,
+	FileText,
+} from "lucide-vue-next";
+import { watch, ref, computed, onMounted } from "vue";
+import { useRoute } from "vue-router";
 
 const isOpen = ref(false);
 const navToggle = ref();
@@ -136,7 +172,7 @@ watch(
 				navigation.hidePopover();
 			}
 		}
-	}
+	},
 );
 </script>
 
@@ -167,23 +203,6 @@ watch(
 	transition: all 0.3s ease;
 }
 
-.nav-toggle-return {
-	appearance: none;
-	border: 0;
-	background: transparent;
-	color: var(--text);
-	border-radius: 8px;
-	cursor: pointer;
-	padding: 0.75rem;
-	width: 48px;
-	height: 48px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	transition: all 0.3s ease;
-	text-decoration: none;
-}
-
 .nav-toggle:hover {
 	background: var(--bg-tertiary);
 }
@@ -192,7 +211,6 @@ watch(
 	height: 2rem;
 }
 
-/* Анимированная иконка гамбургера */
 .nav-icon {
 	width: 32px;
 	height: 32px;
@@ -201,15 +219,6 @@ watch(
 	justify-content: center;
 	gap: 0.25rem;
 	flex-direction: column;
-}
-
-.nav-icon__line {
-	width: 70%;
-	height: 2px;
-	background: var(--text);
-	border-radius: 1px;
-	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	transform-origin: center;
 }
 
 #navigation {
@@ -227,7 +236,6 @@ watch(
 	top: anchor(--btn-nav bottom);
 	left: anchor(--btn-nav left);
 
-	/* Современные CSS анимации для popover */
 	transition:
 		opacity 0.3s ease,
 		transform 0.3s ease,
@@ -241,13 +249,19 @@ watch(
 	gap: 0.25rem;
 }
 
-/* Анимация появления popover */
+/* Стили для сетки плиток */
+.nav-tiles {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem;
+	margin: 0.25rem 0;
+}
+
 #navigation:popover-open {
 	opacity: 1;
 	transform: translateY(0) scale(1);
 }
 
-/* Начальное состояние для анимации */
 @starting-style {
 	#navigation:popover-open {
 		opacity: 0;
@@ -255,7 +269,6 @@ watch(
 	}
 }
 
-/* Анимация исчезновения */
 #navigation:not(:popover-open) {
 	opacity: 0;
 	transform: translateY(-10px) scale(0.95);
@@ -292,21 +305,8 @@ hr {
 	width: 100%;
 	text-align: left;
 
-	/* Анимация появления элементов навигации */
 	animation: nav-item-appear 0.3s ease-out backwards;
 	animation-delay: calc(var(--nav-index, 0) * 0.05s + 0.1s);
-}
-
-.nav-section:nth-child(1) .nav-link {
-	--nav-index: 0;
-}
-
-.nav-section:nth-child(2) .nav-link {
-	--nav-index: 1;
-}
-
-.nav-section:nth-child(3) .nav-link {
-	--nav-index: 2;
 }
 
 @keyframes nav-item-appear {
@@ -320,19 +320,17 @@ hr {
 	}
 }
 
-.nav-link svg {
-	width: 1.25rem;
-	height: 1.25rem;
-}
-
 .nav-link:hover {
 	background: var(--bg-tertiary);
 }
 
 .nav-link svg {
+	width: 1.25rem;
+	height: 1.25rem;
 	flex-shrink: 0;
 }
 
+/* Blur Fade Transitions */
 .blur-fade-enter-active,
 .blur-fade-leave-active {
 	transition:
@@ -359,21 +357,8 @@ hr {
 }
 
 @media (max-width: 768px) {
-	/* Оставляем STICKY только для обычной кнопки меню, если нужно */
 	.nav-toggle {
 		position: sticky;
-		margin: 0.5rem 0;
-	}
-
-	/* Для кнопки НАЗАД (в проекте) форсируем FIXED, чтобы она не двигала контент */
-	.nav-toggle-return {
-		position: fixed; /* Было sticky */
-		top: 1rem;
-		left: 1rem;
-		margin: 0; /* Убираем отступы, которые могли двигать контент */
-		background: rgba(0, 0, 0, 0.3); /* Немного фона для читаемости на фото */
-		backdrop-filter: blur(8px);
-		border-radius: 50%; /* Круглая кнопка на телефоне выглядит лучше */
 	}
 
 	#navigation {
@@ -389,8 +374,8 @@ hr {
 	}
 
 	[popover]::backdrop {
-		background-color: var(--bg) / 0.5;
-		backdrop-filter: blur(10px);
+		background-color: color-mix(in srgb, var(--bg), transparent 20%);
+		backdrop-filter: blur(3px);
 	}
 
 	.nav-link {
@@ -414,24 +399,16 @@ hr {
 	}
 }
 
-/* Уважение к настройкам пользователя */
 @media (prefers-reduced-motion: reduce) {
 	#navigation,
 	.nav-link,
-	.nav-toggle,
-	.nav-toggle-return,
-	.nav-icon__line {
+	.nav-toggle {
 		transition: none;
 		animation: none;
 	}
 
 	#navigation:popover-open,
 	#navigation:not(:popover-open) {
-		transform: none;
-	}
-
-	.nav-toggle:hover,
-	.nav-toggle-return:hover {
 		transform: none;
 	}
 }

@@ -149,7 +149,6 @@ withDefaults(defineProps<Props>(), {
 	}
 }
 
-/* Варианты размеров */
 .skeleton-loader.article {
 	min-height: 200px;
 }
@@ -162,7 +161,6 @@ withDefaults(defineProps<Props>(), {
 	min-height: 120px;
 }
 
-/* Адаптивность */
 @media (max-width: 768px) {
 	.skeleton-loader {
 		padding: 1rem;

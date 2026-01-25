@@ -3,24 +3,22 @@
 		class="project-page"
 		:style="{
 			'--accent': project?.meta?.color || '#4b5563',
+			viewTransitionName: project?.meta?.slug ? `project-page-${project.meta.slug}` : undefined,
 		}"
 	>
-		<!-- HERO SECTION -->
 		<div class="project-header">
-			<!-- Фон -->
 			<div
 				class="header-background"
 				:style="{ viewTransitionName: transitionName('bg') }"
 			>
 				<div v-if="hasBackground" class="background-image-wrapper">
-					<NuxtImg
+					<img
 						:src="backgroundImageUrl"
 						:alt="`${project?.title || 'Project'} background`"
 						class="background-image"
 						:class="{ 'is-opaque': isOpaqueBackground }"
 						width="1600"
 						height="900"
-						placeholder
 					/>
 					<div
 						class="background-overlay"
@@ -30,15 +28,13 @@
 				<div v-else class="gradient-background" :style="headerStyle" />
 			</div>
 
-			<!-- Контент внутри шапки -->
 			<div class="header-content container-limit">
 				<div class="header-top-row">
 					<div
 						class="header-logo-wrapper"
 						:style="{ viewTransitionName: transitionName('logo') }"
 					>
-						<!-- 1. Логотип (картинка) -->
-						<NuxtImg
+						<img
 							v-if="finalLogoPath && !logoLoadFailed"
 							:src="finalLogoPath"
 							:alt="`${project?.title || 'Project'} logo`"
@@ -48,12 +44,10 @@
 							@error="handleLogoError"
 						/>
 
-						<!-- 2. Fallback: Иконка -->
 						<div v-else-if="project?.meta?.icon" class="project-icon-large">
 							{{ project.meta.icon }}
 						</div>
 
-						<!-- 3. Fallback: Название (Если иконки нет, показываем название крупно, хотя оно есть и ниже) -->
 						<div v-else class="project-title-fallback-hero">
 							{{ project?.title }}
 						</div>
@@ -118,7 +112,6 @@
 			</div>
 		</div>
 
-		<!-- Основной контент страницы -->
 		<div class="project-body container-limit">
 			<div class="project-layout-grid">
 				<main class="main-content-column">
@@ -267,7 +260,7 @@ definePageMeta({
 
 const { data: project } = await useAsyncData(
 	() => `project-${slug.value}-${locale.value}`,
-	() => loadProjectBySlug(slug.value, locale.value)
+	() => loadProjectBySlug(slug.value, locale.value),
 );
 
 // --- LOGO FALLBACK LOGIC ---
@@ -287,12 +280,12 @@ const finalLogoPath = computed(() => {
 // ----------------------------
 
 const backgroundImageUrl = computed<string | undefined>(
-	() => project.value?.meta?.backgroundImage || undefined
+	() => project.value?.meta?.backgroundImage || undefined,
 );
 const hasBackground = computed(() => Boolean(backgroundImageUrl.value));
 
 const isOpaqueBackground = computed(
-	() => project.value?.meta?.backgroundOpacity === "opaque"
+	() => project.value?.meta?.backgroundOpacity === "opaque",
 );
 
 const headerStyle = computed<CSSProperties>(() => {
@@ -307,10 +300,10 @@ const headerStyle = computed<CSSProperties>(() => {
 });
 
 const topLinks = computed<ProjectLink[]>(
-	() => project.value?.meta?.linksTop || []
+	() => project.value?.meta?.linksTop || [],
 );
 const bottomLinks = computed<ProjectLink[]>(
-	() => project.value?.meta?.linksBottom || []
+	() => project.value?.meta?.linksBottom || [],
 );
 const gallery = computed(() => project.value?.meta?.gallery || []);
 const galleryMode = ref<"grid" | "carousel">("grid");
@@ -347,7 +340,7 @@ const updateActiveTocLink = () => {
 			? link.children.map((child: any) => document.getElementById(child.id))
 			: [];
 		return [mainHeading, ...subHeadings].filter(
-			(heading) => heading !== null
+			(heading) => heading !== null,
 		) as HTMLElement[];
 	});
 
@@ -453,7 +446,6 @@ const transitionName = (element: string) => {
 	width: 100%;
 }
 
-/* === HEADER / HERO SECTION === */
 .project-header {
 	position: relative;
 	min-height: 70vh;
@@ -542,7 +534,6 @@ const transitionName = (element: string) => {
 }
 
 .header-logo-wrapper {
-	opacity: 0.95;
 	transition: transform 0.3s;
 }
 .header-logo-wrapper:hover {
@@ -566,7 +557,6 @@ const transitionName = (element: string) => {
 	line-height: 1;
 }
 
-/* --- INFO BLOCK --- */
 .header-info {
 	margin-top: 2rem;
 }
@@ -627,7 +617,6 @@ const transitionName = (element: string) => {
 	gap: 0.5rem;
 }
 
-/* === LAYOUT GRID === */
 .project-body {
 	padding-top: 3rem;
 	padding-bottom: 4rem;
@@ -653,7 +642,6 @@ const transitionName = (element: string) => {
 	min-width: 0;
 }
 
-/* === SIDEBAR TOC === */
 .sidebar-column {
 	display: none;
 }
@@ -723,7 +711,6 @@ const transitionName = (element: string) => {
 	}
 }
 
-/* === ACTIONS & CONTENT === */
 .main-actions {
 	display: flex;
 	gap: 1rem;
@@ -772,7 +759,6 @@ const transitionName = (element: string) => {
 	color: white;
 }
 
-/* Markdown */
 .project-markdown {
 	margin-bottom: 4rem;
 }
@@ -805,7 +791,6 @@ const transitionName = (element: string) => {
 	border: 1px solid var(--border);
 }
 
-/* Gallery */
 .project-gallery-section {
 	margin-top: 2rem;
 	border-top: 1px solid var(--border);
@@ -832,7 +817,6 @@ const transitionName = (element: string) => {
 	border-color: var(--accent);
 }
 
-/* Footer links */
 .project-footer-links {
 	margin-top: 3rem;
 	padding-top: 2rem;
@@ -854,7 +838,6 @@ const transitionName = (element: string) => {
 	color: var(--accent);
 }
 
-/* Mobile */
 @media (max-width: 768px) {
 	.container-limit {
 		padding: 0 1.25rem;

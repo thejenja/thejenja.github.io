@@ -1,28 +1,35 @@
 <template>
 	<section class="hero">
+		<img
+			src="/images/monster.svg"
+			alt="monster"
+			class="floating-monster"
+			width="144"
+			loading="lazy"
+			aria-hidden="true"
+		/>
+
 		<div class="hero-content">
 			<h1 class="hero-title">
 				{{ $t("hero.greeting") }}
-				<NuxtImg
+				<img
 					src="/images/waving-hand.svg"
 					alt="waving-hand"
 					class="waving-hand"
 					width="48"
 					height="48"
-					sizes="xs:24px sm:32px md:40px lg:48px"
 					loading="lazy"
 				/>
 			</h1>
 			<p class="hero-subtitle">
 				<i18n-t keypath="hero.subtitle" tag="span">
 					<span class="highlight">
-						<NuxtImg
+						<img
 							src="/images/thejenja.svg"
 							alt="thejenja"
 							class="thejenja-logo"
 							width="128"
 							height="40"
-							sizes="xs:64px sm:80px md:96px lg:128px"
 							loading="lazy"
 						/>
 					</span>
@@ -32,7 +39,6 @@
 
 			<div class="hero-activity">
 				<span class="activity-label">{{ $t("hero.activity") }}</span>
-
 				<div class="activity-viewport">
 					<TransitionGroup
 						tag="div"
@@ -52,6 +58,10 @@
 								'--act-color': act.color,
 								'--bg-mix': `color-mix(in srgb, ${act.color}, var(--bg) 85%)`,
 							}"
+							tabindex="0"
+							role="button"
+							:aria-label="act.text"
+							@keydown="(e) => onActivityKeydown(e, index, $event.target)"
 						>
 							{{ act.text }}
 						</div>
@@ -59,14 +69,33 @@
 				</div>
 			</div>
 		</div>
+
+		<NuxtLinkLocale
+			to="/about"
+			class="about-icon-link"
+			:aria-label="$t('hero.learnMore')"
+		>
+			<User class="about-icon" />
+		</NuxtLinkLocale>
 	</section>
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, computed } from "vue";
+// ... (Весь JS код остается без изменений) ...
+import { ref, onMounted, onUnmounted, computed, nextTick } from "vue";
 import { useI18n } from "vue-i18n";
 import { gsap } from "gsap";
 import { Draggable } from "gsap/Draggable";
+import { User } from "lucide-vue-next";
+
+// --- Constants ---
+const CONSTANTS = {
+	CYCLE_DELAY: 4500,
+	ANIMATION_DURATION: 0.9,
+	STAGGER_DELAY: 0.12,
+	LEAVE_DURATION: 0.5,
+	RETRY_DELAY: 100,
+};
 
 if (typeof gsap !== "undefined" && Draggable) {
 	gsap.registerPlugin(Draggable);
@@ -85,34 +114,65 @@ const allActivities = computed(() => [
 
 const visibleItems = ref([]);
 const currentIndex = ref(0);
-const itemsToShow = ref(3); // Дефолтное значение
+const itemsToShow = ref(3);
 const cycleTimeout = ref(null);
 const isAnimating = ref(false);
 const isAnyDragging = ref(false);
 
 const preciseAge = computed(() => getPreciseAge(new Date("2006-08-31")));
 
-// --- Адаптивность количества элементов ---
-
 const checkResponsiveCount = () => {
 	const w = window.innerWidth;
 	let newCount = 3;
-
-	if (w < 640) {
-		newCount = 1; // Мобильные
-	} else if (w < 1024) {
-		newCount = 2; // Планшеты
-	} else {
-		newCount = 3; // Десктоп
-	}
-
-	// Если количество изменилось, обновляем переменную.
-	// Изменение применится при следующем цикле обновления (updateActivities),
-	// чтобы не ломать текущую анимацию.
+	if (w < 640) newCount = 1;
+	else if (w < 1024) newCount = 2;
+	else newCount = 3;
 	itemsToShow.value = newCount;
 };
 
-// --- Анимация (Motion Blur + Slide) ---
+const onActivityKeydown = (e, index, el) => {
+	if (e.key === "Backspace" || e.key === "Delete") {
+		e.preventDefault();
+		const newItems = [...visibleItems.value];
+		newItems.splice(index, 1);
+		visibleItems.value = newItems;
+		nextTick(() => {
+			const siblings = document.querySelectorAll(".activity");
+			if (siblings.length > 0) {
+				const nextFocusIndex = Math.min(index, siblings.length - 1);
+				siblings[nextFocusIndex]?.focus();
+			}
+		});
+	}
+	if (e.key === "Enter" || e.key === " ") {
+		e.preventDefault();
+		gsap.to(el, {
+			scale: 0.9,
+			duration: 0.1,
+			yoyo: true,
+			repeat: 1,
+			onComplete: () => {
+				gsap.to(el, {
+					x: 5,
+					duration: 0.05,
+					yoyo: true,
+					repeat: 5,
+					clearProps: "x",
+				});
+			},
+		});
+	}
+	if (e.key === "ArrowRight") {
+		e.preventDefault();
+		const next = el.nextElementSibling;
+		if (next) next.focus();
+	}
+	if (e.key === "ArrowLeft") {
+		e.preventDefault();
+		const prev = el.previousElementSibling;
+		if (prev) prev.focus();
+	}
+};
 
 const onBeforeEnter = (el) => {
 	el.style.opacity = 0;
@@ -125,15 +185,13 @@ const onEnter = (el, done) => {
 		filter: "blur(12px)",
 		scale: 0.95,
 	});
-
 	gsap.to(el, {
 		opacity: 1,
 		x: 0,
 		filter: "blur(0px)",
 		scale: 1,
-		duration: 0.9,
-		// Задержка зависит от индекса, чтобы элементы вылетали "лесенкой"
-		delay: el.dataset.index * 0.12,
+		duration: CONSTANTS.ANIMATION_DURATION,
+		delay: el.dataset.index * CONSTANTS.STAGGER_DELAY,
 		ease: "power3.out",
 		onComplete: () => {
 			el.style.filter = "";
@@ -147,64 +205,58 @@ const onLeave = (el, done) => {
 	const draggableInstance = Draggable.get(el);
 	if (draggableInstance) draggableInstance.kill();
 
+	const left = el.offsetLeft;
+	const top = el.offsetTop;
+	const width = el.offsetWidth;
+
+	gsap.set(el, {
+		position: "absolute",
+		left: left,
+		top: top,
+		width: width,
+		margin: 0,
+		zIndex: 0,
+		pointerEvents: "none",
+	});
+
 	gsap.to(el, {
 		opacity: 0,
 		x: 40,
 		filter: "blur(12px)",
 		scale: 0.95,
-		duration: 0.5,
+		duration: CONSTANTS.LEAVE_DURATION,
 		delay: el.dataset.index * 0.05,
 		ease: "power2.in",
 		onComplete: done,
 	});
 };
 
-// --- Логика смены ---
-
 function updateActivities() {
 	if (isAnimating.value || isAnyDragging.value || document.hidden) return;
 	isAnimating.value = true;
-
-	visibleItems.value = [];
-
+	const total = allActivities.value.length;
+	const nextSet = [];
+	const count = itemsToShow.value;
+	for (let i = 0; i < count; i++) {
+		nextSet.push(allActivities.value[(currentIndex.value + i) % total]);
+	}
+	currentIndex.value = (currentIndex.value + count) % total;
+	visibleItems.value = nextSet;
 	setTimeout(() => {
-		if (document.hidden) {
-			isAnimating.value = false;
-			return;
-		}
-
-		const total = allActivities.value.length;
-		const nextSet = [];
-		const count = itemsToShow.value; // Берем актуальное кол-во
-
-		// Генерируем новый набор на основе itemsToShow
-		for (let i = 0; i < count; i++) {
-			nextSet.push(allActivities.value[(currentIndex.value + i) % total]);
-		}
-
-		// Сдвигаем индекс на количество показанных элементов
-		currentIndex.value = (currentIndex.value + count) % total;
-
-		visibleItems.value = nextSet;
-
-		setTimeout(() => {
-			isAnimating.value = false;
-			scheduleNextCycle();
-		}, 4500);
-	}, 600);
+		isAnimating.value = false;
+		scheduleNextCycle();
+	}, CONSTANTS.CYCLE_DELAY);
 }
 
 function scheduleNextCycle() {
 	if (cycleTimeout.value) clearTimeout(cycleTimeout.value);
-
 	const prefersReducedMotion = window.matchMedia(
-		"(prefers-reduced-motion: reduce)"
+		"(prefers-reduced-motion: reduce)",
 	).matches;
 	if (prefersReducedMotion) return;
-
 	cycleTimeout.value = setTimeout(() => {
 		updateActivities();
-	}, 100);
+	}, CONSTANTS.RETRY_DELAY);
 }
 
 function handleVisibilityChange() {
@@ -219,11 +271,8 @@ function handleVisibilityChange() {
 	}
 }
 
-// --- Draggable ---
-
 function initDraggable(el) {
 	if (!Draggable) return;
-
 	Draggable.create(el, {
 		type: "x,y",
 		edgeResistance: 0.65,
@@ -233,12 +282,12 @@ function initDraggable(el) {
 			el.classList.add("dragging");
 			isAnyDragging.value = true;
 			gsap.to(el, { scale: 1.1, duration: 0.2 });
+			el.focus();
 		},
 		onDragEnd: function () {
 			el.classList.remove("dragging");
 			isAnyDragging.value = false;
 			el.classList.add("returning");
-
 			gsap.to(el, {
 				x: 0,
 				y: 0,
@@ -254,31 +303,23 @@ function initDraggable(el) {
 }
 
 onMounted(() => {
-	// 1. Сначала определяем ширину экрана
 	checkResponsiveCount();
-
-	// 2. Вешаем слушатель ресайза
 	window.addEventListener("resize", checkResponsiveCount);
 	document.addEventListener("visibilitychange", handleVisibilityChange);
-
-	// 3. Формируем стартовый набор с учетом ширины
 	const startSet = [];
 	const count = itemsToShow.value;
 	for (let i = 0; i < count; i++) {
 		startSet.push(allActivities.value[i]);
 	}
 	visibleItems.value = startSet;
-
-	// Обновляем индекс, чтобы следующая пачка шла за стартовой
 	currentIndex.value = count;
-
 	setTimeout(() => {
 		scheduleNextCycle();
 	}, 3000);
 });
 
 onUnmounted(() => {
-	window.removeEventListener("resize", checkResponsiveCount); // Чистим слушатель
+	window.removeEventListener("resize", checkResponsiveCount);
 	document.removeEventListener("visibilitychange", handleVisibilityChange);
 	if (cycleTimeout.value) clearTimeout(cycleTimeout.value);
 	gsap.killTweensOf(".activity");
@@ -337,15 +378,112 @@ function getPreciseAge(birthDate) {
 		),
 		var(--bg-quaternary);
 	animation: rotateBlobs 12s linear infinite;
+
+	overflow: visible;
 }
 
 .hero::before {
 	content: "";
 	position: absolute;
 	inset: 0;
+
 	z-index: -1;
-	filter: blur(60px);
+	filter: blur(30px);
 	background: inherit;
+
+	opacity: 0.5;
+}
+
+.floating-monster {
+	position: absolute;
+	bottom: -15px;
+	right: 0;
+
+	transform: rotate(-10deg);
+	animation: float 4s ease-in-out infinite;
+	z-index: 1;
+
+	pointer-events: none;
+
+	transition:
+		right 0.3s ease,
+		transform 0.3s ease;
+}
+
+@media (min-width: 1024px) {
+	.floating-monster {
+		width: 150px;
+		/* На больших экранах выдвигаем вправо, 
+		   так как там обычно есть отступы (margins) у контейнера */
+		right: -50px;
+		bottom: -25px;
+		transform: rotate(-25deg);
+	}
+}
+
+@keyframes float {
+	0%,
+	100% {
+		transform: rotate(-10deg) translateY(0);
+	}
+	50% {
+		transform: rotate(-10deg) translateY(-10px);
+	}
+}
+
+@media (min-width: 1024px) {
+	@keyframes float {
+		0%,
+		100% {
+			transform: rotate(-25deg) translateY(0);
+		}
+		50% {
+			transform: rotate(-25deg) translateY(-10px);
+		}
+	}
+}
+
+.hero-content {
+	font-size: clamp(1.5rem, 2vw, 2rem);
+	position: relative;
+
+	z-index: 10;
+}
+
+.hero-title {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	position: relative;
+}
+
+.about-icon-link {
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background: var(--bg-tertiary);
+	border: 1px solid var(--border-color, transparent);
+	border-radius: 12px;
+	width: 44px;
+	height: 44px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	transition: all 0.2s ease;
+	color: var(--text);
+	z-index: 20;
+}
+
+.about-icon-link:hover {
+	background: var(--bg-secondary);
+	transform: scale(1.05);
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.about-icon {
+	width: 24px;
+	height: 24px;
 }
 
 @keyframes rotateBlobs {
@@ -379,18 +517,6 @@ function getPreciseAge(birthDate) {
 		--x2: 100%;
 		--y2: 100%;
 	}
-}
-
-.hero-content {
-	font-size: clamp(1.5rem, 2vw, 2rem);
-	position: relative;
-	z-index: 2;
-}
-
-.hero-title {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
 }
 
 .highlight {
@@ -430,7 +556,6 @@ function getPreciseAge(birthDate) {
 	width: 100%;
 }
 
-/* --- Стили Активности --- */
 .activity {
 	padding: 0.25rem 0.75rem;
 	border-radius: 16px;
@@ -438,16 +563,10 @@ function getPreciseAge(birthDate) {
 	user-select: none;
 	font-weight: 500;
 	white-space: nowrap;
-
-	/* Начальные стили (по умолчанию) */
 	background: var(--bg-mix);
 	color: var(--act-color);
-
-	/* Для производительности анимации блюра */
 	will-change: transform, opacity, filter;
-	/* Важно для корректного отображения 3D/блюра */
 	backface-visibility: hidden;
-
 	display: inline-flex;
 	align-items: center;
 	transition:
@@ -455,9 +574,16 @@ function getPreciseAge(birthDate) {
 		color 0.3s ease,
 		transform 0.2s ease,
 		box-shadow 0.2s ease;
+	outline: none;
 }
 
-/* Инверсия цветов при наведении */
+.activity:focus-visible {
+	box-shadow:
+		0 0 0 2px var(--act-color),
+		0 0 0 4px var(--bg);
+	z-index: 20;
+}
+
 .activity:hover {
 	background-color: var(--act-color) !important;
 	color: var(--bg-mix) !important;
@@ -473,12 +599,10 @@ function getPreciseAge(birthDate) {
 .activity.dragging {
 	z-index: 1000 !important;
 	box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2) !important;
-	/* При перетаскивании цвет тоже яркий */
 	background-color: var(--act-color) !important;
 	color: #ffffff !important;
 }
 
-/* --- iPhone Shake Effect --- */
 .shaking-mode .activity:not(.dragging) {
 	animation: shake 0.3s ease-in-out infinite;
 }

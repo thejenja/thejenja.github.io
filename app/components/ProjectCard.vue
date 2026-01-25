@@ -5,6 +5,7 @@
 			:class="['project-card', { 'project-card--compact': compact }]"
 			:style="{
 				'--accent': project.meta?.color || '#4b5563',
+				viewTransitionName: project.meta?.slug ? `project-card-${project.meta.slug}` : undefined,
 			}"
 			@click="handleProjectClick"
 		>
@@ -17,14 +18,13 @@
 				:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
 			>
 				<div v-if="hasBackground" class="background-image-container">
-					<NuxtImg
+					<img
 						:src="backgroundImageUrl"
 						:alt="`${project.title} background`"
 						class="background-image"
 						:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
 						width="400"
 						height="300"
-						sizes="xs:100vw sm:100vw md:100vw lg:50vw xl:33vw"
 						loading="lazy"
 					/>
 					<div
@@ -36,38 +36,32 @@
 				<div v-else class="gradient-background" />
 
 				<div class="project-content">
-					<!-- Логотип / Иконка / Название -->
 					<div
 						class="project-logo"
 						:style="{ viewTransitionName: transitionName('logo') }"
 					>
-						<!-- 1. Пытаемся показать картинку (если включено, есть путь и не было ошибки) -->
-						<NuxtImg
+						<img
 							v-if="showLogo && finalLogoPath && !logoLoadFailed"
 							:src="finalLogoPath"
 							:alt="`${project.title} logo`"
 							class="project-logo-image"
 							width="200"
 							height="120"
-							sizes="xs:50vw sm:40vw md:30vw lg:20vw xl:15vw"
 							loading="lazy"
 							@error="handleLogoError"
 						/>
 
-						<!-- 2. Fallback: Иконка или Текст (Название) -->
 						<div v-else class="project-fallback">
-							<!-- Если есть иконка в мета -->
 							<div v-if="project.meta?.icon" class="project-icon">
 								{{ project.meta.icon }}
 							</div>
-							<!-- Иначе показываем название как текстовый логотип -->
+
 							<div v-else class="project-title-fallback">
 								{{ project.title }}
 							</div>
 						</div>
 					</div>
 
-					<!-- Бейджи -->
 					<div class="project-meta-overlay">
 						<div v-if="project.meta?.type" class="meta-badge">
 							<div class="meta-badge__icon">
@@ -98,7 +92,6 @@
 						</div>
 					</div>
 
-					<!-- Информация (Текст и теги) -->
 					<div class="project-info">
 						<h3
 							class="project-title"
@@ -366,7 +359,6 @@ const transitionName = (element: string) => {
 	aspect-ratio: 3/2;
 }
 
-/* Фон */
 .project-background {
 	position: relative;
 	width: 100%;
@@ -415,7 +407,6 @@ const transitionName = (element: string) => {
 	background: rgba(0, 0, 0, 0);
 }
 
-/* Контент */
 .project-content {
 	position: relative;
 	z-index: 2;
@@ -430,7 +421,6 @@ const transitionName = (element: string) => {
 	padding: 1rem;
 }
 
-/* --- ЛОГОТИП / FALLBACK --- */
 .project-logo {
 	display: flex;
 	align-items: center;
@@ -439,10 +429,9 @@ const transitionName = (element: string) => {
 	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 	opacity: 1;
 	transform: translateY(0);
-	width: 100%; /* Гарантируем центрирование */
+	width: 100%;
 }
 
-/* При наведении скрываем лого/иконку */
 .project-card:hover .project-logo {
 	opacity: 0;
 	transform: translateY(-20px) scale(0.95);
@@ -459,7 +448,6 @@ const transitionName = (element: string) => {
 	object-fit: contain;
 }
 
-/* Стили для fallback контейнера */
 .project-fallback {
 	display: flex;
 	align-items: center;
@@ -492,7 +480,6 @@ const transitionName = (element: string) => {
 	font-size: 1.5rem;
 }
 
-/* --- ИНФОРМАЦИЯ --- */
 .project-info {
 	display: flex;
 	flex-direction: column;
