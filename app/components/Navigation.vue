@@ -222,6 +222,7 @@ watch(
 }
 
 #navigation {
+	height: auto; /* thx safari */
 	position: fixed;
 	top: 0;
 	left: 0;
