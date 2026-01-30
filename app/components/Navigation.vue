@@ -222,7 +222,6 @@ watch(
 }
 
 #navigation {
-	height: auto; /* thx safari */
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -281,7 +280,7 @@ watch(
 }
 
 .nav-content {
-	height: 100%;
+	height: fit-content;
 }
 
 hr {
