@@ -160,6 +160,7 @@ interface ProjectMeta {
 	icon?: string;
 	behance?: string;
 	dribbble?: string;
+	dprofile?: string;
 	backgroundOpacity?: "default" | "opaque";
 }
 
@@ -287,6 +288,10 @@ const handleProjectClick = (event: MouseEvent) => {
 			}
 			if (props.project.meta?.dribbble) {
 				window.open(props.project.meta.dribbble, "_blank");
+				return;
+			}
+			if (props.project.meta?.dprofile) {
+				window.open(props.project.meta.dprofile, "_blank");
 				return;
 			}
 		}

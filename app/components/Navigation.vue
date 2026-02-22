@@ -212,8 +212,6 @@ watch(
 }
 
 .nav-icon {
-	width: 32px;
-	height: 32px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -235,6 +233,7 @@ watch(
 	position-anchor: --btn-nav;
 	top: anchor(--btn-nav bottom);
 	left: anchor(--btn-nav left);
+	transform-origin: top left;
 
 	transition:
 		opacity 0.3s ease,
@@ -255,6 +254,12 @@ watch(
 	grid-template-columns: 1fr 1fr;
 	gap: 0.5rem;
 	margin: 0.25rem 0;
+}
+
+.nav-tiles :deep(.nav-tile) {
+	animation: nav-tile-appear 0.3s ease-out backwards;
+	animation-delay: calc(var(--nav-index, 4) * 0.05s + 0.15s);
+	transform-origin: top left;
 }
 
 #navigation:popover-open {
@@ -320,13 +325,24 @@ hr {
 	}
 }
 
+@keyframes nav-tile-appear {
+	from {
+		opacity: 0;
+		transform: translateY(-10px) scale(0.95);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0) scale(1);
+	}
+}
+
 .nav-link:hover {
 	background: var(--bg-tertiary);
 }
 
 .nav-link svg {
-	width: 1.25rem;
-	height: 1.25rem;
+	width: 1.35rem;
+	height: 1.35rem;
 	flex-shrink: 0;
 }
 
@@ -402,7 +418,8 @@ hr {
 @media (prefers-reduced-motion: reduce) {
 	#navigation,
 	.nav-link,
-	.nav-toggle {
+	.nav-toggle,
+	.nav-tiles :deep(.nav-tile) {
 		transition: none;
 		animation: none;
 	}

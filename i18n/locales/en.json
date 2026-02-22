@@ -76,6 +76,7 @@
 		"title": "Contact",
 		"status": "Open to proposals",
 		"description": "Write me about any collaboration questions or just to talk about technologies.",
+		"copied": "Copied!",
 		"telegram": {
 			"label": "Telegram",
 			"subLabel": "Responds fastest"

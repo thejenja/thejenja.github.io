@@ -38,28 +38,23 @@
 					<ArrowUpRight class="arrow-icon" :size="20" />
 				</a>
 
-				<div class="email-wrapper">
-					<a href="mailto:thejenjagamertjg@gmail.com" class="main-btn email">
-						<div class="btn-content">
-							<AtSign :size="28" />
-							<div class="btn-text">
-								<span class="label">{{ $t("contact.email.label") }}</span>
-								<span class="sub-label">{{
-									$t("contact.email.subLabel")
-								}}</span>
-							</div>
+				<button
+					class="main-btn email"
+					@click="copyEmail"
+					:aria-label="$t('contact.email.label')"
+				>
+					<div class="btn-content">
+						<AtSign :size="28" />
+						<div class="btn-text">
+							<span class="label">{{ $t("contact.email.label") }}</span>
+							<span class="sub-label">{{
+								isCopied ? $t("contact.copied") : $t("contact.email.subLabel")
+							}}</span>
 						</div>
-					</a>
-					<button
-						class="copy-btn"
-						@click="copyEmail"
-						:class="{ copied: isCopied }"
-						:aria-label="$t('contact.copyEmail')"
-					>
-						<Check v-if="isCopied" :size="20" />
-						<Copy v-else :size="20" />
-					</button>
-				</div>
+					</div>
+					<Check v-if="isCopied" :size="20" class="copy-icon" />
+					<Copy v-else :size="20" class="copy-icon" />
+				</button>
 			</div>
 
 			<div class="socials-row">
@@ -269,6 +264,7 @@ const copyEmail = async () => {
 	text-decoration: none;
 	transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
 	border: 1px solid transparent;
+	cursor: pointer;
 }
 
 .btn-content {
@@ -280,6 +276,7 @@ const copyEmail = async () => {
 .btn-text {
 	display: flex;
 	flex-direction: column;
+	align-items: flex-start;
 	line-height: 1.2;
 }
 
@@ -303,13 +300,7 @@ const copyEmail = async () => {
 	box-shadow: 0 8px 20px -6px rgba(0, 136, 204, 0.5);
 }
 
-.email-wrapper {
-	display: flex;
-	gap: 0.5rem;
-}
-
 .main-btn.email {
-	flex-grow: 1;
 	background: var(--bg-tertiary);
 	color: var(--text);
 }
@@ -318,28 +309,13 @@ const copyEmail = async () => {
 	border-color: var(--border);
 }
 
-.copy-btn {
-	width: 56px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: var(--bg-tertiary);
-	border-radius: 16px;
-	cursor: pointer;
+.copy-icon {
 	color: var(--text-secondary);
-	transition: all 0.2s;
-	border: 1px solid transparent;
+	transition: color 0.2s;
 }
 
-.copy-btn:hover {
-	background: var(--bg);
-	border-color: var(--border);
-	color: var(--text);
-}
-
-.copy-btn.copied {
-	background: #22c55e;
-	color: white;
+.main-btn.email.copied .copy-icon {
+	color: #22c55e;
 }
 
 .socials-row {

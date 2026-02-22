@@ -150,6 +150,14 @@
 							>
 								<DynamicIcon icon="dribbble" /> Dribbble
 							</a>
+							<a
+								v-if="project.meta?.dprofile"
+								:href="project.meta.dprofile"
+								target="_blank"
+								class="action-button dprofile"
+							>
+								<DynamicIcon icon="/icons/dprofile-logo.svg" /> Dprofile
+							</a>
 						</template>
 					</div>
 
@@ -756,6 +764,10 @@ const transitionName = (element: string) => {
 }
 .action-button.dribbble {
 	background: #ea4c89;
+	color: white;
+}
+.action-button.dprofile {
+	background: #000000;
 	color: white;
 }
 

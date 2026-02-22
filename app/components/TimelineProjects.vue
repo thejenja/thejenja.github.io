@@ -153,6 +153,7 @@ interface ProjectMeta {
 	date?: string;
 	behance?: string;
 	dribbble?: string;
+	dprofile?: string;
 	demo?: string;
 	github?: string;
 }
