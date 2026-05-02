@@ -140,6 +140,7 @@ export default defineNuxtConfig({
 		description: "Frontend dev & designer. Crafting modern web apps with focus on UX/UI and performance.",
 		defaultLocale: "en",
 		indexable: true,
+		trailingSlash: true,
 	},
 
 	seo: {
