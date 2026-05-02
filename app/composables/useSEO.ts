@@ -8,6 +8,7 @@ export const useSEO = () => {
 	try {
 		const cfg = typeof useSiteConfig === "function" ? useSiteConfig() : null;
 		if (cfg?.url) siteUrl = cfg.url as string;
+		// eslint-disable-next-line no-empty
 	} catch {}
 
 	const getAbsoluteUrl = (path: string) => {
@@ -78,6 +79,11 @@ export const useSEO = () => {
 		content: t("seo.ogDescription"),
 	});
 
+	const getOpenGraphSitename = () => ({
+		property: "og:site_name",
+		content: "thejenja",
+	});
+
 	const getOpenGraphUrl = () => ({
 		property: "og:url",
 		content: currentUrl.value,
@@ -143,7 +149,7 @@ export const useSEO = () => {
 	// Тема-зависимые мета-теги
 	const getThemeMeta = () => {
 		const isDark = colorMode.value === "dark";
-		const themeColor = isDark ? "#1a1a1a" : "#ffffff";
+		const themeColor = isDark ? "#1a1a1a" : "#fff";
 		const msTileColor = isDark ? "#1a1a1a" : "#667eea";
 
 		return [
@@ -169,6 +175,7 @@ export const useSEO = () => {
 				getOpenGraphMeta(),
 				getOpenGraphTitle(),
 				getOpenGraphDescription(),
+				getOpenGraphSitename(),
 				getOpenGraphUrl(),
 				getTwitterCard(),
 				getTwitterTitle(),
@@ -189,6 +196,107 @@ export const useSEO = () => {
 	const updateLocaleSEO = () => {
 		const head = useHead(getPageSEO());
 		return head;
+	};
+
+	// JSON-LD Schema.org: Person (for portfolio owner)
+	const getPersonSchema = () => ({
+		"@context": "https://schema.org",
+		"@type": "Person",
+		name: "thejenja",
+		alternateName: "Eugene",
+		url: siteUrl,
+		jobTitle: "Frontend Developer & Designer",
+		sameAs: [
+			"https://github.com/thejenja",
+			"https://www.linkedin.com/in/thejenja/",
+			"https://x.com/thejenja",
+		],
+	});
+
+	// JSON-LD Schema.org: WebSite
+	const getWebsiteSchema = () => ({
+		"@context": "https://schema.org",
+		"@type": "WebSite",
+		name: t("seo.title"),
+		url: siteUrl,
+		potentialAction: {
+			"@type": "SearchAction",
+			target: `${siteUrl}/projects?search={search_term_string}`,
+			"query-input": "required name=search_term_string",
+		},
+	});
+
+	// JSON-LD Schema.org: CreativeWork (for projects)
+	const getProjectSchema = (project: {
+		title: string;
+		description: string;
+		date?: string;
+		image?: string;
+		technologies?: string[];
+		demo?: string;
+		github?: string;
+	}) => ({
+		"@context": "https://schema.org",
+		"@type": "CreativeWork",
+		name: project.title,
+		description: project.description,
+		dateCreated: project.date,
+		image: project.image ? getAbsoluteUrl(project.image) : undefined,
+		keywords: project.technologies?.join(", "),
+		url: project.demo,
+		codeRepository: project.github,
+		author: {
+			"@type": "Person",
+			name: "thejenja",
+		},
+	});
+
+	// JSON-LD Schema.org: WebPage
+	const getWebPageSchema = (pageTitle?: string, pageDescription?: string) => ({
+		"@context": "https://schema.org",
+		"@type": "WebPage",
+		name: pageTitle || t("seo.title"),
+		description: pageDescription || t("seo.description"),
+		url: currentUrl.value,
+		isPartOf: {
+			"@type": "WebSite",
+			name: t("seo.title"),
+			url: siteUrl,
+		},
+	});
+
+	// Get all schemas as script tags for head
+	const getSchemaScripts = (
+		pageType: "home" | "projects" | "project" | "about" | "uses" = "home",
+		pageData?: Record<string, unknown>,
+	) => {
+		const schemas: Record<string, unknown>[] = [getPersonSchema(), getWebsiteSchema()];
+
+		if (pageType === "home") {
+			schemas.push(getWebPageSchema());
+		} else if (pageType === "projects") {
+			schemas.push(
+				getWebPageSchema(
+					t("projects.title"),
+					t("projects.description"),
+				),
+			);
+		} else if (pageType === "project" && pageData) {
+			schemas.push(getProjectSchema(pageData as Parameters<typeof getProjectSchema>[0]));
+		} else if (pageType === "about") {
+			schemas.push(
+				getWebPageSchema(t("about.title"), t("seo.description")),
+			);
+		} else if (pageType === "uses") {
+			schemas.push(
+				getWebPageSchema(t("uses.title"), t("uses.description")),
+			);
+		}
+
+		return schemas.map((schema) => ({
+			type: "application/ld+json",
+			innerHTML: JSON.stringify(schema),
+		}));
 	};
 
 	// Следим за изменениями темы и языка

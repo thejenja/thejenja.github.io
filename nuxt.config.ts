@@ -4,16 +4,33 @@ export default defineNuxtConfig({
 	devtools: { enabled: true },
 
 	modules: [
+		"@nuxtjs/seo",
 		"@nuxt/content",
 		"@nuxt/eslint",
 		"@nuxt/fonts",
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
-		"@nuxtjs/sitemap",
-		"@nuxtjs/robots",
-		"nuxt-og-image",
 		"nuxt-vitalizer",
+		"nuxt-yandex-metrika",
+		"@nuxt/icon",
+		"nuxt-gtag",
 	],
+
+	gtag: {
+		id: "G-M7CK5DXGR9",
+		enabled: process.env.NODE_ENV === "production",
+	},
+
+	yandexMetrika: {
+		id: "103699281",
+		verification: "6fb57a93002b4804",
+		options: {
+			clickmap: true,
+			trackLinks: true,
+			accurateTrackBounce: true,
+			webvisor: true,
+		},
+	},
 
 	vitalizer: {
 		disablePrefetchLinks: true,
@@ -61,13 +78,6 @@ export default defineNuxtConfig({
 				name: "Русский",
 				file: "ru.json",
 			},
-			{
-				code: "brainrot",
-				iso: "en-BR",
-				language: "en",
-				name: "Brainrot",
-				file: "brainrot.json",
-			},
 		],
 		defaultLocale: "en",
 		strategy: "prefix_and_default",
@@ -81,12 +91,16 @@ export default defineNuxtConfig({
 
 	// Конфигурация nuxt-og-image
 	ogImage: {
-		// Указываем путь к шаблонам OG-изображений
-		componentDirs: ["./OgImage"],
-		// Настройки размеров OG-изображений
+		zeroRuntime: true,
 		defaults: {
 			width: 1200,
 			height: 630,
+		},
+	},
+
+	icon: {
+		clientBundle: {
+			scan: true,
 		},
 	},
 
@@ -108,8 +122,8 @@ export default defineNuxtConfig({
 	},
 
 	experimental: {
-	  payloadExtraction: true,
-	  viewTransition: true,
+		payloadExtraction: true,
+		viewTransition: true,
 	},
 
 	site: {
@@ -122,5 +136,19 @@ export default defineNuxtConfig({
 
 	robots: {
 		blockNonSeoBots: true,
+	},
+	vite: {
+		optimizeDeps: {
+			include: [
+				"@vue/devtools-core",
+				"@vue/devtools-kit",
+				"gsap",
+				"gsap/Draggable",
+				"@vueuse/core",
+				"gsap/dist/gsap", // CJS
+				"gsap/dist/ScrollTrigger", // CJS
+				"gsap/dist/ScrollToPlugin", // CJS
+			],
+		},
 	},
 });

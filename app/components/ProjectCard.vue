@@ -26,7 +26,7 @@
 						width="400"
 						height="300"
 						loading="lazy"
-					/>
+					>
 					<div
 						class="background-overlay"
 						:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
@@ -49,7 +49,7 @@
 							height="120"
 							loading="lazy"
 							@error="handleLogoError"
-						/>
+						>
 
 						<div v-else class="project-fallback">
 							<div v-if="project.meta?.icon" class="project-icon">
@@ -131,49 +131,25 @@
 import { computed, ref } from "vue";
 import TechTag from "./TechTag.vue";
 import DynamicIcon from "./DynamicIcon.vue";
+import type { ProjectContent } from "~/types";
+import { getTypeIcon, getStageIcon } from "~/composables/useProjectIcons";
 
-interface ProjectMeta {
-	slug?: string;
-	color?: string;
-	background?: string;
-	backgroundImage?: string;
-	logo?: string; // Разрешаем явное указание пути к лого в frontmatter
-	technologies?: string[];
-	tags?: Array<{
-		name: string;
-		color: string;
-		icon?: string;
-	}>;
-	type?:
-		| "web-app"
-		| "mobile-app"
-		| "website"
-		| "library"
-		| "tool"
-		| "game"
-		| "design";
-	stage?: "planning" | "in-progress" | "completed" | "on-hold" | "archived";
-	featured?: boolean;
-	github?: string;
-	demo?: string;
-	date?: string;
-	icon?: string;
+// Расширенный тип для meta с дополнительными полями, специфичными для карточки
+interface ProjectCardMeta extends NonNullable<ProjectContent['meta']> {
+	logo?: string;
 	behance?: string;
 	dribbble?: string;
 	dprofile?: string;
 	backgroundOpacity?: "default" | "opaque";
 }
 
-interface ProjectContent {
-	title?: string;
-	description?: string;
-	body?: unknown;
-	meta?: ProjectMeta;
+interface ExtendedProjectContent extends Omit<ProjectContent, 'meta'> {
 	_path?: string;
+	meta?: ProjectCardMeta;
 }
 
 interface Props {
-	project: ProjectContent;
+	project: ExtendedProjectContent;
 	compact?: boolean;
 	showLogo?: boolean;
 	showText?: boolean;
@@ -191,12 +167,12 @@ const props = withDefaults(defineProps<Props>(), {
 	showInfo: true,
 	showDescription: true,
 	showTags: true,
-	maxTags: 3,
+	maxTags: 5,
 	standalone: false,
 });
 
 const emit = defineEmits<{
-	"project-click": [project: ProjectContent];
+	"project-click": [project: ExtendedProjectContent];
 }>();
 
 // --- LOGO LOGIC ---
@@ -232,30 +208,6 @@ const backgroundStyle = computed(() => {
 	}
 	return { background: (meta.color as string) || "#4b5563" };
 });
-
-const getTypeIcon = (type: string) => {
-	const iconMap: Record<string, string> = {
-		"web-app": "lucide:globe",
-		"mobile-app": "lucide:smartphone",
-		website: "lucide:globe",
-		library: "lucide:package",
-		tool: "lucide:wrench",
-		game: "lucide:gamepad-2",
-		design: "lucide:palette",
-	};
-	return iconMap[type] || "lucide:code";
-};
-
-const getStageIcon = (stage: string) => {
-	const iconMap: Record<string, string> = {
-		planning: "lucide:clock",
-		"in-progress": "lucide:code",
-		completed: "lucide:check-circle",
-		"on-hold": "lucide:pause",
-		archived: "lucide:archive",
-	};
-	return iconMap[stage] || "lucide:code";
-};
 
 const getProjectLink = () => {
 	const slug =
@@ -328,7 +280,7 @@ const transitionName = (element: string) => {
 	overflow: hidden;
 	cursor: pointer;
 	transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-	border: 1px solid var(--border);
+	border: 2px solid transparent;
 	text-align: left;
 	width: 100%;
 	display: flex;
@@ -339,9 +291,6 @@ const transitionName = (element: string) => {
 }
 
 .project-card:hover {
-	box-shadow:
-		0 20px 40px rgba(0, 0, 0, 0.15),
-		0 8px 16px rgba(0, 0, 0, 0.1);
 	border-color: color-mix(in srgb, var(--accent) 60%, var(--text));
 }
 
@@ -358,10 +307,6 @@ const transitionName = (element: string) => {
 .project-card:focus {
 	outline: 2px solid var(--accent);
 	outline-offset: 2px;
-}
-
-.project-card--compact {
-	aspect-ratio: 3/2;
 }
 
 .project-background {
@@ -516,8 +461,8 @@ const transitionName = (element: string) => {
 	font-weight: 500;
 	margin: 0 0 0.75rem 0;
 	color: white;
-	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
-	line-height: 1.3;
+	text-shadow: 0 1px 16px rgba(0, 0, 0, 0.2);
+	line-height: 1;
 	width: fit-content;
 }
 
@@ -529,9 +474,9 @@ const transitionName = (element: string) => {
 .project-description {
 	color: rgba(255, 255, 255, 0.9);
 	font-size: 0.875rem;
-	line-height: 1.5;
+	line-height: 1.2;
 	margin-bottom: 1rem;
-	text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+	text-shadow: 0 1px 16px rgba(0, 0, 0, 0.2);
 	display: -webkit-box;
 	-webkit-line-clamp: 3;
 	-webkit-box-orient: vertical;
@@ -585,10 +530,9 @@ const transitionName = (element: string) => {
 .meta-badge {
 	display: flex;
 	align-items: center;
-	background: rgba(0, 0, 0, 0.4);
+	background: rgba(0, 0, 0, 0.2);
 	backdrop-filter: blur(8px);
-	border: 1px solid rgba(255, 255, 255, 0.1);
-	border-radius: 99px;
+	border-radius: 8px;
 	padding: 4px;
 	color: white;
 	transition:
@@ -626,7 +570,7 @@ const transitionName = (element: string) => {
 .meta-badge__text {
 	overflow: hidden;
 	white-space: nowrap;
-	font-size: 0.75rem;
+	font-size: 0.85rem;
 	font-weight: 500;
 	opacity: 0;
 	transform: translateX(10px);
@@ -645,9 +589,6 @@ const transitionName = (element: string) => {
 }
 
 @media (max-width: 768px) {
-	.project-card {
-		aspect-ratio: 3/2;
-	}
 	.project-content {
 		padding: 1.5rem;
 	}

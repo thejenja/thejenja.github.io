@@ -1,5 +1,20 @@
 <template>
+	<!-- Minimal mode for TopBar -->
+		<button
+		v-if="minimal"
+		class="lang-btn-minimal"
+		:class="{ 'brainrot-active': isBrainrotActive }"
+		:title="currentLocaleName"
+		aria-label="Toggle language"
+		@click="handleClick"
+	>
+		<Icon name="mingcute:translate-2-line" :size="20" />
+		<span v-if="isBrainrotActive" class="brainrot-indicator-minimal">🤪</span>
+	</button>
+
+	<!-- Full mode for Navigation -->
 	<button
+		v-else
 		class="nav-tile"
 		:class="{ 'brainrot-active': isBrainrotActive }"
 		:title="
@@ -9,7 +24,7 @@
 		@click="handleClick"
 	>
 		<div class="tile-icon-wrapper">
-			<Globe />
+			<Icon name="mingcute:globe-fill" />
 			<span v-if="isBrainrotActive" class="brainrot-indicator">🤪</span>
 		</div>
 		<div class="tile-content">
@@ -19,9 +34,16 @@
 </template>
 
 <script setup lang="ts">
-import { Globe } from "lucide-vue-next";
 import { useI18n } from "vue-i18n";
-import { computed, ref } from "vue";
+import { computed } from "vue";
+
+interface Props {
+	minimal?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+	minimal: false,
+});
 
 const { locale, locales, setLocale } = useI18n();
 
@@ -30,31 +52,22 @@ const currentLocale = computed(() => {
 });
 
 const currentLocaleName = computed(() => {
-	if (locale.value === "brainrot") {
+	if ((locale.value as string) === "brainrot") {
 		return "Brainrot";
 	}
-	// Для плитки можно сократить имя, если нужно, или оставить как есть
 	return currentLocale.value?.name || "English";
-});
-
-const currentLocaleCode = computed(() => {
-	if (locale.value === "brainrot") {
-		return "BR";
-	}
-	return currentLocale.value?.code.toUpperCase() || "EN";
 });
 
 const toggleLanguage = () => {
 	const availableLocales = locales.value
-		.filter((l) => l.code !== "brainrot")
-		.map((l) => l.code);
+		.filter((l) => (l.code as string) !== "brainrot")
+		.map((l) => l.code as string);
 
-	const currentIndex = availableLocales.indexOf(locale.value);
+	const currentIndex = availableLocales.indexOf(locale.value as string);
 	const nextIndex = (currentIndex + 1) % availableLocales.length;
 	setLocale(availableLocales[nextIndex] as "ru" | "en");
 };
 
-// Проверяем, активен ли brainrot режим
 const isBrainrotActive = computed(() => {
 	if (typeof document !== "undefined") {
 		return document.documentElement.hasAttribute("data-brainrot");
@@ -109,7 +122,6 @@ function showNotification(
 	}, 3000);
 }
 
-// Двойной клик для активации brainrot режима
 let clickCount = 0;
 let clickTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -125,12 +137,12 @@ const handleClick = () => {
 		if (clickTimer) clearTimeout(clickTimer);
 		clickCount = 0;
 
-		if (locale.value === "brainrot") {
+		if ((locale.value as string) === "brainrot") {
 			setLocale("en");
 			document.documentElement.removeAttribute("data-brainrot");
 			showNotification("Back to normal English! 😌", "success");
 		} else {
-			setLocale("brainrot");
+			// Brainrot is not a real locale, we just set the attribute
 			document.documentElement.setAttribute("data-brainrot", "true");
 			showNotification("Brainrot mode activated! 🤪", "success");
 		}
@@ -139,14 +151,47 @@ const handleClick = () => {
 </script>
 
 <style scoped>
-/* Стили для плитки */
+/* Minimal button styles */
+.lang-btn-minimal {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.25rem;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	background: transparent;
+	border: none;
+	color: var(--text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+	position: relative;
+}
+
+.lang-btn-minimal:hover {
+	opacity: 0.8;
+}
+
+.lang-code {
+	font-size: 0.7rem;
+	font-weight: 600;
+}
+
+.brainrot-indicator-minimal {
+	position: absolute;
+	top: -4px;
+	right: -4px;
+	font-size: 0.75rem;
+}
+
+/* Existing tile styles */
 .nav-tile {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
 	gap: 0.5rem;
 	padding: 0.75rem;
-	background: var(--bg-tertiary); /* Более выраженный фон для плитки */
+	background: var(--bg-tertiary);
 	color: var(--text);
 	border-radius: 12px;
 	border: 1px solid transparent;
@@ -189,7 +234,6 @@ const handleClick = () => {
 	font-weight: 500;
 }
 
-/* Brainrot стили */
 .brainrot-indicator {
 	position: absolute;
 	top: -8px;

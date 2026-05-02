@@ -6,13 +6,14 @@
 			{
 				'tech-tag--clickable': clickable,
 				'tech-tag--expanded': expanded,
+				'tech-tag--selected': selected,
 				'is-light-bg': isLightBackground, // Класс-маркер для CSS
 			},
 		]"
 		:style="{ '--tag-color': tag.color }"
 		@click="handleClick"
 	>
-		<div class="tech-tag__icon" v-if="tag.icon">
+		<div v-if="tag.icon" class="tech-tag__icon">
 			<DynamicIcon :icon="tag.icon" size="20" />
 		</div>
 
@@ -31,18 +32,20 @@ interface Props {
 	tagSlug: string;
 	clickable?: boolean;
 	expanded?: boolean;
+	selected?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	clickable: false,
 	expanded: false,
+	selected: false,
 });
 
 const { getFallbackTag } = useTagIcons();
 const tag = computed(() => getFallbackTag(props.tagSlug));
 
 const emit = defineEmits<{
-	click: [tag: any];
+	click: [tag: { name: string; color: string; icon?: string }];
 }>();
 
 const handleClick = () => {
@@ -81,7 +84,8 @@ const isLightBackground = computed(() => {
 	display: inline-flex;
 	align-items: center;
 	padding: 0.4rem 0.6rem;
-	border-radius: 12px;
+	border-radius: 16px;
+	corner-shape: superellipse(1.5);
 	font-size: 0.95rem;
 	font-weight: 600;
 	cursor: default;
@@ -120,6 +124,16 @@ const isLightBackground = computed(() => {
 .tech-tag--clickable:hover {
 	transform: translateY(-2px);
 	box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+.tech-tag--selected {
+	border: 2px solid var(--text);
+	box-shadow: 0 0 0 2px var(--bg), 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tech-tag--selected.tech-tag--clickable:hover {
+	transform: translateY(-2px);
+	box-shadow: 0 0 0 2px var(--bg), 0 6px 12px rgba(0, 0, 0, 0.2);
 }
 
 .tech-tag__icon {

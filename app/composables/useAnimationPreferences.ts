@@ -6,12 +6,12 @@ export function useAnimationPreferences() {
 	const checkPreferences = () => {
 		// Проверяем настройки пользователя по анимациям
 		prefersReducedMotion.value = window.matchMedia(
-			"(prefers-reduced-motion: reduce"
+			"(prefers-reduced-motion: reduce",
 		).matches;
 	};
 
 	const shouldAnimate = (
-		animationType: "basic" | "complex" | "decorative" = "basic"
+		animationType: "basic" | "complex" | "decorative" = "basic",
 	) => {
 		if (prefersReducedMotion.value) {
 			return false;
@@ -19,14 +19,17 @@ export function useAnimationPreferences() {
 		return true;
 	};
 
-	const getAnimationDuration = (baseDuration: number) => {
+	const getAnimationDuration = (
+		baseDuration: number,
+		_animationType?: string,
+	) => {
 		if (!shouldAnimate("basic")) {
 			return 0;
 		}
 		return baseDuration;
 	};
 
-	const getStaggerDelay = (baseDelay: number) => {
+	const getStaggerDelay = (baseDelay: number, _animationType?: string) => {
 		if (!shouldAnimate("basic")) {
 			return 0;
 		}

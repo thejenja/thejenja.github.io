@@ -77,6 +77,8 @@
 		"status": "Open to proposals",
 		"description": "Write me about any collaboration questions or just to talk about technologies.",
 		"copied": "Copied!",
+		"socials": "My socials",
+		"socialsSubLabel": "All links",
 		"telegram": {
 			"label": "Telegram",
 			"subLabel": "Responds fastest"
@@ -136,50 +138,6 @@
 		"on-hold": "On hold",
 		"archived": "Archived"
 	},
-	"colors": {
-		"red": "Red",
-		"orange": "Orange",
-		"amber": "Amber",
-		"yellow": "Yellow",
-		"lime": "Lime",
-		"green": "Green",
-		"emerald": "Emerald",
-		"teal": "Teal",
-		"cyan": "Cyan",
-		"sky": "Sky",
-		"blue": "Blue",
-		"indigo": "Indigo",
-		"violet": "Violet",
-		"purple": "Purple",
-		"fuchsia": "Fuchsia",
-		"pink": "Pink",
-		"rose": "Rose",
-		"gray": "Gray",
-		"slate": "Slate"
-	},
-	"timeline": {
-		"all": "All"
-	},
-	"commandPalette": {
-		"placeholder": "What’s the move?",
-		"notFound": "Nothing found",
-		"openHint": "— open",
-		"closeHint": "— close",
-		"commands": {
-			"goHome": "Go: Home",
-			"goProjects": "Go: Projects",
-			"toggleTheme": "Toggle theme",
-			"themeCurrent": "Now: {0}",
-			"switchToRussian": "Русский",
-			"switchToEnglish": "English",
-			"openNavigation": "Open navigation",
-			"openSource": "Open source",
-			"preloaderToggle": "Preloader: {0}",
-			"preloaderShow": "Show preloader",
-			"on": "On",
-			"off": "Off"
-		}
-	},
 	"tags": {
 		"showMore": "+{count} more",
 		"hide": "Hide"
@@ -191,17 +149,6 @@
 		"gallery": "Gallery",
 		"carousel": "Carousel",
 		"tableOfContents": "Table of Contents"
-	},
-	"preloader": {
-		"steps": {
-			"initApp": "Starting app...",
-			"loadComponents": "Loading components...",
-			"prepareInterface": "Prepping interface...",
-			"almostReady": "Almost there...",
-			"init": "Init...",
-			"load": "Loading...",
-			"ready": "Done!"
-		}
 	},
 	"seo": {
 		"title": "thejenja - frontend dev & designer",

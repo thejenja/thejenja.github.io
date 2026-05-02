@@ -5,14 +5,6 @@ export function usePageTransitions() {
 
 	const { shouldAnimate } = useAnimationPreferences();
 
-	const startTransition = () => {
-		// Простая логика для начала перехода
-	};
-
-	const endTransition = () => {
-		// Простая логика для окончания перехода
-	};
-
 	// Предустановленные переходы для разных маршрутов
 	const getTransitionForRoute = (to: string, from: string) => {
 		if (!shouldAnimate("basic")) {
@@ -35,8 +27,6 @@ export function usePageTransitions() {
 
 	return {
 		transitionName,
-		startTransition,
-		endTransition,
 		getTransitionForRoute,
 	};
 }

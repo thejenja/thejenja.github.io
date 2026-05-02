@@ -13,7 +13,7 @@
 			    loading="lazy"
 			    width="400"
 			    height="320"
-			  />
+			  >
 			</div>
 		</div>
 		<div v-if="normalizedImages.length > 1" class="dots">
@@ -87,7 +87,7 @@ onMounted(() => {
 
 onUnmounted(() => {
 	const el = trackEl.value;
-	if (el) el.removeEventListener("scroll", updateCurrent as any);
+	if (el) el.removeEventListener("scroll", updateCurrent as EventListener);
 	window.removeEventListener("resize", updateCurrent);
 });
 </script>

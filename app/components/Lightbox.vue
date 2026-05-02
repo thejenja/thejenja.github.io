@@ -2,32 +2,32 @@
 	<div v-if="isOpen" class="lightbox-overlay" @click="closeLightbox">
 		<div class="lightbox-content" @click.stop>
 			<button class="lightbox-close" @click="closeLightbox">
-				<X :size="24" />
+				<Icon name="mingcute:close-fill" :size="24" />
 			</button>
 
 			<div class="lightbox-image-container">
 				<button
 					class="lightbox-nav lightbox-prev"
-					@click="prevImage"
 					:disabled="currentIndex === 0"
+					@click="prevImage"
 				>
-					<ChevronLeft :size="32" />
+					<Icon name="mingcute:arrow-left-fill" :size="32" />
 				</button>
 
 				<img
 					:src="currentImage.src"
 					:alt="currentImage.alt || `image-${currentIndex}`"
 					class="lightbox-image"
-					@click.stop
 					loading="lazy"
+					@click.stop
 				/>
 
 				<button
 					class="lightbox-nav lightbox-next"
-					@click="nextImage"
 					:disabled="currentIndex === normalizedImages.length - 1"
+					@click="nextImage"
 				>
-					<ChevronRight :size="32" />
+					<Icon name="mingcute:arrow-right-fill" :size="32" />
 				</button>
 			</div>
 
@@ -45,7 +45,6 @@
 
 <script setup lang="ts">
 import { computed, ref, onMounted, onUnmounted } from "vue";
-import { X, ChevronLeft, ChevronRight } from "lucide-vue-next";
 
 interface ImageItem {
 	src: string;
@@ -74,7 +73,9 @@ const normalizedImages = computed<ImageItem[]>(() => {
 
 const currentIndex = ref(props.startIndex || 0);
 
-const currentImage = computed(() => normalizedImages.value[currentIndex.value]);
+const currentImage = computed(
+	() => normalizedImages.value[currentIndex.value] ?? { src: "", alt: "" },
+);
 
 const openLightbox = (index: number = 0) => {
 	currentIndex.value = index;

@@ -77,6 +77,8 @@
 		"status": "Открыт к предложениям",
 		"description": "Пишите по любым вопросам сотрудничества или просто чтобы пообщаться о технологиях.",
 		"copied": "Скопировано!",
+		"socials": "Мои соцсети",
+		"socialsSubLabel": "Все ссылки",
 		"telegram": {
 			"label": "Telegram",
 			"subLabel": "Отвечаю быстрее всего"
@@ -136,50 +138,6 @@
 		"on-hold": "Приостановлен",
 		"archived": "Архив"
 	},
-	"colors": {
-		"red": "Красный",
-		"orange": "Оранжевый",
-		"amber": "Янтарный",
-		"yellow": "Жёлтый",
-		"lime": "Лаймовый",
-		"green": "Зелёный",
-		"emerald": "Изумрудный",
-		"teal": "Бирюзовый",
-		"cyan": "Голубой",
-		"sky": "Небесный",
-		"blue": "Синий",
-		"indigo": "Индиго",
-		"violet": "Фиолетовый",
-		"purple": "Пурпурный",
-		"fuchsia": "Фуксия",
-		"pink": "Розовый",
-		"rose": "Розовый",
-		"gray": "Серый",
-		"slate": "Сланцевый"
-	},
-	"timeline": {
-		"all": "Все"
-	},
-	"commandPalette": {
-		"placeholder": "Что сделать?",
-		"notFound": "Ничего не найдено",
-		"openHint": "— открыть",
-		"closeHint": "— закрыть",
-		"commands": {
-			"goHome": "Перейти: Главная",
-			"goProjects": "Перейти: Проекты",
-			"toggleTheme": "Переключить тему",
-			"themeCurrent": "Сейчас: {0}",
-			"switchToRussian": "Русский",
-			"switchToEnglish": "English",
-			"openNavigation": "Открыть навигацию",
-			"openSource": "Открыть исходники",
-			"preloaderToggle": "Прелоадер: {0}",
-			"preloaderShow": "Показать прелоадер",
-			"on": "Вкл",
-			"off": "Выкл"
-		}
-	},
 	"tags": {
 		"showMore": "+{count} ещё",
 		"hide": "Скрыть"
@@ -191,17 +149,6 @@
 		"gallery": "Галерея",
 		"carousel": "Карусель",
 		"tableOfContents": "Содержание"
-	},
-	"preloader": {
-		"steps": {
-			"initApp": "Инициализация приложения...",
-			"loadComponents": "Загрузка компонентов...",
-			"prepareInterface": "Подготовка интерфейса...",
-			"almostReady": "Почти готово...",
-			"init": "Инициализация...",
-			"load": "Загрузка...",
-			"ready": "Готово"
-		}
 	},
 	"seo": {
 		"title": "thejenja - фронтенд разработчик и дизайнер",

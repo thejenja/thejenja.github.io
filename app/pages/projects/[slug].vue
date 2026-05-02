@@ -1,9 +1,12 @@
 <template>
 	<div
+		v-if="project"
 		class="project-page"
 		:style="{
 			'--accent': project?.meta?.color || '#4b5563',
-			viewTransitionName: project?.meta?.slug ? `project-page-${project.meta.slug}` : undefined,
+			viewTransitionName: project?.meta?.slug
+				? `project-page-${project.meta.slug}`
+				: undefined,
 		}"
 	>
 		<div class="project-header">
@@ -82,11 +85,11 @@
 
 						<div v-if="project.meta?.date || project.date" class="meta-badge">
 							<div class="meta-badge__icon">
-								<Calendar :size="20" />
+								<Icon name="mingcute:calendar-fill" :size="20" />
 							</div>
-							<span class="meta-badge__text">{{
-								formatDate(project.meta?.date || project.date || "")
-							}}</span>
+				<span class="meta-badge__text">{{
+					formatDate(projectDate)
+				}}</span>
 						</div>
 					</div>
 
@@ -108,6 +111,11 @@
 							class="hero-tag"
 						/>
 					</div>
+					<ProjectShare 
+						v-if="project?.title && project?.meta?.slug"
+						:title="project.title"
+						:slug="project.meta.slug"
+					/>
 				</div>
 			</div>
 		</div>
@@ -122,7 +130,7 @@
 							target="_blank"
 							class="action-button primary"
 						>
-							<Link :size="18" /> Демо
+							<Icon name="mingcute:link-fill" :size="18" /> Демо
 						</a>
 						<a
 							v-if="project?.meta?.github"
@@ -130,7 +138,7 @@
 							target="_blank"
 							class="action-button secondary"
 						>
-							<GitHubIcon /> GitHub
+							<Icon name="simple-icons:github" /> GitHub
 						</a>
 
 						<template v-if="project?.meta?.type === 'design'">
@@ -206,7 +214,7 @@
 					</div>
 				</main>
 
-				<aside class="sidebar-column" v-if="toc && toc.length > 0">
+				<aside v-if="toc && toc.length > 0" class="sidebar-column">
 					<div class="toc-wrapper">
 						<h3 class="toc-title">
 							{{ $t("common.tableOfContents") || "Содержание" }}
@@ -216,8 +224,8 @@
 								<li v-for="link in toc" :key="link.id">
 									<a
 										:href="`#${link.id}`"
-										@click.prevent="scrollToHeading(link.id)"
 										:class="{ 'active-toc-link': isActiveTocLink(link.id) }"
+										@click.prevent="scrollToHeading(link.id)"
 									>
 										{{ link.text }}
 									</a>
@@ -225,11 +233,11 @@
 										<li v-for="child in link.children" :key="child.id">
 											<a
 												:href="`#${child.id}`"
-												@click.prevent="scrollToHeading(child.id)"
 												class="sub-link"
 												:class="{
 													'active-toc-link': isActiveTocLink(child.id),
 												}"
+												@click.prevent="scrollToHeading(child.id)"
 											>
 												{{ child.text }}
 											</a>
@@ -249,13 +257,14 @@
 import { computed, ref, onMounted, onUnmounted, nextTick } from "vue";
 import type { CSSProperties } from "vue";
 import { ContentRenderer } from "#components";
-import { Link, Calendar } from "lucide-vue-next";
 import GalleryGrid from "~/components/GalleryGrid.vue";
 import ImageCarousel from "~/components/ImageCarousel.vue";
-import { GitHubIcon } from "vue3-simple-icons";
 import TechTag from "~/components/TechTag.vue";
 import DynamicIcon from "~/components/DynamicIcon.vue";
-import type { ProjectContent, ProjectLink } from "~/composables/useProjects";
+import ProjectShare from "~/components/ProjectShare.vue";
+import type { ProjectLink, ProjectContent, ImageItem } from "~/types";
+import { useProjects } from "~/composables/useProjects";
+import { getTypeIcon, getStageIcon } from "~/composables/useProjectIcons";
 
 const { t, locale } = useI18n();
 const route = useRoute();
@@ -266,7 +275,7 @@ definePageMeta({
 	prerender: true,
 });
 
-const { data: project } = await useAsyncData(
+const { data: project } = await useAsyncData<ProjectContent | null>(
 	() => `project-${slug.value}-${locale.value}`,
 	() => loadProjectBySlug(slug.value, locale.value),
 );
@@ -308,16 +317,30 @@ const headerStyle = computed<CSSProperties>(() => {
 });
 
 const topLinks = computed<ProjectLink[]>(
-	() => project.value?.meta?.linksTop || [],
+	() => (project.value?.meta as Record<string, unknown>)?.linksTop as ProjectLink[] || [],
 );
 const bottomLinks = computed<ProjectLink[]>(
-	() => project.value?.meta?.linksBottom || [],
+	() => (project.value?.meta as Record<string, unknown>)?.linksBottom as ProjectLink[] || [],
 );
-const gallery = computed(() => project.value?.meta?.gallery || []);
+const gallery = computed(() => (project.value?.meta as Record<string, unknown>)?.gallery as (string | ImageItem)[] || []);
 const galleryMode = ref<"grid" | "carousel">("grid");
 
-const toc = computed(() => {
-	return project.value?.body?.toc?.links || [];
+// Computed property to safely access project date
+const projectDate = computed<string>(() => {
+	const meta = project.value?.meta as Record<string, unknown> || {};
+	return String(meta.date || project.value?.date || "");
+});
+
+interface TocLink {
+	id: string;
+	text: string;
+	children?: TocLink[];
+}
+
+const toc = computed<TocLink[]>(() => {
+	const body = project.value?.body as Record<string, unknown> || {};
+	const tocData = body?.toc as { links?: TocLink[] } | undefined;
+	return tocData?.links || [];
 });
 
 // Текущий активный ID заголовка
@@ -342,15 +365,19 @@ const scrollToHeading = (id: string) => {
 };
 
 const updateActiveTocLink = () => {
-	const headings = toc.value.flatMap((link: any) => {
-		const mainHeading = document.getElementById(link.id);
-		const subHeadings = link.children
-			? link.children.map((child: any) => document.getElementById(child.id))
-			: [];
-		return [mainHeading, ...subHeadings].filter(
-			(heading) => heading !== null,
-		) as HTMLElement[];
-	});
+	const headings = toc.value.flatMap(
+		(link: { id: string; children?: { id: string }[] }) => {
+			const mainHeading = document.getElementById(link.id);
+			const subHeadings = link.children
+				? link.children.map((child: { id: string }) =>
+						document.getElementById(child.id),
+					)
+				: [];
+			return [mainHeading, ...subHeadings].filter(
+				(heading) => heading !== null,
+			) as HTMLElement[];
+		},
+	);
 
 	if (headings.length === 0) return;
 
@@ -389,30 +416,7 @@ const formatDate = (dateString: string) => {
 	});
 };
 
-const getTypeIcon = (type: string) => {
-	const map: Record<string, string> = {
-		"web-app": "lucide:globe",
-		"mobile-app": "lucide:smartphone",
-		website: "lucide:globe",
-		library: "lucide:package",
-		tool: "lucide:wrench",
-		game: "lucide:gamepad-2",
-		design: "lucide:palette",
-	};
-	return map[type] || "lucide:code";
-};
 const getTypeLabel = (type: string) => t(`projectTypes.${type}`, type);
-
-const getStageIcon = (stage: string) => {
-	const map: Record<string, string> = {
-		planning: "lucide:clock",
-		"in-progress": "lucide:code",
-		completed: "lucide:check-circle",
-		"on-hold": "lucide:pause",
-		archived: "lucide:archive",
-	};
-	return map[stage] || "lucide:code";
-};
 const getStageLabel = (stage: string) => t(`projectStages.${stage}`, stage);
 
 useHead(() => {
@@ -428,6 +432,25 @@ useHead(() => {
 			{
 				property: "theme-color",
 				content: project.value.meta?.color || "#4b5563",
+			},
+		],
+		script: [
+			{
+				type: "application/ld+json",
+				children: JSON.stringify({
+					"@context": "https://schema.org",
+					"@type": "SoftwareApplication",
+					name: project.value.title,
+					description: project.value.description,
+					operatingSystem: "Web",
+					applicationCategory: "WebApplication",
+					url: `https://thejenja.github.io/projects/${project.value.meta?.slug}`,
+					screenshot: project.value.meta?.backgroundImage || undefined,
+					author: {
+						"@type": "Person",
+						name: "Eugene (thejenja)",
+					},
+				}),
 			},
 		],
 	};
@@ -767,7 +790,7 @@ const transitionName = (element: string) => {
 	color: white;
 }
 .action-button.dprofile {
-	background: #000000;
+	background: #000;
 	color: white;
 }
 

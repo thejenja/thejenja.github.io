@@ -127,7 +127,7 @@ export function useAnimations(options: AnimationOptions = {}) {
 	) => {
 		if (!shouldAnimate("basic")) return;
 
-		const { scale = 1.05, translateY = -2, duration: number = 200 } = options;
+		const { scale = 1.05, translateY = -2, duration: _duration = 200 } = options;
 		const animDuration = getAnimationDuration(duration, "basic");
 
 		const originalTransition = element.style.transition;

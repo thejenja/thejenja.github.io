@@ -1,22 +1,22 @@
 <template>
-	<component
-		:is="iconComponent"
-		v-if="iconComponent && props.icon"
+	<Icon
+		v-if="iconName"
+		:name="iconName"
 		:size="size"
 		:class="iconClass"
 		v-bind="$attrs"
 	/>
 	<img
-	v-else-if="isSvgIcon && props.icon"
-	    :src="svgSrc"
-	    :width="size"
-	:height="size"
-	    :alt="fallbackText"
-	    class="svg-icon"
-	    loading="lazy"
+		v-else-if="isSvgIcon"
+		:src="props.icon"
+		:width="size"
+		:height="size"
+		:alt="fallbackText"
+		class="svg-icon"
+		loading="lazy"
 	/>
 	<div
-		v-else-if="!props.icon"
+		v-else
 		class="icon-placeholder"
 		:style="{ width: size + 'px', height: size + 'px' }"
 	>
@@ -25,10 +25,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, type Component, computed, markRaw } from "vue";
+import { computed } from "vue";
 
 interface Props {
-	icon?: string; // 'simple-icons:icon-name', 'lucide:icon-name', '/path/to/icon.svg', или просто 'icon-name'
+	icon?: string; // 'simple-icons:icon-name', 'mingcute:icon-name', '/path/to/icon.svg', or просто 'icon-name'
 	size?: number | string;
 	fallbackText?: string;
 }
@@ -39,151 +39,28 @@ const props = withDefaults(defineProps<Props>(), {
 	fallbackText: "?",
 });
 
-const iconComponent = ref<Component | null>(null);
 const iconClass = ref<string>("");
-const svgSrc = ref<string>("");
 
-// Определяем тип иконки
-const iconType = computed(() => {
-	if (!props.icon || typeof props.icon !== "string") return "none";
-	if (props.icon.startsWith("simple-icons:")) return "simple-icons";
-	if (props.icon.startsWith("lucide:")) return "lucide";
-	if (props.icon.startsWith("/") || props.icon.endsWith(".svg")) return "svg";
-	return "auto"; // Автоматическое определение
+// Check if it's an SVG icon
+const isSvgIcon = computed(() => {
+	return props.icon && (props.icon.startsWith("/") || props.icon.endsWith(".svg"));
 });
 
-// Проверяем, является ли это SVG иконкой
-const isSvgIcon = computed(() => iconType.value === "svg" && !!props.icon);
+// Compute the icon name for @nuxt/icon
+const iconName = computed(() => {
+	if (!props.icon) return "";
 
-// Загружаем иконку
-const loadIcon = async () => {
-	if (!props.icon) {
-		iconComponent.value = null;
-		return;
+	// If it's an SVG path, return empty (handled separately)
+	if (isSvgIcon.value) return "";
+
+	// If it's already prefixed (has a colon), use as-is
+	if (props.icon.includes(":")) {
+		return props.icon;
 	}
 
-	try {
-		switch (iconType.value) {
-			case "none":
-				iconComponent.value = null;
-				break;
-			case "simple-icons":
-				await loadSimpleIcon();
-				break;
-			case "lucide":
-				await loadLucideIcon();
-				break;
-			case "svg":
-				loadSvgIcon();
-				break;
-			case "auto":
-				await loadAutoIcon();
-				break;
-		}
-	} catch {
-		// console.warn(`Ошибка загрузки иконки: ${props.icon}`, error);
-		iconComponent.value = null;
-	}
-};
-
-// Загрузка Simple Icons
-const loadSimpleIcon = async () => {
-	if (!props.icon) return;
-
-	const iconName = props.icon.replace("simple-icons:", "");
-	if (!iconName) return;
-
-	const iconModule = await import("vue3-simple-icons");
-
-	// Пробуем найти иконку по точному названию с суффиксом Icon
-	const componentName = `${iconName}Icon`;
-	const IconComponent = iconModule[componentName as keyof typeof iconModule];
-
-	if (IconComponent) {
-		iconComponent.value = markRaw(IconComponent);
-		iconClass.value = "simple-icon";
-	} else {
-		// console.warn(`Simple Icon не найдена: ${componentName}`);
-		iconComponent.value = null;
-	}
-};
-
-// Загрузка Lucide Icons
-const loadLucideIcon = async () => {
-	if (!props.icon) return;
-
-	const iconName = props.icon.replace("lucide:", "");
-	if (!iconName) return;
-
-	const iconModule = await import("lucide-vue-next");
-
-	// Преобразуем название в PascalCase (например: "check-circle" -> "CheckCircle")
-	const componentName = iconName
-		.split("-")
-		.map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-		.join("");
-
-	const IconComponent = iconModule[componentName as keyof typeof iconModule];
-
-	if (IconComponent) {
-		iconComponent.value = markRaw(IconComponent);
-		iconClass.value = "lucide-icon";
-	} else {
-		// console.warn(`Lucide Icon не найдена: ${componentName}`);
-		iconComponent.value = null;
-	}
-};
-
-// Загрузка SVG иконки
-const loadSvgIcon = () => {
-	if (!props.icon) {
-		svgSrc.value = "";
-		iconComponent.value = null;
-		return;
-	}
-	svgSrc.value = props.icon;
-	iconComponent.value = null;
-};
-
-// Автоматическое определение типа иконки
-const loadAutoIcon = async () => {
-	if (!props.icon) return;
-
-	// Сначала пробуем как Lucide иконку
-	try {
-		await loadLucideIcon();
-		if (iconComponent.value) return;
-	} catch {
-		// Игнорируем ошибку и пробуем дальше
-	}
-
-	// Затем пробуем как Simple Icon
-	try {
-		await loadSimpleIcon();
-		if (iconComponent.value) return;
-	} catch {
-		// Игнорируем ошибку и пробуем дальше
-	}
-
-	// Если ничего не найдено, устанавливаем null
-	iconComponent.value = null;
-};
-
-// Загружаем иконку при монтировании и при изменении пропа
-onMounted(() => {
-	loadIcon();
+	// Auto-detect: try as mingcute first (most common)
+	return `mingcute:${props.icon}`;
 });
-
-watch(
-	() => props.icon,
-	(newIcon) => {
-		iconComponent.value = null;
-		svgSrc.value = "";
-		if (newIcon) {
-			loadIcon();
-		}
-	}
-);
 </script>
 
 <style scoped>

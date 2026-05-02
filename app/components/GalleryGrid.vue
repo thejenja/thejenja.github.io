@@ -12,7 +12,7 @@
 				loading="lazy"
 				width="140"
 				height="140"
-			/>
+			>
 		</div>
 
 		<Lightbox

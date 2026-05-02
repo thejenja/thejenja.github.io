@@ -11,19 +11,35 @@
 </template>
 
 <script setup>
+import ContactMe from '~/components/sections/ContactMe.vue';
+import Hero from '~/components/sections/Hero.vue';
+
 // SEO для главной страницы
 const { getPageSEO } = useSEO();
-useHead(getPageSEO());
+useHead(() => ({
+	...getPageSEO(),
+	script: [
+		{
+			type: "application/ld+json",
+			children: JSON.stringify({
+				"@context": "https://schema.org",
+				"@type": "Person",
+				name: "Eugene (thejenja)",
+				url: "https://thejenja.github.io",
+				sameAs: [
+					"https://github.com/thejenja",
+					"https://t.me/thejenja",
+					"https://www.linkedin.com/in/thejenja/",
+				],
+				jobTitle: "Frontend Developer & Designer",
+				knowsAbout: ["Vue.js", "Nuxt", "UI Design", "Web Development"],
+			}),
+		},
+	],
+}));
 
 // OG Image для главной страницы
-defineOgImage({
-	component: "HomeTemplate",
-	props: {
-		title: "Eugene (thejenja) - Frontend Developer",
-		description: "Personal portfolio showcasing web development projects",
-		tagline: "Creating beautiful and functional web experiences",
-	},
-});
+defineOgImage("HomeTemplate");
 
 // Компоненты будут автоматически анимироваться через AnimatedSection
 </script>

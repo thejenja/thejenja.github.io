@@ -1,21 +1,42 @@
 <template>
+	<!-- Minimal mode for TopBar -->
 	<button
+		v-if="minimal"
+		class="theme-btn-minimal"
+		aria-label="Toggle theme"
+		:title="$t('theme.' + colorMode.preference)"
+		@click="toggleTheme"
+	>
+		<Icon v-if="currentTheme === 'dark'" name="mingcute:moon-fill" :size="20" />
+		<Icon v-else name="mingcute:sun-fill" :size="20" />
+	</button>
+
+	<!-- Full mode for Navigation -->
+	<button
+		v-else
 		class="nav-tile"
 		aria-label="Toggle theme"
 		:title="$t('theme.' + colorMode.preference)"
 		@click="toggleTheme"
 	>
 		<div class="tile-icon-wrapper">
-			<Moon v-if="currentTheme === 'dark'" class="theme-icon" />
-			<Sun v-else class="theme-icon" />
+			<Icon v-if="currentTheme === 'dark'" name="mingcute:moon-fill" class="theme-icon" />
+			<Icon v-else name="mingcute:sun-fill" class="theme-icon" />
 		</div>
 		<span class="tile-label">{{ $t("theme." + colorMode.preference) }}</span>
 	</button>
 </template>
 
-<script setup>
-import { Moon, Sun } from "lucide-vue-next";
+<script setup lang="ts">
 import { computed } from "vue";
+
+interface Props {
+	minimal?: boolean;
+}
+
+withDefaults(defineProps<Props>(), {
+	minimal: false,
+});
 
 const colorMode = useColorMode();
 
@@ -32,7 +53,7 @@ const currentTheme = computed(() => {
 	return colorMode.value;
 });
 
-const toggleTheme = (event) => {
+const toggleTheme = (event: MouseEvent) => {
 	// Проверяем поддержку View Transitions API
 	if (import.meta.client && document.startViewTransition) {
 		// Получаем координаты клика
@@ -42,7 +63,7 @@ const toggleTheme = (event) => {
 		// Вычисляем максимальный радиус для покрытия всего экрана
 		const endRadius = Math.hypot(
 			Math.max(x, innerWidth - x),
-			Math.max(y, innerHeight - y)
+			Math.max(y, innerHeight - y),
 		);
 
 		// Начинаем переход с анимацией
@@ -51,7 +72,7 @@ const toggleTheme = (event) => {
 			const currentPreference = colorMode.preference || "system";
 			const currentIndex = themes.indexOf(currentPreference);
 			const nextIndex = (currentIndex + 1) % themes.length;
-			colorMode.preference = themes[nextIndex];
+			colorMode.preference = themes[nextIndex] as "light" | "dark";
 		});
 
 		// Добавляем стили для анимации ripple-эффекта
@@ -67,12 +88,31 @@ const toggleTheme = (event) => {
 		const currentPreference = colorMode.preference || "system";
 		const currentIndex = themes.indexOf(currentPreference);
 		const nextIndex = (currentIndex + 1) % themes.length;
-		colorMode.preference = themes[nextIndex];
+		colorMode.preference = themes[nextIndex] as "light" | "dark";
 	}
 };
 </script>
 
 <style scoped>
+/* Minimal button styles */
+.theme-btn-minimal {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 36px;
+	border-radius: 10px;
+	background: transparent;
+	border: none;
+	color: var(--text);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.theme-btn-minimal:hover {
+	opacity: 0.8;
+}
+
 /* Стили для плитки (совпадают с LanguageToggle для симметрии) */
 .nav-tile {
 	display: flex;

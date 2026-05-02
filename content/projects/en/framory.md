@@ -14,12 +14,12 @@ linksTop:
     {
       "label": "Telegram Channel",
       "href": "https://t.me/framory_app",
-      "icon": "/icons/telegram-logo.svg",
+      "icon": "mingcute:telegram-fill",
     },
     {
       "label": "Telegram Bot",
       "href": "https://t.me/framory_bot",
-      "icon": "/icons/telegram-logo.svg",
+      "icon": "mingcute:telegram-fill",
     },
   ]
 ---

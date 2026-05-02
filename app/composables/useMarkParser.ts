@@ -5,22 +5,17 @@ export const useMarkParser = () => {
 		return text.replace(/\*\*(.+?)\*\*/g, "<mark>$1</mark>");
 	};
 
-	// Парсер для массива строк
-	const parseMarkdownArray = (texts: string[]): string[] => {
-		return texts.map((text) => parseMarkdown(text));
-	};
-
 	// Парсер для объекта с локализацией
 	const parseMarkdownObject = (
-		obj: Record<string, any>
-	): Record<string, any> => {
-		const result: Record<string, any> = {};
+		obj: Record<string, unknown>
+	): Record<string, unknown> => {
+		const result: Record<string, unknown> = {};
 
 		for (const [key, value] of Object.entries(obj)) {
 			if (typeof value === "string") {
 				result[key] = parseMarkdown(value);
 			} else if (typeof value === "object" && value !== null) {
-				result[key] = parseMarkdownObject(value);
+				result[key] = parseMarkdownObject(value as Record<string, unknown>);
 			} else {
 				result[key] = value;
 			}
@@ -31,7 +26,6 @@ export const useMarkParser = () => {
 
 	return {
 		parseMarkdown,
-		parseMarkdownArray,
 		parseMarkdownObject,
 	};
 };

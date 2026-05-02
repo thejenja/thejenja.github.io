@@ -4,7 +4,7 @@ description: "Educational process management system with functions for managing 
 color: "#EB7043"
 background: "radial-gradient(111.8% 111.8% at 100% 0%, #EB7043 0%, #EA6839 100%)"
 icon: "🎯"
-technologies: ["Laravel", "Jetstream", "Inertia.js", "SQLite"]
+technologies: ["Laravel", "Jetstream", "Inertia", "SQLite"]
 date: 2025-09-30
 slug: "ont-lekt"
 type: "web-app"
