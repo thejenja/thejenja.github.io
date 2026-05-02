@@ -1,19 +1,7 @@
 <template>
-	<div
-		v-if="project"
-		class="project-page"
-		:style="{
-			'--accent': project?.meta?.color || '#4b5563',
-			viewTransitionName: project?.meta?.slug
-				? `project-page-${project.meta.slug}`
-				: undefined,
-		}"
-	>
+	<div v-if="project" class="project-page" :style="pageStyle">
 		<div class="project-header">
-			<div
-				class="header-background"
-				:style="{ viewTransitionName: transitionName('bg') }"
-			>
+			<div class="header-background" :style="headerBgStyle">
 				<div v-if="hasBackground" class="background-image-wrapper">
 					<img
 						:src="backgroundImageUrl"
@@ -33,10 +21,7 @@
 
 			<div class="header-content container-limit">
 				<div class="header-top-row">
-					<div
-						class="header-logo-wrapper"
-						:style="{ viewTransitionName: transitionName('logo') }"
-					>
+					<div class="header-logo-wrapper" :style="headerLogoStyle">
 						<img
 							v-if="finalLogoPath && !logoLoadFailed"
 							:src="finalLogoPath"
@@ -87,16 +72,13 @@
 							<div class="meta-badge__icon">
 								<Icon name="mingcute:calendar-fill" :size="20" />
 							</div>
-				<span class="meta-badge__text">{{
-					formatDate(projectDate)
-				}}</span>
+							<span class="meta-badge__text">{{
+								formatDate(projectDate)
+							}}</span>
 						</div>
 					</div>
 
-					<h1
-						class="project-title-hero"
-						:style="{ viewTransitionName: transitionName('title') }"
-					>
+					<h1 class="project-title-hero" :style="titleStyle">
 						{{ project?.title }}
 					</h1>
 					<p class="project-description-hero">{{ project?.description }}</p>
@@ -111,7 +93,7 @@
 							class="hero-tag"
 						/>
 					</div>
-					<ProjectShare 
+					<ProjectShare
 						v-if="project?.title && project?.meta?.slug"
 						:title="project.title"
 						:slug="project.meta.slug"
@@ -148,7 +130,7 @@
 								target="_blank"
 								class="action-button behance"
 							>
-								<DynamicIcon icon="behance" /> Behance
+								<DynamicIcon icon="simple-icons:behance" /> Behance
 							</a>
 							<a
 								v-if="project.meta?.dribbble"
@@ -156,7 +138,7 @@
 								target="_blank"
 								class="action-button dribbble"
 							>
-								<DynamicIcon icon="dribbble" /> Dribbble
+								<DynamicIcon icon="simple-icons:dribbble" /> Dribbble
 							</a>
 							<a
 								v-if="project.meta?.dprofile"
@@ -316,18 +298,66 @@ const headerStyle = computed<CSSProperties>(() => {
 	return style;
 });
 
+const pageStyle = computed(() => {
+	const style: Record<string, string> = {};
+	const color = project.value?.meta?.color || "#4b5563";
+	style["--accent"] = color;
+	const slug = project.value?.meta?.slug;
+	if (slug) {
+		style["view-transition-name"] = `project-page-${slug}`;
+	}
+	return style;
+});
+
+const headerBgStyle = computed(() => {
+	const style: Record<string, string> = {};
+	const slug = project.value?.meta?.slug;
+	if (slug) {
+		style["view-transition-name"] = `project-bg-${slug}`;
+	}
+	return style;
+});
+
+const headerLogoStyle = computed(() => {
+	const style: Record<string, string> = {};
+	const slug = project.value?.meta?.slug;
+	if (slug) {
+		style["view-transition-name"] = `project-logo-${slug}`;
+	}
+	return style;
+});
+
+const titleStyle = computed(() => {
+	const style: Record<string, string> = {};
+	const slug = project.value?.meta?.slug;
+	if (slug) {
+		style["view-transition-name"] = `project-title-${slug}`;
+	}
+	return style;
+});
+
 const topLinks = computed<ProjectLink[]>(
-	() => (project.value?.meta as Record<string, unknown>)?.linksTop as ProjectLink[] || [],
+	() =>
+		((project.value?.meta as Record<string, unknown>)
+			?.linksTop as ProjectLink[]) || [],
 );
 const bottomLinks = computed<ProjectLink[]>(
-	() => (project.value?.meta as Record<string, unknown>)?.linksBottom as ProjectLink[] || [],
+	() =>
+		((project.value?.meta as Record<string, unknown>)
+			?.linksBottom as ProjectLink[]) || [],
 );
-const gallery = computed(() => (project.value?.meta as Record<string, unknown>)?.gallery as (string | ImageItem)[] || []);
+const gallery = computed(
+	() =>
+		((project.value?.meta as Record<string, unknown>)?.gallery as (
+			| string
+			| ImageItem
+		)[]) || [],
+);
 const galleryMode = ref<"grid" | "carousel">("grid");
 
 // Computed property to safely access project date
 const projectDate = computed<string>(() => {
-	const meta = project.value?.meta as Record<string, unknown> || {};
+	const meta = (project.value?.meta as Record<string, unknown>) || {};
 	return String(meta.date || project.value?.date || "");
 });
 
@@ -338,7 +368,7 @@ interface TocLink {
 }
 
 const toc = computed<TocLink[]>(() => {
-	const body = project.value?.body as Record<string, unknown> || {};
+	const body = (project.value?.body as Record<string, unknown>) || {};
 	const tocData = body?.toc as { links?: TocLink[] } | undefined;
 	return tocData?.links || [];
 });
@@ -355,7 +385,7 @@ const scrollToHeading = (id: string) => {
 	if (element) {
 		const offset = 100;
 		const elementPosition = element.getBoundingClientRect().top;
-		const offsetPosition = elementPosition + window.pageYOffset - offset;
+		const offsetPosition = elementPosition + window.scrollY - offset;
 
 		window.scrollTo({
 			top: offsetPosition,
@@ -419,41 +449,74 @@ const formatDate = (dateString: string) => {
 const getTypeLabel = (type: string) => t(`projectTypes.${type}`, type);
 const getStageLabel = (stage: string) => t(`projectStages.${stage}`, stage);
 
-useHead(() => {
-	if (!project.value) {
-		return {
-			title: t("projects.title"),
-		};
-	}
-
+// SEO для страницы проекта
+useSeoMeta(() => {
+	if (!project.value) return {};
 	return {
-		title: `${project.value.title} - ${t("seo.title")}`,
-		meta: [
-			{
-				property: "theme-color",
-				content: project.value.meta?.color || "#4b5563",
-			},
-		],
-		script: [
-			{
-				type: "application/ld+json",
-				children: JSON.stringify({
-					"@context": "https://schema.org",
-					"@type": "SoftwareApplication",
-					name: project.value.title,
-					description: project.value.description,
-					operatingSystem: "Web",
-					applicationCategory: "WebApplication",
-					url: `https://thejenja.github.io/projects/${project.value.meta?.slug}`,
-					screenshot: project.value.meta?.backgroundImage || undefined,
-					author: {
-						"@type": "Person",
-						name: "Eugene (thejenja)",
-					},
-				}),
-			},
-		],
+		title: `${project.value.title}`,
+		description: project.value.description,
+		themeColor: project.value.meta?.color || "#4b5563",
 	};
+});
+
+useSchemaOrg(() => {
+	if (!project.value) return [];
+
+	const projectUrl = `https://thejenja.github.io/projects/${project.value.meta?.slug}`;
+
+	return [
+		{
+			"@type": "SoftwareApplication",
+			name: project.value.title,
+			description: project.value.description,
+			operatingSystem: "Web",
+			applicationCategory: "WebApplication",
+			url: projectUrl,
+			screenshot: project.value.meta?.backgroundImage || undefined,
+			author: {
+				"@type": "Person",
+				name: "Eugene (thejenja)",
+			},
+			dateCreated: project.value.meta?.date || project.value.date,
+			keywords: project.value.meta?.technologies?.join(", "),
+		},
+		{
+			"@type": "WebPage",
+			name: project.value.title,
+			description: project.value.description,
+			isPartOf: {
+				"@type": "WebSite",
+				name: "thejenja",
+				url: "https://thejenja.github.io",
+			},
+		},
+		{
+			"@type": "BreadcrumbList",
+			itemListElement: [
+				{
+					"@type": "ListItem",
+					position: 1,
+					name: "Home",
+					item: "https://thejenja.github.io",
+				},
+				{
+					"@type": "ListItem",
+					position: 2,
+					name: computed(() => t("projects.title")),
+					item: computed(
+						() =>
+							`https://thejenja.github.io/${locale.value === "ru" ? "ru/" : ""}projects`,
+					),
+				},
+				{
+					"@type": "ListItem",
+					position: 3,
+					name: project.value.title,
+					item: projectUrl,
+				},
+			],
+		},
+	];
 });
 
 const transitionName = (element: string) => {

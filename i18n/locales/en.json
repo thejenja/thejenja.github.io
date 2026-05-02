@@ -3,6 +3,7 @@
 		"home": "Home",
 		"projects": "Projects",
 		"about": "About me",
+		"support": "Support",
 		"contact": "Hit me up",
 		"sourceCode": "Source code",
 		"toggle": "Open/close navigation",
@@ -36,7 +37,10 @@
 		"design": "design",
 		"music": "music",
 		"video": "video",
-		"animation": "animation"
+		"animation": "animation",
+		"openSource": "open source",
+		"blogging": "blogging",
+		"neuralNetworks": "AI & neural nets"
 	},
 	"about": {
 		"title": "About me",
@@ -54,14 +58,31 @@
 		"social": "Socials",
 		"code": "Code",
 		"design": "Design",
-		"donate": "Support",
 		"alt": "Alt",
 		"choosePlatform": "Pick a platform:",
 		"donateAddress": "Donate address:",
 		"copyAddress": "Copy address",
 		"supportProject": "Support with TON crypto",
 		"tonDescription": "Support the project with TON crypto",
-		"tonCopyAddress": "Copy address"
+		"tonCopyAddress": "Copy address",
+		"copied": "Copied!"
+	},
+	"support": {
+		"title": "Support My Work",
+		"subtitle": "If you'd like to support my open-source projects and creative experiments, any contribution helps. Your support allows me to spend more time building cool stuff and sharing it with the community.",
+		"platforms": "Choose a platform",
+		"platformsList": {
+			"dalink": "DALink",
+			"boosty": "Boosty",
+			"yoomoney": "YooMoney",
+			"ton": "TON Space"
+		},
+		"platformsDescriptions": {
+			"dalink": "Support via DALink platform",
+			"boosty": "Monthly subscriptions and donations",
+			"yoomoney": "Quick donations via YooMoney",
+			"ton": "Support with TON cryptocurrency"
+		}
 	},
 	"projects": {
 		"title": "Projects",
@@ -159,5 +180,11 @@
 		"ogDescription": "Frontend dev & designer. Crafting modern web apps with focus on UX/UI and performance.",
 		"twitterTitle": "thejenja - frontend dev & designer",
 		"twitterDescription": "Frontend dev & designer. Crafting modern web apps with focus on UX/UI and performance."
+	},
+	"breadcrumb": {
+		"home": "Home",
+		"projects": "Projects",
+		"about": "About me",
+		"support": "Support"
 	}
 }

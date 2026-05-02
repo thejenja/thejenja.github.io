@@ -2,19 +2,13 @@
 	<div class="project-card-wrapper">
 		<NuxtLinkLocale
 			:to="getProjectLink()"
-			:class="['project-card', { 'project-card--compact': compact }]"
-			:style="{
-				'--accent': project.meta?.color || '#4b5563',
-				viewTransitionName: project.meta?.slug ? `project-card-${project.meta.slug}` : undefined,
-			}"
+			class="project-card"
+			:style="cardStyle"
 			@click="handleProjectClick"
 		>
 			<div
 				class="project-background"
-				:style="{
-					...backgroundStyle,
-					viewTransitionName: transitionName('bg'),
-				}"
+				:style="backgroundDivStyle"
 				:class="{ 'background-opaque': backgroundOpacity === 'opaque' }"
 			>
 				<div v-if="hasBackground" class="background-image-container">
@@ -38,7 +32,7 @@
 				<div class="project-content">
 					<div
 						class="project-logo"
-						:style="{ viewTransitionName: transitionName('logo') }"
+						:style="logoStyle"
 					>
 						<img
 							v-if="showLogo && finalLogoPath && !logoLoadFailed"
@@ -93,30 +87,30 @@
 					</div>
 
 					<div class="project-info">
-						<h3
-							class="project-title"
-							:style="{ viewTransitionName: transitionName('title') }"
-						>
+					<h3
+						class="project-title"
+						:style="titleStyle"
+					>
 							{{ project.title }}
 						</h3>
 						<p v-if="showDescription" class="project-description">
 							{{ project.description }}
 						</p>
 
-						<div
-							v-if="showTags && project.meta?.technologies"
-							class="project-tags"
-						>
+	<div
+						v-if="project.meta.technologies.length > maxTags"
+						class="project-tag project-tag--more"
+					>
 							<TechTag
 								v-for="tech in project.meta.technologies.slice(0, maxTags)"
 								:key="tech"
 								:tag-slug="tech"
 								:clickable="false"
 							/>
-							<span
-								v-if="project.meta.technologies.length > maxTags && !compact"
-								class="project-tag project-tag--more"
-							>
+						<span
+							v-if="project.meta.technologies.length > maxTags"
+							class="project-tag project-tag--more"
+						>
 								+{{ project.meta.technologies.length - maxTags }}
 							</span>
 						</div>
@@ -150,7 +144,6 @@ interface ExtendedProjectContent extends Omit<ProjectContent, 'meta'> {
 
 interface Props {
 	project: ExtendedProjectContent;
-	compact?: boolean;
 	showLogo?: boolean;
 	showText?: boolean;
 	showInfo?: boolean;
@@ -161,7 +154,6 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	compact: false,
 	showLogo: true,
 	showText: false,
 	showInfo: true,
@@ -207,6 +199,42 @@ const backgroundStyle = computed(() => {
 		return { background: backgroundCss };
 	}
 	return { background: (meta.color as string) || "#4b5563" };
+});
+
+const cardStyle = computed(() => {
+	const style: Record<string, string> = {};
+	const color = props.project?.meta?.color || '#4b5563';
+	style['--accent'] = color;
+	const slug = props.project?.meta?.slug;
+	if (slug) {
+		style['view-transition-name'] = `project-card-${slug}`;
+	}
+	return style;
+});
+
+const backgroundDivStyle = computed(() => {
+	const style: Record<string, string> = { ...backgroundStyle.value };
+	const slug = props.project?.meta?.slug;
+	if (slug) {
+		style['view-transition-name'] = `project-bg-${slug}`;
+	}
+	return style;
+});
+
+const logoStyle = computed(() => {
+	const slug = props.project?.meta?.slug;
+	if (slug) {
+		return { 'view-transition-name': `project-logo-${slug}` };
+	}
+	return {};
+});
+
+const titleStyle = computed(() => {
+	const slug = props.project?.meta?.slug;
+	if (slug) {
+		return { 'view-transition-name': `project-title-${slug}` };
+	}
+	return {};
 });
 
 const getProjectLink = () => {
@@ -364,10 +392,6 @@ const transitionName = (element: string) => {
 	display: flex;
 	flex-direction: column;
 	color: white;
-	padding: 2rem;
-}
-
-.project-card--compact .project-content {
 	padding: 1rem;
 }
 
@@ -406,13 +430,13 @@ const transitionName = (element: string) => {
 }
 
 .project-icon {
-	font-size: 4rem;
+	font-size: 2.5rem;
 	line-height: 1;
 	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
 }
 
 .project-title-fallback {
-	font-size: 2.5rem;
+	font-size: 1.5rem;
 	font-weight: 800;
 	line-height: 1.1;
 	text-transform: uppercase;
@@ -420,14 +444,6 @@ const transitionName = (element: string) => {
 	text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
 	max-width: 90%;
 	word-wrap: break-word;
-}
-
-.project-card--compact .project-icon {
-	font-size: 2.5rem;
-}
-
-.project-card--compact .project-title-fallback {
-	font-size: 1.5rem;
 }
 
 .project-info {
@@ -439,7 +455,7 @@ const transitionName = (element: string) => {
 	left: 0;
 	right: 0;
 	width: 100%;
-	padding: 2rem;
+	padding: 1rem;
 	opacity: 0;
 	transform: translateY(30px);
 	transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -452,41 +468,26 @@ const transitionName = (element: string) => {
 	pointer-events: auto;
 }
 
-.project-card--compact .project-info {
-	padding: 1rem;
-}
-
 .project-title {
-	font-size: 4rem;
+	font-size: 2.5rem;
 	font-weight: 500;
-	margin: 0 0 0.75rem 0;
+	margin: 0 0 0.5rem 0;
 	color: white;
 	text-shadow: 0 1px 16px rgba(0, 0, 0, 0.2);
 	line-height: 1;
 	width: fit-content;
 }
 
-.project-card--compact .project-title {
-	font-size: 2.5rem;
-	margin-bottom: 0.5rem;
-}
-
 .project-description {
 	color: rgba(255, 255, 255, 0.9);
-	font-size: 0.875rem;
+	font-size: 0.8rem;
 	line-height: 1.2;
-	margin-bottom: 1rem;
+	margin-bottom: 0.75rem;
 	text-shadow: 0 1px 16px rgba(0, 0, 0, 0.2);
 	display: -webkit-box;
-	-webkit-line-clamp: 3;
+	-webkit-line-clamp: 2;
 	-webkit-box-orient: vertical;
 	overflow: hidden;
-}
-
-.project-card--compact .project-description {
-	font-size: 0.8rem;
-	margin-bottom: 0.75rem;
-	-webkit-line-clamp: 2;
 }
 
 .project-tags {
@@ -496,19 +497,11 @@ const transitionName = (element: string) => {
 }
 
 .project-tag {
-	background: rgba(255, 255, 255, 0.2);
-	color: white;
-	padding: 0.375rem 0.75rem;
+	padding: 0.25rem 0.5rem;
 	border-radius: 6px;
 	font-weight: 500;
-	font-size: 0.75rem;
-	transition: all 0.3s ease;
-	border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-.project-card--compact .project-tag {
 	font-size: 0.7rem;
-	padding: 0.25rem 0.5rem;
+	transition: all 0.3s ease;
 }
 
 .project-tag--more {

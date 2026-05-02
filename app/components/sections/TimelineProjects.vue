@@ -1,7 +1,7 @@
 <template>
 	<div
 		class="projects-wrapper"
-		:class="[`mode-${viewMode}`, { 'is-compact': compact }]"
+		:class="`mode-${viewMode}`"
 		role="region"
 		aria-labelledby="projects-title"
 	>
@@ -26,7 +26,6 @@
 							v-for="(project, index) in monthGroup"
 							:key="project._path"
 							:project="project"
-							:compact="true"
 							:data-project-index="index"
 						/>
 					</div>
@@ -52,7 +51,6 @@
 						v-for="project in targetProjects"
 						:key="project._path"
 						:project="project"
-						:compact="true"
 						class="marquee-card"
 					/>
 				</div>
@@ -62,7 +60,6 @@
 						v-for="project in targetProjects"
 						:key="`${project._path}-duplicate`"
 						:project="project"
-						:compact="true"
 						class="marquee-card"
 					/>
 				</div>
@@ -84,7 +81,6 @@
 						v-for="project in targetProjects"
 						:key="project._path"
 						:project="project"
-						:compact="true"
 						:show-description="false"
 						class="scroll-card"
 					/>
@@ -105,7 +101,6 @@
 					v-for="project in targetProjects"
 					:key="project._path"
 					:project="project"
-					:compact="true"
 				/>
 			</div>
 		</div>
@@ -134,13 +129,11 @@ interface TimelineProject extends Omit<ProjectContent, 'meta'> {
 
 interface Props {
 	projects: TimelineProject[];
-	compact?: boolean;
 	limit?: number;
 	viewMode?: "timeline" | "grid" | "marquee" | "scroll";
 }
 
 const props = withDefaults(defineProps<Props>(), {
-	compact: false,
 	limit: undefined,
 	viewMode: "timeline",
 });
@@ -171,7 +164,7 @@ const handleScroll = () => {
 // --- Computed Data ---
 const targetProjects = computed(() => {
 	let list = props.projects;
-	if (props.compact && props.limit && props.viewMode === "grid") {
+	if (props.limit && props.viewMode === "grid") {
 		list = list.slice(0, props.limit);
 	}
 	if (props.viewMode === "marquee" && list.length < 5) {

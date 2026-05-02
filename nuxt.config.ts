@@ -108,6 +108,14 @@ export default defineNuxtConfig({
 		head: {
 			charset: "utf-8",
 			viewport: "width=device-width, initial-scale=1",
+			link: [
+				{ rel: "icon", type: "image/svg+xml", href: "/favicon-light.svg" },
+				{ rel: "icon", type: "image/x-icon", href: "/favicon-light.ico" },
+				{ rel: "apple-touch-icon", sizes: "180x180", href: "/apple-touch-icon-light.png" },
+				{ rel: "icon", type: "image/png", sizes: "32x32", href: "/favicon-32x32-light.png" },
+				{ rel: "icon", type: "image/png", sizes: "16x16", href: "/favicon-16x16-light.png" },
+				{ rel: "manifest", href: "/site.webmanifest" },
+			],
 		},
 		pageTransition: { name: "page", mode: "out-in" },
 	},
@@ -127,11 +135,38 @@ export default defineNuxtConfig({
 	},
 
 	site: {
+		name: "thejenja",
 		url: "https://thejenja.github.io",
+		description: "Frontend dev & designer. Crafting modern web apps with focus on UX/UI and performance.",
+		defaultLocale: "en",
+		indexable: true,
+	},
+
+	seo: {
+		meta: {
+			twitterCard: "summary_large_image",
+			ogType: "website",
+			ogSiteName: "thejenja",
+		},
+	},
+
+	schemaOrg: {
+		identity: {
+			type: "Person",
+			name: "Eugene (thejenja)",
+			url: "https://thejenja.github.io",
+			sameAs: [
+				"https://github.com/thejenja",
+				"https://www.linkedin.com/in/thejenja/",
+				"https://x.com/thejenja",
+			],
+		},
+		defaults: true,
+		minify: true,
 	},
 
 	sitemap: {
-		urls: ["https://thejenja.github.io"],
+		// i18n автоматически добавит hreflang
 	},
 
 	robots: {
@@ -144,10 +179,9 @@ export default defineNuxtConfig({
 				"@vue/devtools-kit",
 				"gsap",
 				"gsap/Draggable",
+				"gsap/ScrollTrigger",
+				"gsap/ScrollToPlugin",
 				"@vueuse/core",
-				"gsap/dist/gsap", // CJS
-				"gsap/dist/ScrollTrigger", // CJS
-				"gsap/dist/ScrollToPlugin", // CJS
 			],
 		},
 	},

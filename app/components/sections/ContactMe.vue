@@ -21,14 +21,25 @@
 					target="_blank"
 					rel="noopener noreferrer"
 					class="main-btn telegram"
+					@mouseenter="isTelegramHovered = true"
+					@mouseleave="isTelegramHovered = false"
 				>
 					<div class="btn-content">
 						<Icon name="mingcute:telegram-fill" :size="28" />
-						<div class="btn-text">
+						<div class="btn-text slide-text-container">
 							<span class="label">{{ $t("contact.telegram.label") }}</span>
-							<span class="sub-label">{{
-								$t("contact.telegram.subLabel")
-							}}</span>
+							<div class="slide-text-wrapper">
+								<span
+									class="sub-label slide-text"
+									:class="{ 'slide-out': isTelegramHovered }"
+									>{{ $t("contact.telegram.subLabel") }}</span
+								>
+								<span
+									class="sub-label slide-text copied-text"
+									:class="{ 'slide-in': isTelegramHovered }"
+									>@thejenja</span
+								>
+							</div>
 						</div>
 					</div>
 					<Icon
@@ -62,20 +73,20 @@
 							</div>
 						</div>
 					</div>
-					<Transition name="icon-fade">
-						<Icon
-							v-if="isCopied"
-							name="mingcute:check-2-fill"
-							:size="20"
-							class="copy-icon"
-						/>
-						<Icon
-							v-else
-							name="mingcute:copy-2-fill"
-							:size="20"
-							class="copy-icon"
-						/>
-					</Transition>
+					<div class="icon-container">
+						<span
+							class="copy-icon slide-text"
+							:class="{ 'slide-out': isCopied }"
+						>
+							<Icon name="mingcute:copy-2-fill" :size="20" />
+						</span>
+						<span
+							class="copy-icon slide-text copied-text"
+							:class="{ 'slide-in': isCopied }"
+						>
+							<Icon name="mingcute:check-2-fill" :size="20" />
+						</span>
+					</div>
 				</button>
 
 				<NuxtLinkLocale to="/about#links" class="main-btn socials">
@@ -112,6 +123,18 @@
 					/>
 					<Icon v-else :name="social.icon" :size="20" />
 				</a>
+				<!-- Source code -->
+				<a
+					href="https://github.com/thejenja/thejenja.github.io"
+					target="_blank"
+					rel="noopener noreferrer"
+					class="social-mini-btn source-btn"
+					style="margin-left: auto"
+					aria-label="Source code"
+				>
+					<Icon name="mingcute:code-fill" :size="20" />
+				</a>
+
 				<!-- Resume download -->
 				<a
 					:href="resumeUrl"
@@ -158,6 +181,7 @@ const SvgIcon = defineComponent({
 });
 
 const isCopied = ref(false);
+const isTelegramHovered = ref(false);
 const email = "thejenjagamertjg@gmail.com";
 const emailBtnRef = ref<HTMLElement | null>(null);
 
@@ -189,19 +213,6 @@ const copyEmail = async () => {
 	try {
 		await navigator.clipboard.writeText(email);
 		isCopied.value = true;
-
-		const { trigger } = useConfetti();
-		if (emailBtnRef.value) {
-			const rect = emailBtnRef.value.getBoundingClientRect();
-			const originX = (rect.left + rect.width / 2) / window.innerWidth;
-			const originY = (rect.top + rect.height / 2) / window.innerHeight;
-			trigger({
-				particleCount: 80,
-				origin: { x: originX, y: originY },
-				spread: 360,
-			});
-		}
-
 		setTimeout(() => (isCopied.value = false), 2000);
 	} catch (e) {
 		console.error(e);
@@ -383,6 +394,16 @@ const copyEmail = async () => {
 	filter: blur(0);
 }
 
+.main-btn {
+	background: var(--bg-tertiary);
+	color: var(--text-secondary);
+}
+.main-btn:hover {
+	background: var(--bg);
+	color: var(--text);
+	border-color: var(--border);
+}
+
 .main-btn.telegram {
 	background: #26a5e4;
 	color: white;
@@ -392,43 +413,74 @@ const copyEmail = async () => {
 	box-shadow: 0 8px 20px -6px rgba(0, 136, 204, 0.5);
 }
 
-.main-btn.email {
-	background: var(--bg-tertiary);
-	color: var(--text);
-}
-.main-btn.email:hover {
-	background: var(--bg);
-	border-color: var(--border);
+.icon-container {
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+	overflow: hidden;
+	position: relative;
 }
 
-.main-btn.socials {
-	background: var(--bg-tertiary);
-	color: var(--text);
-}
-.main-btn.socials:hover {
-	background: var(--bg);
-	border-color: var(--border);
-	transform: translateY(-2px);
+.icon-inner {
+	display: inline-block;
+	width: 100%;
+	height: 100%;
 }
 
 .copy-icon {
+	display: block;
 	color: var(--text-secondary);
-	transition: color 0.2s;
+	transition:
+		color 0.2s,
+		filter 0.4s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .main-btn.email.copied .copy-icon {
 	color: #22c55e;
 }
 
-.icon-fade-enter-active,
-.icon-fade-leave-active {
-	transition: all 0.2s ease;
+/* Icon slide animation - same as text */
+.copy-icon.slide-out {
+	transform: translateY(-100%);
+	opacity: 0;
+	filter: blur(4px);
 }
 
-.icon-fade-enter-from,
-.icon-fade-leave-to {
+.copy-icon.copied-text {
+	position: absolute;
+	top: 0;
+	left: 0;
+	transform: translateY(100%);
 	opacity: 0;
-	transform: scale(0.8);
+	filter: blur(4px);
+}
+
+.copy-icon.copied-text.slide-in {
+	transform: translateY(0);
+	opacity: 1;
+	filter: blur(0);
+}
+.icon-slide-leave-to {
+	transform: translateY(-100%);
+	opacity: 0;
+}
+.icon-slide-leave-to .copy-icon {
+	filter: blur(8px);
+}
+.icon-slide-enter-from {
+	transform: translateY(100%);
+	opacity: 0;
+}
+.icon-slide-enter-from .copy-icon {
+	filter: blur(8px);
+}
+
+.arrow-icon {
+	transition: transform 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.main-btn:hover .arrow-icon {
+	transform: rotate(45deg);
 }
 
 .socials-row {
@@ -457,7 +509,7 @@ const copyEmail = async () => {
 }
 
 .social-mini-btn.resume-btn {
-	--hover-color: #f59e0b;
+	--hover-color: #ef4444;
 	position: relative;
 }
 
@@ -466,7 +518,7 @@ const copyEmail = async () => {
 	position: absolute;
 	bottom: -4px;
 	right: -4px;
-	background: var(--accent, #f59e0b);
+	background: var(--accent, #ef4444);
 	color: white;
 	font-size: 8px;
 	font-weight: 700;

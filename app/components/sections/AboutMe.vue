@@ -16,7 +16,7 @@
 				<p class="text-paragraph intro" v-html="introHtml" />
 			</div>
 
-			<transition name="expand">
+			<transition name="expand" appear>
 				<div v-if="isExpanded" class="expanded-content">
 					<div v-for="(html, index) in hiddenHtmlParts" :key="index">
 						<!-- eslint-disable-next-line vue/no-v-html -->
@@ -56,26 +56,23 @@
 			:aria-label="isExpanded ? $t('about.collapse') : $t('about.expand')"
 			@click="toggleExpanded"
 		>
-			<Icon
-				name="mingcute:down-fill"
-				size="24"
-				:class="{ rotated: isExpanded }"
-			/>
+			<span class="icon-wrapper" :class="{ rotated: isExpanded }">
+				<Icon
+					name="mingcute:down-fill"
+					size="24"
+				/>
+			</span>
 		</button>
 	</section>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, watch } from "vue";
+import { ref, computed, nextTick, watch, onBeforeUnmount } from "vue";
 import { useI18n } from "vue-i18n";
 import { useState } from "#app";
-import { useMarkAnimation } from "~/composables/useMarkAnimation";
-import { useMarkParser } from "~/composables/useMarkParser";
 import TechTag from "~/components/TechTag.vue";
 
 const { t, locale } = useI18n();
-const { animateMarks } = useMarkAnimation();
-const { parseMarkdown } = useMarkParser();
 
 const isAboutExpanded = useState("aboutExpanded", () => false);
 const isExpanded = computed({
@@ -86,6 +83,12 @@ const isExpanded = computed({
 });
 
 const contentRoot = ref(null);
+
+// Локальная функция парсинга markdown (из бывшего useMarkParser)
+const parseMarkdown = (text: string): string => {
+	if (!text || typeof text !== "string") return text;
+	return text.replace(/\*\*(.+?)\*\*/g, "<mark>$1</mark>");
+};
 
 const introHtml = computed(() => parseMarkdown(t("about.intro")));
 
@@ -128,26 +131,39 @@ const setup = [
 	},
 ];
 
-const runAnimation = () => {
-	nextTick(() => {
-		if (contentRoot.value) {
-			animateMarks(contentRoot.value);
-		}
-	});
-};
-
 const toggleExpanded = () => {
 	isExpanded.value = !isExpanded.value;
 };
 
+// Анимируем новые mark элементы после расширения
+const animateMarks = () => {
+	if (typeof document === "undefined") return;
+	const marks = document.querySelectorAll("mark");
+	marks.forEach((el, i) => {
+		if (!el.classList.contains("animate")) {
+			setTimeout(() => {
+				el.classList.add("animate");
+			}, i * 100);
+		}
+	});
+};
+
 watch(locale, () => {
-	runAnimation();
+	nextTick(() => {
+		animateMarks();
+	});
 });
 
 watch(isExpanded, (val) => {
 	if (val) {
-		runAnimation();
+		nextTick(() => {
+			animateMarks();
+		});
 	}
+});
+
+onBeforeUnmount(() => {
+	isAboutExpanded.value = false;
 });
 </script>
 
@@ -156,6 +172,7 @@ watch(isExpanded, (val) => {
 	position: relative;
 	border-radius: 16px;
 	transition: none;
+	overflow: hidden;
 }
 
 .about-me.expanded {
@@ -165,6 +182,7 @@ watch(isExpanded, (val) => {
 	flex-direction: column;
 	border-radius: 16px;
 	min-height: 0;
+	overflow: visible;
 }
 
 .about-content {
@@ -215,22 +233,35 @@ watch(isExpanded, (val) => {
 	transform: scale(0.95);
 }
 
-.expand-button svg.rotated {
+.icon-wrapper {
+	display: inline-flex;
+	transition: transform 0.2s ease;
+}
+
+.icon-wrapper.rotated {
 	transform: rotate(180deg);
 }
 
 .expand-enter-active {
-	transition: all 0.3s ease;
+	transition: max-height 0.3s ease, opacity 0.3s ease;
+	max-height: 2000px;
+	overflow: hidden;
 }
 
 .expand-leave-active {
-	transition: all 0.3s ease;
+	transition: max-height 0.3s ease, opacity 0.3s ease;
+	max-height: 0;
+	overflow: hidden;
 }
 
-.expand-enter-from,
+.expand-enter-from {
+	opacity: 0;
+	max-height: 0;
+}
+
 .expand-leave-to {
 	opacity: 0;
-	transform: translateY(-10px);
+	max-height: 0;
 }
 
 .tech-section {

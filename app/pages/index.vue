@@ -14,29 +14,54 @@
 import ContactMe from '~/components/sections/ContactMe.vue';
 import Hero from '~/components/sections/Hero.vue';
 
-// SEO для главной страницы
-const { getPageSEO } = useSEO();
-useHead(() => ({
-	...getPageSEO(),
-	script: [
-		{
-			type: "application/ld+json",
-			children: JSON.stringify({
-				"@context": "https://schema.org",
-				"@type": "Person",
-				name: "Eugene (thejenja)",
-				url: "https://thejenja.github.io",
-				sameAs: [
-					"https://github.com/thejenja",
-					"https://t.me/thejenja",
-					"https://www.linkedin.com/in/thejenja/",
-				],
-				jobTitle: "Frontend Developer & Designer",
-				knowsAbout: ["Vue.js", "Nuxt", "UI Design", "Web Development"],
-			}),
+const { t, locale } = useI18n();
+
+useSeoMeta({
+	title: t('seo.title'),
+	description: t('seo.description'),
+	keywords: t('seo.keywords'),
+	author: t('seo.author'),
+	ogTitle: t('seo.ogTitle'),
+	ogDescription: t('seo.ogDescription'),
+	twitterTitle: t('seo.twitterTitle'),
+	twitterDescription: t('seo.twitterDescription'),
+});
+
+useSchemaOrg([
+	{
+		'@type': 'Person',
+		name: 'Eugene (thejenja)',
+		url: 'https://thejenja.github.io',
+		sameAs: [
+			'https://github.com/thejenja',
+			'https://t.me/thejenja',
+			'https://www.linkedin.com/in/thejenja/',
+		],
+		jobTitle: 'Frontend Developer & Designer',
+		knowsAbout: ['Vue.js', 'Nuxt', 'UI Design', 'Web Development'],
+	},
+	{
+		'@type': 'WebSite',
+		name: 'thejenja',
+		url: 'https://thejenja.github.io',
+		potentialAction: {
+			'@type': 'SearchAction',
+			target: 'https://thejenja.github.io/projects?search={search_term_string}',
+			'query-input': 'required name=search_term_string',
 		},
-	],
-}));
+	},
+	{
+		'@type': 'WebPage',
+		name: computed(() => t('seo.title')),
+		description: computed(() => t('seo.description')),
+	},
+	{
+		'@type': 'BreadcrumbList',
+		itemListElement: [
+			{ '@type': 'ListItem', position: 1, name: 'Home', item: 'https://thejenja.github.io' },
+		],
+	},
+]);
 
 // OG Image для главной страницы
 defineOgImage("HomeTemplate");

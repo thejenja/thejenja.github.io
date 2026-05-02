@@ -35,7 +35,6 @@ import Footer from "./components/UI/Footer.vue";
 import BottomBar from "./components/UI/BottomBar.vue";
 const colorMode = useColorMode();
 const route = useRoute(); // Получаем текущий маршрут
-const { transitionName, getTransitionForRoute } = usePageTransitions();
 
 // Проверяем, находится ли пользователь на странице проекта
 // Обычно имя маршрута для [slug].vue это 'projects-slug' (или 'projects-slug___en' для i18n)
@@ -79,22 +78,4 @@ const announce = (message) => {
 if (typeof window !== "undefined") {
 	window.$announce = announce;
 }
-
-const router = useRouter();
-
-router.beforeEach((to, from) => {
-	const transitionType = getTransitionForRoute(to.path, from.path);
-	transitionName.value = `page-${transitionType}`;
-});
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-	transition: opacity 0.4s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-	opacity: 0;
-}
-</style>

@@ -96,6 +96,19 @@ onMounted(() => {
 
 	createObserver();
 
+	// Проверяем, виден ли элемент сразу при загрузке
+	if (sectionRef.value) {
+		const rect = sectionRef.value.getBoundingClientRect();
+		const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+		if (isInViewport) {
+			isVisible.value = true;
+			if (props.once && observer) {
+				observer.unobserve(sectionRef.value);
+			}
+			return;
+		}
+	}
+
 	// Добавляем обработчик изменения размера окна для пересоздания observer при смене ориентации
 	window.addEventListener("resize", handleResize);
 });

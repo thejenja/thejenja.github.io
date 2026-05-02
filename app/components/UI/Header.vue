@@ -26,21 +26,21 @@
 					<span>{{ $t("navigation.backToProjects") }}</span>
 				</NuxtLinkLocale>
 
-			<NuxtLinkLocale
-				v-for="link in mainLinks"
-				:key="link.to"
-				:to="link.to"
-				class="nav-pill"
-			>
-				<Icon :name="link.icon" :size="20" />
-				<span>{{ link.label }}</span>
-			</NuxtLinkLocale>
+				<NuxtLinkLocale
+					v-for="link in mainLinks"
+					:key="link.to"
+					:to="link.to"
+					class="nav-pill"
+				>
+					<Icon :name="link.icon" :size="20" />
+					<span>{{ link.label }}</span>
+				</NuxtLinkLocale>
 			</nav>
 
 			<!-- Utilities -->
 			<div class="nav-utils">
-				<LanguageToggle minimal />
-				<ThemeToggle :minimal="true" />
+				<LanguageToggle />
+				<ThemeToggle />
 			</div>
 		</div>
 	</header>
@@ -69,6 +69,11 @@ const mainLinks = computed(() => [
 		to: "/projects",
 		label: t("navigation.projects"),
 		icon: "mingcute:folder-open-fill",
+	},
+	{
+		to: "/support",
+		label: t("navigation.support"),
+		icon: "mingcute:heart-fill",
 	},
 ]);
 
@@ -142,9 +147,25 @@ const isProjectPage = computed(() => {
 	corner-shape: superellipse(1.5);
 	color: var(--text-secondary);
 	text-decoration: none;
-	font-size: .9rem;
+	font-size: 0.9rem;
 	font-weight: 500;
-	transition: all 0.2s ease;
+	transition: all 0.6s
+		linear(
+			0,
+			0.029 1.3%,
+			0.119 2.8%,
+			0.659 8.7%,
+			0.871 11.6%,
+			1.009 14.6%,
+			1.052 16.2%,
+			1.078 17.9%,
+			1.088 19.7%,
+			1.085 21.7%,
+			1.014 31.4%,
+			0.993 38%,
+			1.001 57.6%,
+			1
+		);
 	white-space: nowrap;
 	background: transparent;
 	border: 1px solid transparent;
@@ -153,6 +174,10 @@ const isProjectPage = computed(() => {
 .nav-pill:hover {
 	color: var(--text);
 	background: var(--bg-tertiary);
+}
+
+.nav-pill:active {
+	transform: scale(0.95);
 }
 
 .nav-pill.router-link-active {

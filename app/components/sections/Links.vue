@@ -88,58 +88,6 @@
 				</div>
 			</div>
 		</div>
-
-		<div id="ton" popover class="ton-popover">
-			<div class="popover-content">
-				<button
-					class="close-button"
-					popovertarget="ton"
-					popovertargetaction="hide"
-				>
-					<Icon name="mingcute:close-fill" />
-				</button>
-				<div class="project-header" style="background: #0098ea">
-					<div class="project-logo">
-						<div class="project-icon-large">
-							<SvgIcon src="/icons/ton.svg" :size="36" />
-						</div>
-					</div>
-					<div class="gradient-mask" />
-				</div>
-				<div class="project-content-wrapper">
-					<h2 class="project-title">TON Space</h2>
-					<p class="project-description">
-						{{ $t("links.supportProject") }}
-					</p>
-					<div class="ton-qr-container">
-						<div class="ton-qr-code">
-							<SvgIcon src="/images/qr-code.png" :size="120" />
-						</div>
-						<div class="ton-address-info">
-							<p class="ton-address-label">
-								{{ $t("links.donateAddress") }}
-							</p>
-							<div class="ton-address-container">
-								<code class="ton-address"
-									>UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-</code
-								>
-								<button
-									class="ton-copy-btn"
-									:title="$t('links.copyAddress')"
-									@click="
-										copyToClipboard(
-											'UQBTXoCxBrXdcDyeo14xbpEt7kgtShT-1GWeWmSuwkkG2lL-',
-										)
-									"
-								>
-									<Icon name="mingcute:copy-fill" :size="16" />
-								</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>
 	</section>
 </template>
 
@@ -188,12 +136,6 @@ const tabs = [
 		label: t("links.design"),
 		icon: "mingcute:palette-fill",
 		color: "#f59e0b",
-	},
-	{
-		id: "donate",
-		label: t("links.donate"),
-		icon: "mingcute:heart-fill",
-		color: "#ef4444",
 	},
 	{
 		id: "alt",
@@ -325,38 +267,6 @@ const allLinks = {
 			color: "#4772ff",
 		},
 	],
-	donate: [
-		{
-			id: 1,
-			label: "DALink",
-			url: "https://dalink.to/thejenja",
-			icon: "/icons/da.svg",
-			iconType: "svg",
-			color: "#f57d07",
-		},
-		{
-			id: 2,
-			label: "Boosty",
-			url: "https://boosty.to/thejenja",
-			icon: "simple-icons:boosty",
-			color: "#F15F2C",
-		},
-		{
-			id: 3,
-			label: "YooMoney",
-			url: "https://yoomoney.ru/to/410019209648036",
-			icon: "/icons/yoomoney.svg",
-			iconType: "svg",
-			color: "#8b3ffd",
-		},
-		{
-			id: 4,
-			label: "TON Space",
-			popovertarget: "ton",
-			icon: "simple-icons:ton",
-			color: "#0098EA",
-		},
-	],
 	alt: [
 		{
 			id: 1,
@@ -403,19 +313,6 @@ const currentLinks = computed(() => {
 	}
 	return allLinksWithAll.value[activeTab.value] || [];
 });
-
-const copyToClipboard = async (text) => {
-	try {
-		await navigator.clipboard.writeText(text);
-	} catch {
-		const textArea = document.createElement("textarea");
-		textArea.value = text;
-		document.body.appendChild(textArea);
-		textArea.select();
-		document.execCommand("copy");
-		document.body.removeChild(textArea);
-	}
-};
 </script>
 
 <style scoped>
@@ -440,7 +337,7 @@ const copyToClipboard = async (text) => {
 	font-size: 1.05rem;
 	font-weight: 600;
 	cursor: pointer;
-	transition: all 0.3s ease;
+	transition: all 0.6s linear(0, 0.029 1.3%, 0.119 2.8%, 0.659 8.7%, 0.871 11.6%, 1.009 14.6%, 1.052 16.2%, 1.078 17.9%, 1.088 19.7%, 1.085 21.7%, 1.014 31.4%, 0.993 38%, 1.001 57.6%, 1);
 	position: relative;
 	overflow: hidden;
 	border: 0;
@@ -461,7 +358,6 @@ const copyToClipboard = async (text) => {
 
 .links-grid {
 	position: relative;
-
 	transition: height 0.3s ease;
 	min-height: 64px;
 	contain: layout style;
@@ -469,7 +365,7 @@ const copyToClipboard = async (text) => {
 
 .links-grid-container-inner {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+	grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
 	gap: 1rem;
 	align-items: start;
 	justify-items: center;
@@ -492,7 +388,7 @@ const copyToClipboard = async (text) => {
 
 .link-button {
 	width: 100%;
-	height: 64px;
+	height: 72px;
 	border-radius: 16px;
 	corner-shape: superellipse(1.5);
 	display: flex;
@@ -610,216 +506,6 @@ const copyToClipboard = async (text) => {
 	.slide-prev-enter-from {
 		opacity: 0;
 		transform: none;
-	}
-}
-
-[popover] {
-	background: transparent;
-	border: none;
-	padding: 0;
-	margin: auto;
-	max-width: 500px;
-	overflow: visible;
-	transition:
-		opacity 0.4s ease,
-		transform 0.4s ease,
-		overlay 0.4s ease allow-discrete,
-		display 0.4s ease allow-discrete;
-}
-
-[popover]:popover-open {
-	opacity: 1;
-	transform: scale(1) translateY(0);
-}
-@starting-style {
-	[popover]:popover-open {
-		opacity: 0;
-		transform: scale(0.9) translateY(-20px);
-	}
-}
-[popover]:not(:popover-open) {
-	opacity: 0;
-	transform: scale(0.9) translateY(-20px);
-}
-
-::backdrop {
-	background: rgba(0, 0, 0, 0.5);
-	backdrop-filter: blur(10px);
-}
-.ton-popover {
-	background: var(--bg);
-	border: 2px solid var(--border);
-	border-radius: 16px;
-	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-	max-width: 400px;
-	width: 90vw;
-}
-.popover-content {
-	background: var(--bg-secondary);
-	border: 1px solid var(--border);
-	border-radius: 16px;
-	overflow: hidden;
-	box-shadow:
-		0 20px 25px -5px rgba(0, 0, 0, 0.1),
-		0 10px 10px -5px rgba(0, 0, 0, 0.04);
-	max-height: 80vh;
-	display: flex;
-	flex-direction: column;
-	position: relative;
-}
-.close-button {
-	position: absolute;
-	top: 1rem;
-	right: 1rem;
-	background: var(--bg-secondary);
-	color: var(--text);
-	border: none;
-	cursor: pointer;
-	padding: 0.5rem;
-	border-radius: 0.5rem;
-	transition: background 0.3s ease;
-	z-index: 10;
-}
-.close-button:hover {
-	background: var(--bg-tertiary);
-}
-.project-header {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	padding: 2rem 0;
-	position: relative;
-	overflow: hidden;
-	border-radius: 12px 12px 0 0;
-	height: 100px;
-}
-.project-logo {
-	position: relative;
-	z-index: 2;
-}
-.project-icon-large {
-	font-size: 3rem;
-	font-weight: bold;
-	color: white;
-	text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
-	filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2));
-}
-.gradient-mask {
-	position: absolute;
-	top: 0;
-	left: 0;
-	right: 0;
-	bottom: 0;
-	background: linear-gradient(0deg, var(--bg-secondary) 0%, transparent 100%);
-	z-index: 1;
-}
-.project-content-wrapper {
-	padding: 2rem;
-	text-align: center;
-}
-.project-title {
-	margin: 0 0 0.5rem 0;
-	font-size: 1.5rem;
-	font-weight: 700;
-	color: var(--text);
-}
-.project-description {
-	margin: 0 0 1.5rem 0;
-	font-size: 0.9rem;
-	color: var(--text-secondary);
-}
-.ton-qr-container {
-	display: flex;
-	flex-direction: column;
-	gap: 1rem;
-	align-items: center;
-	margin-bottom: 1.5rem;
-}
-.ton-qr-code {
-	width: 200px;
-	height: 200px;
-	border: 2px solid var(--border);
-	border-radius: 12px;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background: linear-gradient(135deg, #0098ea, #0066cc);
-	overflow: hidden;
-}
-.ton-qr-code img {
-	width: 100%;
-	height: 100%;
-	object-fit: contain;
-}
-.ton-address-info {
-	width: 100%;
-	text-align: center;
-}
-.ton-address-label {
-	margin: 0 0 0.5rem 0;
-	font-size: 0.9rem;
-	color: var(--text-secondary);
-}
-.ton-address-container {
-	display: flex;
-	align-items: center;
-	gap: 0.5rem;
-	background: var(--bg-secondary);
-	border-radius: 8px;
-	padding: 0.75rem;
-	border: 1px solid var(--border);
-}
-.ton-address {
-	font-family: "Courier New", monospace;
-	font-size: 0.8rem;
-	color: var(--text);
-	word-break: break-all;
-	flex: 1;
-}
-.ton-copy-btn {
-	background: var(--bg-tertiary);
-	border: none;
-	border-radius: 6px;
-	padding: 0.5rem;
-	cursor: pointer;
-	transition: all 0.2s ease;
-	color: var(--text);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 32px;
-	height: 32px;
-}
-.ton-copy-btn:hover {
-	background: var(--bg-secondary);
-	transform: scale(1.05);
-}
-
-@media (max-width: 768px) {
-	[popover] {
-		max-width: 95vw;
-	}
-	.project-content-wrapper {
-		padding: 1.5rem;
-	}
-	.project-title {
-		font-size: 1.25rem;
-	}
-}
-@media (max-width: 480px) {
-	.ton-popover {
-		width: 95vw;
-		margin: 1rem;
-	}
-	.popover-content {
-		padding: 1rem;
-	}
-	.ton-qr-code {
-		width: 100px;
-		height: 100px;
-	}
-	.ton-address {
-		font-size: 0.7rem;
 	}
 }
 </style>

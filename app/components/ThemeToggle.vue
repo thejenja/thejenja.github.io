@@ -1,7 +1,5 @@
 <template>
-	<!-- Minimal mode for TopBar -->
 	<button
-		v-if="minimal"
 		class="theme-btn-minimal"
 		aria-label="Toggle theme"
 		:title="$t('theme.' + colorMode.preference)"
@@ -10,33 +8,10 @@
 		<Icon v-if="currentTheme === 'dark'" name="mingcute:moon-fill" :size="20" />
 		<Icon v-else name="mingcute:sun-fill" :size="20" />
 	</button>
-
-	<!-- Full mode for Navigation -->
-	<button
-		v-else
-		class="nav-tile"
-		aria-label="Toggle theme"
-		:title="$t('theme.' + colorMode.preference)"
-		@click="toggleTheme"
-	>
-		<div class="tile-icon-wrapper">
-			<Icon v-if="currentTheme === 'dark'" name="mingcute:moon-fill" class="theme-icon" />
-			<Icon v-else name="mingcute:sun-fill" class="theme-icon" />
-		</div>
-		<span class="tile-label">{{ $t("theme." + colorMode.preference) }}</span>
-	</button>
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-
-interface Props {
-	minimal?: boolean;
-}
-
-withDefaults(defineProps<Props>(), {
-	minimal: false,
-});
 
 const colorMode = useColorMode();
 
@@ -94,7 +69,6 @@ const toggleTheme = (event: MouseEvent) => {
 </script>
 
 <style scoped>
-/* Minimal button styles */
 .theme-btn-minimal {
 	display: flex;
 	align-items: center;
@@ -113,46 +87,6 @@ const toggleTheme = (event: MouseEvent) => {
 	opacity: 0.8;
 }
 
-/* Стили для плитки (совпадают с LanguageToggle для симметрии) */
-.nav-tile {
-	display: flex;
-	flex-direction: column;
-	align-items: flex-start;
-	justify-content: center;
-	gap: 0.5rem;
-	padding: 0.75rem;
-	background: var(--bg-tertiary);
-	color: var(--text);
-	border-radius: 12px;
-	border: 1px solid transparent;
-	cursor: pointer;
-	transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-	width: 100%;
-	height: 100%;
-	min-height: 80px;
-}
-
-.nav-tile:hover {
-	background: var(--bg-secondary);
-	border-color: var(--bg-tertiary);
-	transform: translateY(-2px);
-}
-
-.nav-tile:active {
-	transform: scale(0.98);
-}
-
-.tile-icon-wrapper {
-	display: flex;
-	align-items: center;
-}
-
-.tile-label {
-	font-size: 0.9rem;
-	font-weight: 500;
-	text-transform: capitalize;
-}
-
 .theme-icon {
 	width: 1.5rem;
 	height: 1.5rem;
@@ -160,22 +94,21 @@ const toggleTheme = (event: MouseEvent) => {
 	transform-origin: center;
 }
 
-.nav-tile:hover .theme-icon {
+.theme-btn-minimal:hover .theme-icon {
 	transform: rotate(15deg) scale(1.1);
 }
 
-.nav-tile:active .theme-icon {
+.theme-btn-minimal:active .theme-icon {
 	transform: rotate(-15deg) scale(0.95);
 }
 
 @media (prefers-reduced-motion: reduce) {
-	.theme-icon,
-	.nav-tile {
+	.theme-icon {
 		transition: none;
 	}
 
-	.nav-tile:hover .theme-icon,
-	.nav-tile:active .theme-icon {
+	.theme-btn-minimal:hover .theme-icon,
+	.theme-btn-minimal:active .theme-icon {
 		transform: none;
 	}
 }

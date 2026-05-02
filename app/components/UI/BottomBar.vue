@@ -36,6 +36,11 @@ const mainLinks = computed(() => [
 		label: t("navigation.projects"),
 		icon: "mingcute:folder-open-fill",
 	},
+	{
+		to: "/support",
+		label: t("navigation.support"),
+		icon: "mingcute:heart-fill",
+	},
 ]);
 </script>
 

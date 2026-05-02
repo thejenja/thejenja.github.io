@@ -1,7 +1,11 @@
 <template>
 	<div class="about-page">
 		<AnimatedSection animation-type="fade" :delay="0">
-			<div class="about-links-stack" ref="stackRef" :class="{ expanded: isAboutExpanded }">
+			<div
+				class="about-links-stack"
+				ref="stackRef"
+				:class="{ expanded: isAboutExpanded }"
+			>
 				<div class="about-layer">
 					<AboutMe />
 				</div>
@@ -18,25 +22,50 @@ import AboutMe from "~/components/sections/AboutMe.vue";
 import Links from "~/components/sections/Links.vue";
 import { ref, onMounted, watch, nextTick } from "vue";
 import { useState } from "#app";
-import { useSEO } from "~/composables/useSEO";
 
 const isAboutExpanded = useState("aboutExpanded", () => false);
 const stackRef = ref(null);
 let cachedTotalHeight = 0;
 
-// SEO для страницы "Обо мне"
-const seo = useSEO();
-useHead(() => ({
-	...seo.getPageSEO(),
-	title: seo.getPageTitle("about.title"),
-	meta: [
-		...seo.getPageSEO().meta,
-		{
-			name: "description",
-			content: seo.getPageDescription("about.intro"),
+const { t, locale } = useI18n();
+
+useSeoMeta({
+	title: computed(() => `${t("about.title")}`),
+	description: computed(() => t("about.intro")),
+});
+
+useSchemaOrg([
+	{
+		"@type": "WebPage",
+		name: computed(() => t("about.title")),
+		description: computed(() => t("about.intro")),
+		isPartOf: {
+			"@type": "WebSite",
+			name: "thejenja",
+			url: "https://thejenja.github.io",
 		},
-	],
-}));
+	},
+	{
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "Home",
+				item: "https://thejenja.github.io",
+			},
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: computed(() => t("about.title")),
+				item: computed(
+					() =>
+						`https://thejenja.github.io/${locale.value === "ru" ? "ru/" : ""}about`,
+				),
+			},
+		],
+	},
+]);
 
 // OG Image для страницы "Обо мне"
 defineOgImage("HomeTemplate");

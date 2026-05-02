@@ -4,11 +4,10 @@ import { useClipboard } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import AnimatedSection from "~/components/AnimatedSection.vue";
 import { useProjects, type ProjectContent } from "~/composables/useProjects";
-import { useSEO } from "~/composables/useSEO";
 import { useSyncedFilters } from "~/composables/useSyncedFilters";
-import { gsap } from "gsap/dist/gsap";
-import { ScrollTrigger } from "gsap/dist/ScrollTrigger";
-import { ScrollToPlugin } from "gsap/dist/ScrollToPlugin";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { ScrollToPlugin } from "gsap/ScrollToPlugin";
 import DropdownFilters from "~/components/UI/DropdownFilters.vue";
 import TimelineScrubber from "~/components/TimelineScrubber.vue";
 import TimelineProjects from "~/components/sections/TimelineProjects.vue";
@@ -24,7 +23,7 @@ const { loadAllProjects, refreshProjects } = useProjects();
 // Загрузка проектов с кэшированием через useAsyncData
 const {
 	data: projects,
-	pending: _pending,
+	pending,
 	refresh,
 } = await useAsyncData<ProjectContent[]>(
 	() => `all-projects-${locale.value}`,
@@ -147,19 +146,43 @@ const filtered = computed<ProjectContent[]>(() => {
 	return list;
 });
 
-// SEO для страницы проектов
-const seo = useSEO();
-useHead(() => ({
-	...seo.getPageSEO(),
-	title: seo.getPageTitle("projects.title"),
-	meta: [
-		...seo.getPageSEO().meta,
-		{
-			name: "description",
-			content: seo.getPageDescription("projects.description"),
+useSeoMeta({
+	title: computed(() => `${t("projects.title")}`),
+	description: computed(() => t("projects.description")),
+});
+
+useSchemaOrg([
+	{
+		"@type": "WebPage",
+		name: computed(() => t("projects.title")),
+		description: computed(() => t("projects.description")),
+		isPartOf: {
+			"@type": "WebSite",
+			name: "thejenja",
+			url: "https://thejenja.github.io",
 		},
-	],
-}));
+	},
+	{
+		"@type": "BreadcrumbList",
+		itemListElement: [
+			{
+				"@type": "ListItem",
+				position: 1,
+				name: "Home",
+				item: "https://thejenja.github.io",
+			},
+			{
+				"@type": "ListItem",
+				position: 2,
+				name: computed(() => t("projects.title")),
+				item: computed(
+					() =>
+						`https://thejenja.github.io/${locale.value === "ru" ? "ru/" : ""}projects`,
+				),
+			},
+		],
+	},
+]);
 
 defineOgImage("ProjectsListTemplate");
 
@@ -227,14 +250,17 @@ onMounted(() => {
 			</div>
 		</Transition>
 
+		<!-- Loading state -->
+		<div v-if="pending" class="loading-message">
+			<p>{{ $t("projects.loading") }}</p>
+		</div>
+
 		<!-- Timeline Scrubber -->
-		<TimelineScrubber :projects="filtered || []" />
+		<TimelineScrubber v-if="!pending" :projects="filtered || []" />
 
 		<!-- Main Timeline Projects -->
-		<AnimatedSection animation-type="scale" :delay="200">
-			<AsyncWrapper :threshold="0.2" skeleton-variant="project">
-				<TimelineProjects :projects="filtered || []" view-mode="timeline" />
-			</AsyncWrapper>
+		<AnimatedSection v-if="!pending" animation-type="scale">
+			<TimelineProjects :projects="filtered || []" view-mode="timeline" />
 		</AnimatedSection>
 	</div>
 </template>
