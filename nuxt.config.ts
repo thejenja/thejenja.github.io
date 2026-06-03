@@ -11,7 +11,7 @@ export default defineNuxtConfig({
 		"@nuxtjs/color-mode",
 		"@nuxtjs/i18n",
 		"nuxt-vitalizer",
-		"nuxt-yandex-metrika",
+		// "nuxt-yandex-metrika", // replaced by plugins/yandex-metrika.client.ts
 		"@nuxt/icon",
 		"nuxt-gtag",
 	],
@@ -21,16 +21,16 @@ export default defineNuxtConfig({
 		enabled: process.env.NODE_ENV === "production",
 	},
 
-	yandexMetrika: {
-		id: "103699281",
-		verification: "6fb57a93002b4804",
-		options: {
-			clickmap: true,
-			trackLinks: true,
-			accurateTrackBounce: true,
-			webvisor: true,
-		},
-	},
+	// yandexMetrika: { // replaced by plugins/yandex-metrika.client.ts
+	// 	id: "103699281",
+	// 	verification: "6fb57a93002b4804",
+	// 	options: {
+	// 		clickmap: true,
+	// 		trackLinks: true,
+	// 		accurateTrackBounce: true,
+	// 		webvisor: true,
+	// 	},
+	// },
 
 	vitalizer: {
 		disablePrefetchLinks: true,
